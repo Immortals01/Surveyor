@@ -1,12 +1,19 @@
+import CameraRig from "./CameraRig";
+import LroOrbit from "./LroOrbit";
+import SiteMarkers from "./markers/SiteMarkers";
+import MoonGlobe from "./moon/MoonGlobe";
+import Starfield from "./Starfield";
+import Sun from "./Sun";
+
 export default function Scene() {
   return (
     <>
-      <ambientLight intensity={0.05} />
-      <directionalLight position={[4, 1.5, 3]} intensity={2.8} color="#fff6e8" />
-      <mesh>
-        <sphereGeometry args={[1, 48, 48]} />
-        <meshStandardMaterial color="#b4a48a" roughness={1} metalness={0} />
-      </mesh>
+      <Sun />
+      <Starfield />
+      <MoonGlobe />
+      <SiteMarkers />
+      <LroOrbit />
+      <CameraRig />
     </>
   );
 }

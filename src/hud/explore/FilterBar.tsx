@@ -1,0 +1,134 @@
+import { Globe2, Sparkles } from "lucide-react";
+import { audioEngine } from "@/audio/AudioEngine";
+import { ALL_SITES } from "@/data";
+import type { Category } from "@/data/schema";
+import { cameraBus } from "@/engine/camera";
+import { CATEGORY_META } from "@/lib/constants";
+import { useAppStore } from "@/store/useAppStore";
+
+const FILTER_ORDER: Category[] = [
+  "active",
+  "lander",
+  "rover",
+  "experiment",
+  "impact",
+  "future",
+];
+
+export default function FilterBar() {
+  const categoryFilter = useAppStore((s) => s.categoryFilter);
+  const heroOnly = useAppStore((s) => s.heroOnly);
+  const setCategoryFilter = useAppStore((s) => s.setCategoryFilter);
+  const setHeroOnly = useAppStore((s) => s.setHeroOnly);
+  const setSunDirection = useAppStore((s) => s.setSunDirection);
+
+  const visibleCount = ALL_SITES.filter((site) => {
+    if (heroOnly && site.tier !== "hero") return false;
+    if (categoryFilter === "all") return true;
+    return site.categories.includes(categoryFilter);
+  }).length;
+
+  return (
+    <div className="pointer-events-auto flex flex-wrap items-center gap-1.5 rounded-2xl border border-white/15 bg-space-950/85 px-3 py-2 shadow-xl backdrop-blur-xl">
+      <button
+        type="button"
+        onClick={() => {
+          audioEngine.playUiTick(840);
+          setCategoryFilter("all");
+        }}
+        className={`cursor-pointer rounded-full px-2.5 py-1 font-mono text-[11px] font-medium transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+          categoryFilter === "all"
+            ? "bg-regolith-bright font-bold text-space-950"
+            : "text-regolith/80 hover:bg-white/10 hover:text-white"
+        }`}
+      >
+        All ({ALL_SITES.length})
+      </button>
+
+      {FILTER_ORDER.map((cat) => {
+        const meta = CATEGORY_META[cat];
+        const active = categoryFilter === cat;
+        return (
+          <button
+            key={cat}
+            type="button"
+            onClick={() => {
+              audioEngine.playUiTick(900);
+              setCategoryFilter(active ? "all" : cat);
+            }}
+            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+              active
+                ? "border-white/50 bg-white/18 font-semibold text-white"
+                : "border-transparent text-regolith/80 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            <span
+              className="h-2 w-2 rounded-full"
+              style={{ backgroundColor: meta.color }}
+            />
+            <span>{meta.shortLabel}</span>
+          </button>
+        );
+      })}
+
+      <span className="hidden h-4 w-px bg-white/15 sm:inline-block" />
+
+      <button
+        type="button"
+        onClick={() => {
+          audioEngine.playUiTick(960);
+          setHeroOnly(!heroOnly);
+        }}
+        className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px] transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+          heroOnly
+            ? "border-sunlit/60 bg-sunlit/20 font-semibold text-sunlit"
+            : "border-white/15 text-regolith/75 hover:border-sunlit/40 hover:text-sunlit"
+        }`}
+        title="Show only the 9 featured Hero Story sites"
+      >
+        <Sparkles className="h-3 w-3" />
+        <span>9 Hero Stories</span>
+      </button>
+
+      {/* Quick Globe Hemisphere Jumps */}
+      <div className="hidden items-center gap-1 lg:flex">
+        <span className="mx-1 h-4 w-px bg-white/15" />
+        <Globe2 className="h-3.5 w-3.5 text-loro/80" />
+        <button
+          type="button"
+          onClick={() => {
+            setSunDirection(-48, 1.5);
+            void cameraBus.flyOverview(8, 10, 2.75);
+          }}
+          className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+        >
+          Near Side
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSunDirection(145, 1.5);
+            void cameraBus.flyOverview(8, 175, 2.85);
+          }}
+          className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+        >
+          Far Side
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setSunDirection(-48, -1.5);
+            void cameraBus.flyOverview(-82, -30, 1.85);
+          }}
+          className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+        >
+          South Pole
+        </button>
+      </div>
+
+      <span className="ml-auto hidden font-mono text-[10px] text-regolith/55 xl:inline">
+        {visibleCount} shown
+      </span>
+    </div>
+  );
+}
