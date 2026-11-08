@@ -39,9 +39,9 @@ export function cancelSpeech(): void {
 
 /**
  * 3-tier narration playback:
- * 1. Pre-generated /audio/narration/<id>.mp3 if listed in manifest
- * 2. Browser Web Speech API with watchdog timeout (never hangs!)
- * 3. Comfortable silent caption timer when muted or TTS unavailable
+ * 1. Pre-generated neural TTS MP3 in /audio/narration/<id>.mp3 (warm, natural studio voice)
+ * 2. High-quality neural browser Web Speech API voice (rejects robotic espeak/Linux synth)
+ * 3. Comfortable silent caption timer when muted or only robotic TTS is installed
  */
 export async function speakLine(
   line: DialogueLine,
@@ -69,8 +69,8 @@ export async function speakLine(
     if (signal?.aborted) return;
 
     if (manifest.has(line.id)) {
-      await playMp3(`/audio/narration/${line.id}.mp3`, signal);
-      return;
+      const played = await playMp3(`/audio/narration/${line.id}.mp3`, signal);
+      if (played) return;
     }
 
     const spokeViaTts = await tryWebSpeech(line, wordCount, signal);
@@ -100,19 +100,28 @@ function waitMs(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-function playMp3(url: string, signal?: AbortSignal): Promise<void> {
+function playMp3(url: string, signal?: AbortSignal): Promise<boolean> {
   return new Promise((resolve) => {
     const audio = new Audio(url);
-    const finish = () => {
+    audio.volume = 0.88;
+    const unregister = audioEngine.registerVoiceAudio(audio);
+
+    let done = false;
+    const finish = (ok: boolean) => {
+      if (done) return;
+      done = true;
+      unregister();
       audio.pause();
+      audio.src = "";
       activeCancel = null;
-      resolve();
+      resolve(ok);
     };
-    activeCancel = finish;
-    signal?.addEventListener("abort", finish, { once: true });
-    audio.addEventListener("ended", finish, { once: true });
-    audio.addEventListener("error", finish, { once: true });
-    void audio.play().catch(finish);
+
+    activeCancel = () => finish(true);
+    signal?.addEventListener("abort", () => finish(true), { once: true });
+    audio.addEventListener("ended", () => finish(true), { once: true });
+    audio.addEventListener("error", () => finish(false), { once: true });
+    void audio.play().catch(() => finish(false));
   });
 }
 
@@ -131,26 +140,26 @@ function tryWebSpeech(
     return Promise.resolve(false);
   }
 
+  // Only use genuinely natural/high-quality voices; never fall back to robotic Linux espeak/festival
+  const naturalVoice = voices.find(
+    (v) =>
+      v.lang.toLowerCase().startsWith("en") &&
+      /natural|neural|online|premium|samantha|ava|aria|google us english/i.test(
+        v.name,
+      ) &&
+      !/espeak|speechd|festival|mbrola/i.test(v.name),
+  );
+
+  if (!naturalVoice) {
+    return Promise.resolve(false);
+  }
+
   return new Promise((resolve) => {
     let settled = false;
     const utterance = new SpeechSynthesisUtterance(line.text);
-
-    const englishVoices = voices.filter((v) =>
-      v.lang.toLowerCase().startsWith("en"),
-    );
-    const preferred =
-      englishVoices.find((v) => /natural|neural|google|samantha/i.test(v.name)) ??
-      englishVoices[0] ??
-      voices[0];
-    if (preferred) utterance.voice = preferred;
-
-    if (line.speaker === "loro") {
-      utterance.rate = 1.03;
-      utterance.pitch = 1.08;
-    } else {
-      utterance.rate = 0.95;
-      utterance.pitch = 0.9;
-    }
+    utterance.voice = naturalVoice;
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
 
     const watchdogMs = Math.max(4000, wordCount * 480 + 2400);
     const timer = window.setTimeout(() => done(true), watchdogMs);
