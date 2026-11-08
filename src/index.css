@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@theme {
+  --color-space-950: #05070d;
+  --color-space-900: #0b1020;
+  --color-space-800: #131c36;
+  --color-regolith: #d9cbb0;
+  --color-regolith-bright: #f4ead5;
+  --color-sunlit: #ffcf70;
+  --color-loro: #5ce1ff;
+  --color-alert: #ff6b5c;
+  --color-cat-lander: #ffcf70;
+  --color-cat-rover: #ff9f5c;
+  --color-cat-experiment: #7ee787;
+  --color-cat-active: #5ce1ff;
+  --color-cat-impact: #c4a7ff;
+  --color-cat-future: #ffffff;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--color-space-950);
+    color: var(--color-regolith);
+    font-family: var(--font-body);
+  }
+}
+
+.hud-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.hud-scroll::-webkit-scrollbar-track {
+  background: rgba(5, 7, 13, 0.4);
+}
+.hud-scroll::-webkit-scrollbar-thumb {
+  background: rgba(92, 225, 255, 0.25);
+  border-radius: 9999px;
+}
+.hud-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 225, 255, 0.5);
+}
+
+.telemetry-scanlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 207, 112, 0.035) 0px,
+    rgba(255, 207, 112, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
