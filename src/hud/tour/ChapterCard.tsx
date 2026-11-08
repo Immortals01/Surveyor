@@ -17,10 +17,10 @@ export default function ChapterCard() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.35 }}
-          className="pointer-events-none mx-auto mt-2 max-w-md rounded-2xl border border-loro/40 bg-space-950/88 px-5 py-3 text-center shadow-2xl backdrop-blur-xl"
+          className="pointer-events-none mx-auto mt-2 max-w-md border border-white/20 bg-space-950/90 px-5 py-3 text-center shadow-2xl backdrop-blur-xl"
         >
-          <p className="font-mono text-[11px] font-semibold tracking-widest text-loro uppercase">
-            Guided Story Tour · Stop {chapter.number} of 5
+          <p className="font-mono text-[10.5px] font-semibold tracking-[0.18em] text-loro uppercase">
+            EXPEDITION CHAPTER 0{chapter.number} // 05
           </p>
           <h2 className="mt-0.5 font-display text-lg font-bold text-regolith-bright">
             {chapter.title}

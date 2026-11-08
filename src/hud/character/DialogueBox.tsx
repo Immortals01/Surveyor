@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Radio, Sparkles, Volume2, VolumeX } from "lucide-react";
+import { Radio, Satellite, Volume2, VolumeX } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech } from "@/audio/speech";
 import { useAppStore } from "@/store/useAppStore";
@@ -82,10 +82,10 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
 
   return (
     <div
-      className={`pointer-events-auto relative w-full max-w-xl rounded-2xl border p-4 shadow-2xl backdrop-blur-xl transition-colors ${
+      className={`pointer-events-auto relative w-full max-w-xl border p-4 shadow-2xl backdrop-blur-xl transition-colors ${
         isEquipment
-          ? "telemetry-scanlines border-sunlit/50 bg-space-950/92"
-          : "border-loro/45 bg-space-900/90"
+          ? "telemetry-scanlines border-sunlit/45 bg-space-950/92"
+          : "border-white/20 bg-space-950/90"
       }`}
     >
       {/* Screen-reader polite full-line announcement (fires once per line, never per character) */}
@@ -98,10 +98,10 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
           {isEquipment ? (
             <Radio className="h-3.5 w-3.5 text-sunlit" />
           ) : (
-            <Sparkles className="h-3.5 w-3.5 text-loro" />
+            <Satellite className="h-3.5 w-3.5 text-loro" />
           )}
           <span
-            className={`font-mono text-[11px] font-semibold tracking-wider uppercase ${
+            className={`font-mono text-[10.5px] font-semibold tracking-[0.14em] uppercase ${
               isEquipment ? "text-sunlit" : "text-loro"
             }`}
           >
@@ -109,9 +109,9 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
           </span>
           {dialogue.isSpeaking && (
             <span className="inline-flex items-center gap-0.5" aria-hidden="true">
-              <span className="h-2 w-0.5 animate-pulse rounded-full bg-current opacity-80" />
-              <span className="h-3 w-0.5 animate-pulse rounded-full bg-current" />
-              <span className="h-1.5 w-0.5 animate-pulse rounded-full bg-current opacity-70" />
+              <span className="h-2 w-0.5 animate-pulse bg-current opacity-80" />
+              <span className="h-3 w-0.5 animate-pulse bg-current" />
+              <span className="h-1.5 w-0.5 animate-pulse bg-current opacity-70" />
             </span>
           )}
         </div>
@@ -122,17 +122,17 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
               key={sid}
               type="button"
               onClick={() => openSources(sid)}
-              className="rounded border border-regolith/25 bg-space-950/70 px-1.5 py-0.5 font-mono text-[10px] text-regolith/80 transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+              className="border border-white/15 bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-regolith/80 transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
               title={`Inspect NASA citation ${sid}`}
             >
-              Cite
+              {sid}
             </button>
           ))}
 
           <button
             type="button"
             onClick={toggleMute}
-            className="rounded-lg border border-white/10 bg-white/5 p-1 text-regolith/80 transition hover:border-loro/50 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            className="border border-white/15 bg-white/5 p-1 text-regolith/80 transition hover:border-loro/50 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
             aria-label={settings.muted ? "Unmute audio" : "Mute audio"}
             title={settings.muted ? "Unmute audio" : "Mute audio"}
           >
@@ -147,7 +147,7 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
 
       <p
         onClick={handlePrimaryClick}
-        className={`cursor-pointer text-[15px] leading-relaxed ${
+        className={`cursor-pointer text-[14.5px] leading-relaxed ${
           isEquipment ? "text-amber-100/95 italic" : "text-regolith-bright"
         }`}
       >
@@ -157,31 +157,31 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
         )}
       </p>
 
-      <div className="mt-2.5 flex items-center justify-between text-[11px] text-regolith/65">
+      <div className="mt-2.5 flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[10.5px] text-regolith/60">
         <span>
           {dialogue.holdForInteraction
-            ? "Interactive stop — try the science experiment, then continue!"
+            ? "INTERACTIVE EXPERIMENT READY"
             : isRevealing
-              ? "Click text to reveal all"
+              ? "CLICK TO REVEAL ALL"
               : mode === "tour"
-                ? "Auto-advancing · or click Continue"
-                : "Click to close"}
+                ? "AUTO-ADVANCING // OR CLICK CONTINUE"
+                : "CLICK TO DISMISS"}
         </span>
 
         <button
           type="button"
           onClick={handlePrimaryClick}
-          className={`rounded-full px-3 py-1 font-mono text-xs font-semibold transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+          className={`px-3 py-1 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
             dialogue.holdForInteraction
-              ? "bg-loro text-space-950 hover:bg-white"
-              : "border border-white/15 bg-white/10 text-regolith-bright hover:border-loro/60 hover:text-white"
+              ? "bg-regolith-bright text-space-950 hover:bg-white"
+              : "border border-white/20 bg-white/8 text-regolith-bright hover:border-loro hover:text-white"
           }`}
         >
           {isRevealing
-            ? "Skip Reveal"
+            ? "Reveal"
             : mode === "tour"
               ? "Continue →"
-              : "Dismiss"}
+              : "Close"}
         </button>
       </div>
     </div>

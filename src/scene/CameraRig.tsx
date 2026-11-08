@@ -146,12 +146,20 @@ export default function CameraRig() {
     return unregister;
   }, [setCameraFlying]);
 
-  // Offset camera framing slightly left on desktop when right-side SiteDrawer is open
+  // Offset camera framing on desktop:
+  // - In "intro" mode: shift Moon right so the left editorial column never covers the lunar limb
+  // - When right-side SiteDrawer is open: shift Moon left so the selected site stays in the open viewport
   useEffect(() => {
     const c = controlsRef.current;
     if (!c) return;
     const isDesktop = size.width >= 1024;
-    if (selectedSiteId && isDesktop) {
+    if (!isDesktop) {
+      void c.setFocalOffset(0, 0, 0, !reduceMotion);
+      return;
+    }
+    if (mode === "intro") {
+      void c.setFocalOffset(-0.48, 0, 0, !reduceMotion);
+    } else if (selectedSiteId) {
       c.getPosition(_camPos);
       c.getTarget(_targetPos);
       const d = Math.max(0.08, _camPos.distanceTo(_targetPos));
@@ -159,7 +167,7 @@ export default function CameraRig() {
     } else {
       void c.setFocalOffset(0, 0, 0, !reduceMotion);
     }
-  }, [selectedSiteId, size.width, reduceMotion]);
+  }, [mode, selectedSiteId, size.width, reduceMotion]);
 
   useFrame((_, delta) => {
     const c = controlsRef.current;

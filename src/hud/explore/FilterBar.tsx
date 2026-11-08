@@ -1,4 +1,4 @@
-import { Globe2, Sparkles } from "lucide-react";
+import { Globe2, Star } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { ALL_SITES } from "@/data";
 import type { Category } from "@/data/schema";
@@ -29,14 +29,14 @@ export default function FilterBar() {
   }).length;
 
   return (
-    <div className="pointer-events-auto flex flex-wrap items-center gap-1.5 rounded-2xl border border-white/15 bg-space-950/85 px-3 py-2 shadow-xl backdrop-blur-xl">
+    <div className="pointer-events-auto flex flex-wrap items-center gap-1 border border-white/15 bg-space-950/88 px-2.5 py-1.5 backdrop-blur-md">
       <button
         type="button"
         onClick={() => {
-          audioEngine.playUiTick(840);
+          audioEngine.playUiTick();
           setCategoryFilter("all");
         }}
-        className={`cursor-pointer rounded-full px-2.5 py-1 font-mono text-[11px] font-medium transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+        className={`cursor-pointer px-2.5 py-1 font-mono text-[11px] font-medium uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
           categoryFilter === "all"
             ? "bg-regolith-bright font-bold text-space-950"
             : "text-regolith/80 hover:bg-white/10 hover:text-white"
@@ -53,13 +53,13 @@ export default function FilterBar() {
             key={cat}
             type="button"
             onClick={() => {
-              audioEngine.playUiTick(900);
+              audioEngine.playUiTick();
               setCategoryFilter(active ? "all" : cat);
             }}
-            className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[11px] transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+            className={`inline-flex cursor-pointer items-center gap-1.5 border px-2.5 py-1 font-mono text-[11px] uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
               active
-                ? "border-white/50 bg-white/18 font-semibold text-white"
-                : "border-transparent text-regolith/80 hover:bg-white/10 hover:text-white"
+                ? "border-white/50 bg-white/15 font-semibold text-white"
+                : "border-transparent text-regolith/80 hover:bg-white/8 hover:text-white"
             }`}
           >
             <span
@@ -76,18 +76,18 @@ export default function FilterBar() {
       <button
         type="button"
         onClick={() => {
-          audioEngine.playUiTick(960);
+          audioEngine.playUiTick();
           setHeroOnly(!heroOnly);
         }}
-        className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[11px] transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+        className={`inline-flex cursor-pointer items-center gap-1 border px-2.5 py-1 font-mono text-[11px] uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
           heroOnly
             ? "border-sunlit/60 bg-sunlit/20 font-semibold text-sunlit"
             : "border-white/15 text-regolith/75 hover:border-sunlit/40 hover:text-sunlit"
         }`}
         title="Show only the 9 featured Hero Story sites"
       >
-        <Sparkles className="h-3 w-3" />
-        <span>9 Hero Stories</span>
+        <Star className="h-3 w-3" />
+        <span>9 Featured</span>
       </button>
 
       {/* Quick Globe Hemisphere Jumps */}

@@ -4,7 +4,6 @@ import {
   ListFilter,
   Play,
   RotateCcw,
-  Sparkles,
   Volume2,
   VolumeX,
 } from "lucide-react";
@@ -90,7 +89,7 @@ export default function Hud() {
 
   const handleLoRoClick = () => {
     audioEngine.unlock(settings.muted);
-    audioEngine.playUiTick(1020);
+    audioEngine.playUiTick();
     const state = useAppStore.getState();
     const selected = state.selectedSiteId
       ? SITE_BY_ID.get(state.selectedSiteId)
@@ -119,33 +118,37 @@ export default function Hud() {
   };
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-3 sm:p-5">
+    <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-6">
       {/* Top Navigation & Telemetry Bar */}
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        {/* Brand & Home Control */}
+      <header className="relative z-30 flex flex-wrap items-center justify-between gap-2">
+        {/* Left Brand / Mode Controls */}
         <div className="pointer-events-auto flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              audioEngine.playUiTick(760);
-              returnToIntro();
-              void cameraBus.goHome();
-            }}
-            className="group flex cursor-pointer items-center gap-2.5 rounded-2xl border border-white/15 bg-space-950/85 px-3.5 py-2 text-left shadow-lg backdrop-blur-xl transition hover:border-loro/60 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            title="Return to Welcome Screen"
-          >
-            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-loro/15 font-mono text-xs font-bold text-loro group-hover:bg-loro group-hover:text-space-950">
-              LRO
-            </span>
-            <div>
-              <p className="font-mono text-[9.5px] tracking-widest text-loro uppercase">
-                NASA Space Apps 2026
-              </p>
-              <p className="font-display text-sm leading-tight font-bold text-regolith-bright">
-                Abandoned, Not Forgotten
-              </p>
+          {mode === "intro" ? (
+            <div className="font-mono text-[11px] tracking-[0.2em] text-regolith/60 uppercase">
+              2026 NASA SPACE APPS // LUNAR ARTIFACT ARCHIVE
             </div>
-          </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                audioEngine.playUiTick();
+                returnToIntro();
+                void cameraBus.goHome();
+              }}
+              className="group flex cursor-pointer items-center gap-3 border border-white/15 bg-space-950/85 px-3.5 py-2 text-left backdrop-blur-md transition hover:border-regolith-bright focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+              title="Return to Mission Briefing"
+            >
+              <span className="h-2 w-2 rounded-full bg-sunlit" />
+              <div>
+                <p className="font-mono text-[9.5px] tracking-[0.16em] text-regolith/65 uppercase">
+                  LRO // ARCHIVE
+                </p>
+                <p className="font-display text-xs font-bold tracking-tight text-regolith-bright">
+                  Abandoned, Not Forgotten
+                </p>
+              </div>
+            </button>
+          )}
 
           {mode === "explore" && (
             <>
@@ -153,27 +156,27 @@ export default function Hud() {
                 type="button"
                 onClick={() => {
                   audioEngine.unlock(settings.muted);
-                  audioEngine.playUiTick(980);
+                  audioEngine.playUiTick();
                   startTour(0);
                 }}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-loro px-3.5 py-2 font-display text-xs font-bold text-space-950 shadow-[0_0_20px_rgba(92,225,255,0.3)] transition hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+                className="inline-flex cursor-pointer items-center gap-1.5 border border-regolith-bright bg-regolith-bright px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider text-space-950 uppercase transition hover:bg-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
               >
-                <Play className="h-3.5 w-3.5 fill-current" />
-                <span>Guided Story Tour</span>
+                <Play className="h-3 w-3 fill-current" />
+                <span>Guided Tour</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => {
-                  audioEngine.playUiTick(720);
+                  audioEngine.playUiTick();
                   useAppStore.getState().selectSite(null);
                   void cameraBus.goHome();
                 }}
-                className="hidden cursor-pointer items-center gap-1 rounded-full border border-white/15 bg-space-950/82 px-3 py-2 font-mono text-[11px] text-regolith hover:border-loro hover:text-white sm:inline-flex"
+                className="hidden cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] text-regolith uppercase backdrop-blur-md hover:border-white/40 hover:text-white sm:inline-flex"
                 title="Reset camera to full lunar globe"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span>Reset View</span>
+                <RotateCcw className="h-3 w-3" />
+                <span>Reset Orbit</span>
               </button>
             </>
           )}
@@ -191,34 +194,34 @@ export default function Hud() {
             <button
               type="button"
               onClick={() => {
-                audioEngine.playUiTick(880);
+                audioEngine.playUiTick();
                 setSiteIndexOpen(true);
               }}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] font-medium text-regolith-bright shadow-lg backdrop-blur-xl transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+              className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] tracking-wider text-regolith-bright uppercase backdrop-blur-md transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
               title="Browse and search all 29 lunar artifacts"
             >
               <ListFilter className="h-3.5 w-3.5 text-loro" />
-              <span>All 29 Sites</span>
+              <span>Index (29)</span>
             </button>
           )}
 
           <button
             type="button"
             onClick={() => {
-              audioEngine.playUiTick(900);
+              audioEngine.playUiTick();
               openSources();
             }}
-            className="inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-sunlit/35 bg-space-950/85 px-3 py-2 font-mono text-[11px] font-medium text-sunlit shadow-lg backdrop-blur-xl transition hover:border-sunlit hover:bg-sunlit/15 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] tracking-wider text-regolith uppercase backdrop-blur-md transition hover:border-sunlit hover:text-sunlit focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
             title="View verified NASA open datasets and citations"
           >
-            <BookOpen className="h-3.5 w-3.5" />
+            <BookOpen className="h-3.5 w-3.5 text-sunlit" />
             <span className="hidden sm:inline">NASA Data</span>
           </button>
 
           <button
             type="button"
             onClick={toggleMute}
-            className="cursor-pointer rounded-full border border-white/15 bg-space-950/85 p-2 text-regolith shadow-lg backdrop-blur-xl transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            className="cursor-pointer border border-white/15 bg-space-950/85 p-2 text-regolith backdrop-blur-md transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
             aria-label={settings.muted ? "Unmute audio" : "Mute audio"}
             title={settings.muted ? "Unmute audio" : "Mute audio"}
           >
@@ -247,13 +250,13 @@ export default function Hud() {
           <button
             type="button"
             onClick={handleLoRoClick}
-            className="pointer-events-auto group relative cursor-pointer rounded-3xl p-1 transition hover:scale-105 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            title="Click Lo-Ro for orbital commentary!"
+            className="pointer-events-auto group relative cursor-pointer border border-white/15 bg-space-950/85 p-1.5 backdrop-blur-md transition hover:border-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            title="Click Lo-Ro for orbital commentary"
           >
-            <LoRo size="md" />
+            <LoRo size="sm" />
             {!dialogue && (
-              <span className="mt-1 flex items-center justify-center gap-1 rounded-full border border-loro/40 bg-space-950/90 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-loro shadow">
-                <Sparkles className="h-2.5 w-2.5" /> Ask Lo-Ro
+              <span className="mt-1 block border-t border-white/10 pt-1 text-center font-mono text-[9px] tracking-wider text-loro uppercase">
+                COMMS
               </span>
             )}
           </button>
