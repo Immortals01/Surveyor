@@ -13,7 +13,7 @@ import {
 import type { LunarSite } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { CATEGORY_META } from "@/lib/constants";
-import { latLonToVector3 } from "@/lib/geo";
+import { angularDistanceDeg, latLonToVector3, normalizeLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 import { surfaceNormal, surfaceRadius } from "../moon/heightSampler";
 
@@ -148,6 +148,16 @@ export default function Marker({ site, heightReady }: MarkerProps) {
       store.enterExplore(true);
     } else if (store.mode === "tour") {
       store.setTourPaused(true);
+    }
+    if (
+      angularDistanceDeg(
+        site.lat,
+        site.lon,
+        store.sunLatitude,
+        store.sunLongitude,
+      ) > 75
+    ) {
+      store.setSunDirection(normalizeLon(site.lon - 18), 1.5);
     }
     store.selectSite(site.id);
     void cameraBus.flyToLatLon(site.lat, site.lon);

@@ -38,7 +38,7 @@ const EXPLORE_TIPS: DialogueLine[] = [
     id: "loro-tip-2",
     speaker: "loro",
     mood: "scanning",
-    text: "Try dragging the 'Lunar Day' sun slider at the top! Watching long sunset shadows stretch across Oceanus Procellarum is how my LROC camera spots tiny landers.",
+    text: "Try dragging the 'Lunar Day' sun slider at the top! Watching long sunset shadows stretch across Oceanus Procellarum is how LRO's camera overhead spots our three-legged frames.",
     sourceIds: ["S-LROC-FEATURED"],
   },
   {
@@ -104,7 +104,7 @@ export default function Hud() {
     state.setDialogue({
       lineId: line.id,
       speaker: "loro",
-      speakerLabel: "LO-RO // ORBITAL GUIDE",
+      speakerLabel: "SURVEYOR 3 · LUNAR HOST",
       text: line.text,
       sourceIds: line.sourceIds,
       isRevealing: !settings.reduceMotion,
@@ -124,8 +124,11 @@ export default function Hud() {
         {/* Left Brand / Mode Controls */}
         <div className="pointer-events-auto flex items-center gap-2">
           {mode === "intro" ? (
-            <div className="font-mono text-[11px] tracking-[0.2em] text-regolith/60 uppercase">
-              2026 NASA SPACE APPS // LUNAR ARTIFACT ARCHIVE
+            <div className="flex items-center gap-2.5 border border-white/15 bg-space-950/85 px-3.5 py-2 backdrop-blur-md">
+              <span className="h-2 w-2 rounded-full bg-sunlit" />
+              <span className="font-display text-sm font-bold tracking-wider text-regolith-bright uppercase">
+                Surveyor
+              </span>
             </div>
           ) : (
             <button
@@ -141,10 +144,10 @@ export default function Hud() {
               <span className="h-2 w-2 rounded-full bg-sunlit" />
               <div>
                 <p className="font-mono text-[9.5px] tracking-[0.16em] text-regolith/65 uppercase">
-                  LRO // ARCHIVE
+                  LRO ARCHIVE
                 </p>
                 <p className="font-display text-xs font-bold tracking-tight text-regolith-bright">
-                  Abandoned, Not Forgotten
+                  Surveyor
                 </p>
               </div>
             </button>
@@ -240,7 +243,7 @@ export default function Hud() {
       {/* Intro Welcome Screen */}
       {mode === "intro" && <IntroScreen />}
 
-      {/* Bottom-Left Lo-Ro Orbital Storyteller Dock */}
+      {/* Bottom-Left Surveyor 3 Storyteller Dock */}
       {mode !== "intro" && (
         <div
           className={`flex items-end gap-3 transition-all ${
@@ -251,7 +254,7 @@ export default function Hud() {
             type="button"
             onClick={handleLoRoClick}
             className="pointer-events-auto group relative cursor-pointer border border-white/15 bg-space-950/85 p-1.5 backdrop-blur-md transition hover:border-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            title="Click Lo-Ro for orbital commentary"
+            title="Click Surveyor 3 for mission commentary"
           >
             <LoRo size="sm" />
             {!dialogue && (

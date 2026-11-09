@@ -83,7 +83,7 @@ export function useTourRunner() {
         speaker: line.speaker,
         speakerLabel:
           line.speakerLabel ??
-          (line.speaker === "loro" ? "LO-RO // ORBITAL GUIDE" : "MEMORY LOG"),
+          (line.speaker === "loro" ? "SURVEYOR 3 · LUNAR HOST" : "MEMORY LOG"),
         text: line.text,
         sourceIds: line.sourceIds,
         isRevealing: !store.settings.reduceMotion,

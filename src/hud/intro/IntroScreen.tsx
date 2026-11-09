@@ -49,9 +49,9 @@ export default function IntroScreen() {
         {/* Technical Telemetry Index Eyebrow */}
         <div className="flex items-center gap-3 font-mono text-[11px] tracking-[0.18em] text-regolith/70 uppercase">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-sunlit" />
-          <span>LRO // RECONNAISSANCE ARCHIVE</span>
-          <span className="text-white/25">/</span>
-          <span className="text-loro">50 KM POLAR ORBIT</span>
+          <span>SURVEYOR 3 TELEMETRY</span>
+          <span className="text-white/25">·</span>
+          <span className="text-loro">OCEANUS PROCELLARUM (1967-035A)</span>
         </div>
 
         {/* Editorial Headline — Clean, Solid High-Contrast Typography */}
@@ -69,7 +69,7 @@ export default function IntroScreen() {
           1964—preserved in vacuum and still photographed from orbit today.
         </p>
 
-        {/* Orbital Telemetry Comms Block (Lo-Ro Character Guide) */}
+        {/* Lunar Host Telemetry Comms Block (Surveyor 3 Character Guide) */}
         <div className="relative mt-6 border-y border-white/15 bg-space-950/70 py-4 pr-4 pl-3 backdrop-blur-md">
           {/* Corner technical hairlines */}
           <span className="pointer-events-none absolute -top-px left-0 h-px w-6 bg-loro" />
@@ -80,22 +80,23 @@ export default function IntroScreen() {
             <div className="min-w-0 flex-1">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono text-[10.5px] tracking-[0.14em] text-loro uppercase">
-                  ORBITAL GUIDE // LRO (&ldquo;LO-RO&rdquo;)
+                  LUNAR HOST · SURVEYOR 3 (1967-035A)
                 </span>
                 <button
                   type="button"
                   onClick={handlePreviewVoice}
                   className="inline-flex cursor-pointer items-center gap-1 border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-regolith hover:border-loro hover:text-white"
-                  title="Hear Lo-Ro's voice introduction"
+                  title="Hear Surveyor 3's voice introduction"
                 >
                   <Volume2 className="h-2.5 w-2.5 text-loro" />
                   <span>VOICE</span>
                 </button>
               </div>
               <p className="mt-1.5 text-[13.5px] leading-relaxed text-regolith-bright/95">
-                &ldquo;Since 2009, my Narrow Angle Camera has mapped these landing
-                sites down to half a meter per pixel. Select a mission mode below
-                to descend to the surface and hear their logs.&rdquo;
+                &ldquo;I touched down in Oceanus Procellarum in April 1967—and 31
+                months later, Apollo 12 astronauts walked down my crater slope to
+                say hello. Select a mission mode below to explore our 29 lunar
+                artifacts and hear what we remember.&rdquo;
               </p>
             </div>
           </div>
@@ -110,7 +111,7 @@ export default function IntroScreen() {
           >
             <div>
               <div className="font-mono text-[10px] tracking-[0.16em] text-space-950/65 uppercase">
-                01 // NARRATED EXPEDITION
+                01 · NARRATED EXPEDITION
               </div>
               <div className="mt-0.5 font-display text-sm font-bold">
                 Start Guided Tour (5 Chapters)
@@ -126,7 +127,7 @@ export default function IntroScreen() {
           >
             <div>
               <div className="font-mono text-[10px] tracking-[0.16em] text-regolith/60 uppercase">
-                02 // SANDBOX
+                02 · SANDBOX
               </div>
               <div className="mt-0.5 font-display text-sm font-semibold">
                 Free Orbit

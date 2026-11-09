@@ -77,7 +77,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
           id: "tour-ch2-then-now",
           speaker: "loro",
           mood: "scanning",
-          text: "Drag the Then vs. Now slider on the right! With no wind or rain on the Moon, Neil and Buzz's dark bootprint trails look just as fresh from my orbit today as they did in July 1969.",
+          text: "Drag the Then vs. Now slider on the right! With no wind or rain on the Moon, Neil and Buzz's dark bootprint trails look just as fresh from LRO's orbit today as they did in July 1969.",
           sourceIds: ["S-LROC-FEATURED"],
         },
       },

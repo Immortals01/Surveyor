@@ -164,7 +164,7 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
             : isRevealing
               ? "CLICK TO REVEAL ALL"
               : mode === "tour"
-                ? "AUTO-ADVANCING // OR CLICK CONTINUE"
+                ? "AUTO-ADVANCING · OR CLICK CONTINUE"
                 : "CLICK TO DISMISS"}
         </span>
 

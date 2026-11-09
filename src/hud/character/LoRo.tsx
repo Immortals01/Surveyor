@@ -7,11 +7,12 @@ interface LoRoProps {
 }
 
 /**
- * High-detail technical illustration of NASA's Lunar Reconnaissance Orbiter (LRO / "Lo-Ro"):
- * - Multi-faceted Kapton MLI spacecraft bus with structural truss seams
- * - Articulated 3-segment photovoltaic solar wing with silver busbars
- * - High-gain parabolic dish on upper gimbal boom + LOLA laser altimeter pod
- * - Multi-element LROC Narrow Angle Camera (NAC) optical barrel with aperture iris & specular lens reflections
+ * High-detail technical illustration of NASA's Surveyor 3 Lunar Lander (1967-035A):
+ * - Sun-tanned white/butterscotch tubular triangular spaceframe resting on a crater slope
+ * - Three hinged shock-absorber landing legs with circular honeycomb footpads
+ * - Tall mast with tilted photovoltaic solar panel & planar high-gain antenna
+ * - Accordion-linkage Surface Sampler soil scoop arm (waves/articulates!)
+ * - Rotating-mirror Television Survey Camera hood acting as an expressive optical eye
  */
 export default function LoRo({ size = "md" }: LoRoProps) {
   const mood = useAppStore((s) => s.loroMood);
@@ -32,17 +33,17 @@ export default function LoRo({ size = "md" }: LoRoProps) {
   return (
     <div
       className={`relative select-none ${dim} shrink-0`}
-      aria-label={`LRO Orbital Guide (${spec.label})`}
+      aria-label={`Surveyor 3 Host (${spec.label})`}
     >
       <motion.svg
         viewBox="0 0 160 160"
         className="relative h-full w-full"
         animate={
           reduceMotion
-            ? { y: 0, rotate: spec.bodyTiltDeg * 0.5 }
+            ? { y: 0, rotate: spec.bodyTiltDeg * 0.35 }
             : {
-                y: mood === "excited" ? [0, -3.5, 0] : [0, -2, 0],
-                rotate: spec.bodyTiltDeg * 0.5,
+                y: mood === "excited" ? [0, -2.5, 0] : [0, -1, 0],
+                rotate: spec.bodyTiltDeg * 0.35,
               }
         }
         transition={
@@ -50,314 +51,315 @@ export default function LoRo({ size = "md" }: LoRoProps) {
             ? { duration: 0.2 }
             : {
                 y: {
-                  duration: mood === "excited" ? 1.6 : 3.4,
+                  duration: mood === "excited" ? 1.4 : 3.2,
                   repeat: Infinity,
                   ease: "easeInOut",
                 },
-                rotate: { duration: 0.5, ease: "easeOut" },
+                rotate: { duration: 0.45, ease: "easeOut" },
               }
         }
       >
         <defs>
-          <linearGradient id="lro-kapton-main" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f6d379" />
-            <stop offset="45%" stopColor="#c9932c" />
-            <stop offset="100%" stopColor="#6e4b0f" />
+          {/* Sun-tanned white-to-butterscotch thermal paint gradient */}
+          <linearGradient id="sv3-hull" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f5efe2" />
+            <stop offset="55%" stopColor="#dfcda8" />
+            <stop offset="100%" stopColor="#9c8253" />
           </linearGradient>
-          <linearGradient id="lro-kapton-shadow" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#a8761e" />
-            <stop offset="100%" stopColor="#462f08" />
+          <linearGradient id="sv3-chrome" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#f8fafc" />
+            <stop offset="50%" stopColor="#94a3b8" />
+            <stop offset="100%" stopColor="#334155" />
           </linearGradient>
-          <linearGradient id="lro-solar-cell" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#1e3a5f" />
-            <stop offset="50%" stopColor="#0f2342" />
-            <stop offset="100%" stopColor="#081326" />
+          <linearGradient id="sv3-solar" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1e3a8a" />
+            <stop offset="50%" stopColor="#172554" />
+            <stop offset="100%" stopColor="#090d16" />
           </linearGradient>
-          <radialGradient id="lro-optics-glass" cx="42%" cy="38%" r="62%">
-            <stop offset="0%" stopColor="#1a273b" />
-            <stop offset="65%" stopColor="#090e18" />
-            <stop offset="100%" stopColor="#030509" />
+          <radialGradient id="sv3-lens" cx="42%" cy="38%" r="62%">
+            <stop offset="0%" stopColor="#1e293b" />
+            <stop offset="70%" stopColor="#090e18" />
+            <stop offset="100%" stopColor="#020409" />
           </radialGradient>
         </defs>
 
-        {/* Subtle technical corner reticle ticks */}
+        {/* Technical Corner Reticle Ticks */}
         <g stroke="#ffffff" strokeOpacity="0.18" strokeWidth="1" fill="none">
-          <path d="M 10 22 L 10 10 L 22 10" />
-          <path d="M 138 10 L 150 10 L 150 22" />
-          <path d="M 10 138 L 10 150 L 22 150" />
-          <path d="M 138 150 L 150 150 L 150 138" />
+          <path d="M 8 20 L 8 8 L 20 8" />
+          <path d="M 140 8 L 152 8 L 152 20" />
+          <path d="M 8 140 L 8 152 L 20 152" />
+          <path d="M 140 152 L 152 152 L 152 140" />
         </g>
 
-        {/* Upper Gimbaled High-Gain Parabolic Dish Antenna */}
-        <motion.g
-          style={{ transformOrigin: "78px 44px" }}
-          animate={
-            reduceMotion
-              ? { rotate: 0 }
-              : { rotate: mood === "scanning" ? [-6, 8, -6] : [-2, 2.5, -2] }
-          }
-          transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
-        >
-          {/* Antenna boom mast */}
-          <line x1="78" y1="46" x2="66" y2="23" stroke="#94a3b8" strokeWidth="2.2" />
-          <line x1="72" y1="46" x2="66" y2="28" stroke="#64748b" strokeWidth="1.2" />
-          {/* Parabolic dish shell */}
-          <path
-            d="M 46 26 C 56 36, 76 32, 84 16"
-            fill="rgba(226,232,240,0.12)"
-            stroke="#e2e8f0"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-          />
-          {/* Sub-reflector feed tripod */}
-          <line x1="54" y1="25" x2="64" y2="15" stroke="#94a3b8" strokeWidth="1" />
-          <line x1="76" y1="21" x2="64" y2="15" stroke="#94a3b8" strokeWidth="1" />
-          <circle cx="64" cy="15" r="2.2" fill={accentHex} />
+        {/* Subtle Oceanus Procellarum Crater Slope Horizon */}
+        <path
+          d="M 12 138 Q 80 128 148 142"
+          fill="none"
+          stroke="#d9cbb0"
+          strokeOpacity="0.28"
+          strokeWidth="1.5"
+        />
 
-          {/* Subtle S-band telemetry wave arcs when active */}
-          {(isSpeaking || mood === "scanning") && (
-            <>
-              <motion.path
-                d="M 55 10 Q 64 4 73 10"
-                fill="none"
-                stroke={accentHex}
-                strokeWidth="1.2"
-                strokeLinecap="round"
-                animate={
-                  reduceMotion
-                    ? { opacity: 0.65 }
-                    : { opacity: [0.15, 0.8, 0.15] }
-                }
-                transition={{ duration: 1.2, repeat: Infinity }}
-              />
-              <motion.path
-                d="M 50 5 Q 64 -2 78 5"
-                fill="none"
-                stroke={accentHex}
-                strokeWidth="1"
-                strokeLinecap="round"
-                animate={
-                  reduceMotion
-                    ? { opacity: 0.35 }
-                    : { opacity: [0.05, 0.45, 0.05] }
-                }
-                transition={{ duration: 1.2, delay: 0.25, repeat: Infinity }}
-              />
-            </>
-          )}
-        </motion.g>
+        {/* Central Mast + Planar High-Gain Antenna + Solar Panel */}
+        <g>
+          {/* Vertical mast tube */}
+          <line x1="78" y1="62" x2="78" y2="18" stroke="#cbd5e1" strokeWidth="3" />
+          <line x1="74" y1="62" x2="78" y2="28" stroke="#64748b" strokeWidth="1.2" />
 
-        {/* Asymmetric Articulated 3-Panel Solar Array Wing (Left) */}
+          {/* Tilted Planar High-Gain Antenna (Left of Mast) */}
+          <motion.g
+            style={{ transformOrigin: "74px 28px" }}
+            animate={
+              reduceMotion
+                ? { rotate: 0 }
+                : { rotate: mood === "scanning" ? [-5, 6, -5] : [-1.5, 2, -1.5] }
+            }
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <polygon
+              points="40,18 72,12 74,34 42,40"
+              fill="url(#sv3-hull)"
+              stroke="#f8fafc"
+              strokeWidth="1.2"
+            />
+            <line x1="48" y1="20" x2="49" y2="38" stroke="#64748b" strokeOpacity="0.45" strokeWidth="0.8" />
+            <line x1="56" y1="18" x2="57" y2="36" stroke="#64748b" strokeOpacity="0.45" strokeWidth="0.8" />
+            <line x1="64" y1="16" x2="65" y2="35" stroke="#64748b" strokeOpacity="0.45" strokeWidth="0.8" />
+            <line x1="41" y1="28" x2="73" y2="23" stroke="#64748b" strokeOpacity="0.45" strokeWidth="0.8" />
+
+            {/* Radio telemetry wave arcs when speaking */}
+            {(isSpeaking || mood === "scanning") && (
+              <>
+                <motion.path
+                  d="M 46 10 Q 56 3 68 8"
+                  fill="none"
+                  stroke={accentHex}
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  animate={
+                    reduceMotion ? { opacity: 0.7 } : { opacity: [0.15, 0.85, 0.15] }
+                  }
+                  transition={{ duration: 1.1, repeat: Infinity }}
+                />
+                <motion.path
+                  d="M 42 5 Q 56 -3 72 4"
+                  fill="none"
+                  stroke={accentHex}
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  animate={
+                    reduceMotion ? { opacity: 0.4 } : { opacity: [0.05, 0.5, 0.05] }
+                  }
+                  transition={{ duration: 1.1, delay: 0.25, repeat: Infinity }}
+                />
+              </>
+            )}
+          </motion.g>
+
+          {/* Tilted Blue Photovoltaic Solar Panel (Right of Mast) */}
+          <g>
+            <polygon
+              points="80,16 122,22 118,40 78,34"
+              fill="url(#sv3-solar)"
+              stroke="#60a5fa"
+              strokeWidth="1.1"
+            />
+            <line x1="92" y1="18" x2="89" y2="36" stroke="#38bdf8" strokeOpacity="0.35" strokeWidth="0.8" />
+            <line x1="106" y1="20" x2="103" y2="38" stroke="#38bdf8" strokeOpacity="0.35" strokeWidth="0.8" />
+            <line x1="79" y1="25" x2="120" y2="31" stroke="#94a3b8" strokeOpacity="0.4" strokeWidth="0.8" />
+          </g>
+        </g>
+
+        {/* Three Outstretched Tripod Landing Legs & Honeycomb Footpads */}
+        <g>
+          {/* Left Landing Leg + Shock Strut + Crushable Footpad */}
+          <line x1="56" y1="88" x2="22" y2="132" stroke="url(#sv3-hull)" strokeWidth="3.2" strokeLinecap="round" />
+          <line x1="52" y1="104" x2="22" y2="132" stroke="#94a3b8" strokeWidth="2" />
+          <line x1="58" y1="74" x2="36" y2="114" stroke="#cbd5e1" strokeWidth="1.6" />
+          <ellipse cx="20" cy="134" rx="11" ry="4.2" fill="url(#sv3-hull)" stroke="#475569" strokeWidth="1.1" />
+
+          {/* Right Landing Leg + Shock Strut + Crushable Footpad */}
+          <line x1="104" y1="88" x2="138" y2="135" stroke="url(#sv3-hull)" strokeWidth="3.2" strokeLinecap="round" />
+          <line x1="108" y1="104" x2="138" y2="135" stroke="#94a3b8" strokeWidth="2" />
+          <line x1="102" y1="74" x2="124" y2="116" stroke="#cbd5e1" strokeWidth="1.6" />
+          <ellipse cx="140" cy="137" rx="11" ry="4.2" fill="url(#sv3-hull)" stroke="#475569" strokeWidth="1.1" />
+
+          {/* Center-Front Footpad */}
+          <line x1="80" y1="112" x2="80" y2="136" stroke="#94a3b8" strokeWidth="2.8" />
+          <ellipse cx="80" cy="139" rx="9.5" ry="3.8" fill="url(#sv3-hull)" stroke="#475569" strokeWidth="1.1" />
+        </g>
+
+        {/* Surveyor 3 Surface Sampler Soil Mechanics Scoop Arm (Right — waves!) */}
         <motion.g
-          style={{ transformOrigin: "48px 82px" }}
+          style={{ transformOrigin: "106px 88px" }}
           animate={
             reduceMotion
               ? { rotate: 0 }
               : {
                   rotate: [
-                    -spec.wingWaveDeg * 0.45,
-                    spec.wingWaveDeg * 0.45,
-                    -spec.wingWaveDeg * 0.45,
+                    -spec.wingWaveDeg * 0.55,
+                    spec.wingWaveDeg * 0.55,
+                    -spec.wingWaveDeg * 0.55,
                   ],
                 }
           }
           transition={{
-            duration: mood === "waving" ? 1.4 : 3.5,
+            duration: mood === "waving" ? 1.2 : 3.2,
             repeat: Infinity,
             ease: "easeInOut",
           }}
         >
-          {/* Deployment yoke truss */}
-          <line x1="50" y1="78" x2="38" y2="75" stroke="#94a3b8" strokeWidth="1.8" />
-          <line x1="50" y1="86" x2="38" y2="89" stroke="#94a3b8" strokeWidth="1.8" />
-          {/* Solar wing panel frame */}
-          <rect
-            x="6"
-            y="58"
-            width="34"
-            height="48"
-            rx="1.5"
-            fill="url(#lro-solar-cell)"
-            stroke="#64748b"
-            strokeWidth="1.2"
+          {/* Pantograph scissor linkage bars */}
+          <polyline
+            points="106,86 118,80 130,86 142,80"
+            fill="none"
+            stroke="#cbd5e1"
+            strokeWidth="1.6"
           />
-          {/* Photovoltaic cell grid & silver interconnect busbars */}
-          <line x1="17" y1="59" x2="17" y2="105" stroke="#38bdf8" strokeOpacity="0.28" strokeWidth="0.9" />
-          <line x1="29" y1="59" x2="29" y2="105" stroke="#38bdf8" strokeOpacity="0.28" strokeWidth="0.9" />
-          <line x1="7" y1="70" x2="39" y2="70" stroke="#94a3b8" strokeOpacity="0.35" strokeWidth="0.8" />
-          <line x1="7" y1="82" x2="39" y2="82" stroke="#94a3b8" strokeOpacity="0.45" strokeWidth="1" />
-          <line x1="7" y1="94" x2="39" y2="94" stroke="#94a3b8" strokeOpacity="0.35" strokeWidth="0.8" />
+          <polyline
+            points="106,90 118,96 130,90 142,96"
+            fill="none"
+            stroke="#94a3b8"
+            strokeWidth="1.6"
+          />
+          {/* Blue-grey trenching scoop head */}
+          <path
+            d="M 140 78 L 152 76 L 150 92 L 140 90 Z"
+            fill="#38bdf8"
+            stroke="#e2e8f0"
+            strokeWidth="1.1"
+          />
         </motion.g>
 
-        {/* Right Instrument Boom: LOLA 5-Beam Laser Altimeter & Diviner Radiometer */}
+        {/* Triangular Spaceframe Bus, Thermal Electronics Compartments & Helium Tank */}
         <g>
-          <line x1="114" y1="78" x2="126" y2="78" stroke="#94a3b8" strokeWidth="2" />
-          <line x1="114" y1="86" x2="126" y2="86" stroke="#64748b" strokeWidth="1.5" />
-          <rect
-            x="125"
-            y="66"
-            width="20"
-            height="32"
-            rx="2"
-            fill="#111827"
-            stroke="#94a3b8"
-            strokeWidth="1.2"
-          />
-          <rect x="128" y="70" width="14" height="8" rx="1" fill="#1e293b" />
-          {/* LOLA Laser Transceiver Status Optic */}
-          <circle
-            cx="135"
-            cy="88"
-            r="3.2"
-            fill={mood === "scanning" ? "#7ee787" : accentHex}
-          />
-          <circle cx="135" cy="88" r="5.5" fill="none" stroke={accentHex} strokeOpacity="0.35" strokeWidth="0.8" />
-        </g>
-
-        {/* Spacecraft Main Octagonal Chassis (Multi-Layer Insulation Gold Kapton) */}
-        <g>
-          {/* Lower shadow bevel */}
+          {/* Left polished chrome thermal compartment */}
           <polygon
-            points="60,46 104,46 118,60 118,104 104,118 60,118 46,104 46,60"
-            fill="url(#lro-kapton-shadow)"
-            stroke="#eab308"
-            strokeOpacity="0.55"
-            strokeWidth="1.2"
-          />
-          {/* Upper sunlit Kapton facet */}
-          <polygon
-            points="62,48 102,48 114,60 114,98 102,110 62,110 50,98 50,60"
-            fill="url(#lro-kapton-main)"
-          />
-          {/* MLI thermal blanket seam lines */}
-          <line x1="50" y1="60" x2="62" y2="48" stroke="#fef08a" strokeOpacity="0.4" strokeWidth="1" />
-          <line x1="62" y1="48" x2="62" y2="110" stroke="#422006" strokeOpacity="0.35" strokeWidth="0.9" />
-          <line x1="102" y1="48" x2="102" y2="110" stroke="#422006" strokeOpacity="0.35" strokeWidth="0.9" />
-          <line x1="50" y1="64" x2="114" y2="64" stroke="#fef08a" strokeOpacity="0.25" strokeWidth="0.9" />
-          <line x1="50" y1="98" x2="114" y2="98" stroke="#422006" strokeOpacity="0.35" strokeWidth="0.9" />
-        </g>
-
-        {/* LROC Narrow Angle Camera (NAC) Precision Optical Barrel */}
-        <g>
-          {/* Outer machined titanium lens bezel */}
-          <circle
-            cx="82"
-            cy="81"
-            r="25.5"
-            fill="#0f172a"
+            points="44,68 66,64 66,106 42,102"
+            fill="url(#sv3-chrome)"
             stroke="#cbd5e1"
+            strokeWidth="1.1"
+          />
+          {/* Right spherical helium/vernier tank */}
+          <circle
+            cx="104"
+            cy="88"
+            r="13"
+            fill="url(#sv3-hull)"
+            stroke="#f8fafc"
+            strokeWidth="1.1"
+          />
+          {/* Central spaceframe truss beams */}
+          <polygon
+            points="54,60 106,60 114,108 46,108"
+            fill="url(#sv3-hull)"
+            stroke="#fef3c7"
+            strokeWidth="1.3"
+          />
+          {/* Structural diagonal spaceframe tubes */}
+          <line x1="48" y1="106" x2="78" y2="62" stroke="#78716c" strokeOpacity="0.45" strokeWidth="1.4" />
+          <line x1="112" y1="106" x2="78" y2="62" stroke="#78716c" strokeOpacity="0.45" strokeWidth="1.4" />
+          <line x1="48" y1="84" x2="112" y2="84" stroke="#78716c" strokeOpacity="0.4" strokeWidth="1.2" />
+        </g>
+
+        {/* Surveyor 3 Television Survey Camera Tower & Expressive Optical Mirror Hood */}
+        <g>
+          {/* Upper angled mirror hood bezel */}
+          <polygon
+            points="63,46 97,46 102,58 58,58"
+            fill="#1e293b"
+            stroke="#e2e8f0"
+            strokeWidth="1.3"
+          />
+          {/* Attitude / Brow LED Indicator */}
+          <motion.rect
+            x="67"
+            y="50"
+            width="26"
+            height="2.5"
+            rx="1"
+            fill={accentHex}
+            animate={{
+              y: spec.browOffsetY * 0.55,
+              rotate: spec.browTiltDeg * 0.55,
+            }}
+            style={{ transformOrigin: "80px 51px" }}
+          />
+
+          {/* Main TV Camera Optical Barrel (Center of Spaceframe) */}
+          <circle
+            cx="80"
+            cy="84"
+            r="22"
+            fill="#0f172a"
+            stroke="#e2e8f0"
             strokeWidth="2"
           />
-          {/* Concentric optical baffle rings */}
           <circle
-            cx="82"
-            cy="81"
-            r="22"
-            fill="url(#lro-optics-glass)"
+            cx="80"
+            cy="84"
+            r="18.5"
+            fill="url(#sv3-lens)"
             stroke="#475569"
             strokeWidth="1"
           />
-          <circle
-            cx="82"
-            cy="81"
-            r="17.5"
-            fill="none"
-            stroke="#334155"
-            strokeWidth="0.9"
-            strokeDasharray="4 2"
-          />
 
-          {/* Active voice/telemetry ring modulation */}
+          {/* Voice / Telemetry Pulse Ring */}
           {isSpeaking && (
             <motion.circle
-              cx="82"
-              cy="81"
-              r="19.5"
+              cx="80"
+              cy="84"
+              r="16.5"
               fill="none"
               stroke={accentHex}
               strokeWidth="1.4"
               animate={
                 reduceMotion
                   ? { opacity: 0.7 }
-                  : { scale: [0.96, 1.05, 0.96], opacity: [0.3, 0.9, 0.3] }
+                  : { scale: [0.95, 1.06, 0.95], opacity: [0.3, 0.9, 0.3] }
               }
               transition={{ duration: 0.7, repeat: Infinity }}
-              style={{ transformOrigin: "82px 81px" }}
+              style={{ transformOrigin: "80px 84px" }}
             />
           )}
 
-          {/* Expressive Optical Sensor Core (Iris) */}
+          {/* Expressive Optical Vidicon Sensor Core */}
           <motion.g
             animate={
-              reduceMotion
-                ? { scaleY: 1 }
-                : { scaleY: [1, 1, 0.14, 1, 1] }
+              reduceMotion ? { scaleY: 1 } : { scaleY: [1, 1, 0.14, 1, 1] }
             }
             transition={{
-              duration: 4.6,
+              duration: 4.4,
               times: [0, 0.47, 0.5, 0.53, 1],
               repeat: Infinity,
             }}
-            style={{ transformOrigin: "82px 81px" }}
+            style={{ transformOrigin: "80px 84px" }}
           >
-            {/* Outer illuminated sensor ring */}
             <circle
-              cx={mood === "scanning" ? 84.5 : 82}
-              cy={mood === "scanning" ? 83.5 : 81}
-              r={mood === "excited" ? 10.5 : 9}
+              cx={mood === "scanning" ? 82.5 : 80}
+              cy={mood === "scanning" ? 86 : 84}
+              r={mood === "excited" ? 9.5 : 8}
               fill={accentHex}
-              fillOpacity="0.22"
+              fillOpacity="0.24"
               stroke={accentHex}
               strokeWidth="1.8"
             />
-            {/* Inner precision pupil core */}
             <circle
-              cx={mood === "scanning" ? 84.5 : 82}
-              cy={mood === "scanning" ? 83.5 : 81}
-              r={mood === "excited" ? 5 : 4}
+              cx={mood === "scanning" ? 82.5 : 80}
+              cy={mood === "scanning" ? 86 : 84}
+              r={mood === "excited" ? 4.5 : 3.8}
               fill={accentHex}
             />
-            {/* Optical glass specular reflection */}
+            {/* Glass specular highlight */}
             <circle
-              cx={mood === "scanning" ? 79.5 : 77.5}
-              cy={mood === "scanning" ? 77.5 : 75.5}
-              r="2.4"
+              cx={mood === "scanning" ? 78 : 76}
+              cy={mood === "scanning" ? 80 : 78.5}
+              r="2.2"
               fill="#ffffff"
               fillOpacity="0.9"
             />
-            <circle
-              cx={mood === "scanning" ? 87 : 85.5}
-              cy={mood === "scanning" ? 86 : 84.5}
-              r="1.1"
-              fill="#ffffff"
-              fillOpacity="0.55"
-            />
           </motion.g>
         </g>
-
-        {/* Upper Telemetry Visor / Attitude Indicator Bar */}
-        <motion.rect
-          x="67"
-          y="51"
-          width="30"
-          height="2.5"
-          rx="1"
-          fill={accentHex}
-          animate={{
-            y: spec.browOffsetY * 0.6,
-            rotate: spec.browTiltDeg * 0.6,
-          }}
-          style={{ transformOrigin: "82px 52px" }}
-        />
-
-        {/* Lower nadir scan cone when scanning */}
-        {mood === "scanning" && (
-          <polygon
-            points="68,118 96,118 108,148 56,148"
-            fill="#5ce1ff"
-            fillOpacity="0.12"
-          />
-        )}
       </motion.svg>
     </div>
   );

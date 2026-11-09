@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "preview": "npm run build && wrangler dev",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
@@ -15,7 +15,8 @@
     "assets:textures": "node scripts/build-textures.mjs",
     "assets:site-media": "node scripts/fetch-site-media.mjs",
     "assets:models": "node scripts/optimize-models.mjs",
-    "content:check": "vitest run src/data"
+    "content:check": "vitest run src/data",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
@@ -31,6 +32,7 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.67.0",
     "@eslint/js": "^10.0.1",
     "@gltf-transform/cli": "^4.5.1",
     "@tailwindcss/vite": "^4.3.5",
@@ -52,6 +54,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1",
     "vite": "^8.3.6",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "wrangler": "^4.158.0"
   }
 }

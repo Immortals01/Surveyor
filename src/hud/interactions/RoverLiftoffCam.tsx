@@ -128,7 +128,7 @@ export default function RoverLiftoffCam() {
       {/* Vintage 4:3 RCA TV Monitor View */}
       <div className="telemetry-scanlines relative overflow-hidden rounded-xl border-2 border-regolith/25 bg-space-900 p-2.5">
         <div className="mb-1 flex items-center justify-between font-mono text-[10px]">
-          <span className="text-sunlit">LRV-3 RCA COLOR TV // TAURUS-LITTROW</span>
+          <span className="text-sunlit">LRV-3 RCA COLOR TV · TAURUS-LITTROW</span>
           <span
             className={`font-bold ${
               Math.abs(missionTimeSec - IDEAL_LEAD_SEC) < 0.35 && phase === "countdown"

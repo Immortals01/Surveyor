@@ -77,7 +77,7 @@ export default function SiteDrawer() {
     store.setDialogue({
       lineId: hero.loroIntro.id,
       speaker: "loro",
-      speakerLabel: "LO-RO // ORBITAL GUIDE",
+      speakerLabel: "SURVEYOR 3 · LUNAR HOST",
       text: hero.loroIntro.text,
       sourceIds: hero.loroIntro.sourceIds,
       isRevealing: !settings.reduceMotion,
@@ -172,10 +172,10 @@ export default function SiteDrawer() {
                 type="button"
                 onClick={() => handleSpeakLoRoIntro(site)}
                 className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-loro/35 bg-loro/10 px-2.5 py-1 font-mono text-[10.5px] font-medium text-loro transition hover:bg-loro/20"
-                title="Hear Lo-Ro's orbital commentary"
+                title="Hear Surveyor 3's host commentary"
               >
                 <Volume2 className="h-3 w-3" />
-                <span>Lo-Ro Intro</span>
+                <span>Surveyor 3 Intro</span>
               </button>
             )}
 
