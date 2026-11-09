@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 import { execFile } from "node:child_process";
 import { existsSync, mkdirSync } from "node:fs";
 import { readFile, unlink, writeFile } from "node:fs/promises";

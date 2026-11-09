@@ -15,7 +15,13 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "types": ["bun"],
+
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["bun"]
   },
-  "include": ["vite.config.ts"]
+  "include": ["vite.config.ts", "src/**/*.test.ts"]
 }

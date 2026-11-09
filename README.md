@@ -44,16 +44,20 @@ An interactive 3D lunar museum and guided story tour where **Lo-Ro** (an animate
 
 ```bash
 # Install dependencies
-npm install
+bun install
 
 # Start local development server
-npm run dev
+bun run dev
 
-# Run unit & dataset verification tests (Vitest)
-npm test
+# Run unit & dataset verification tests (Bun Test)
+bun test
+
+# Lint & typecheck (Bun Lint & Bun Check)
+bun run lint
+bun run check
 
 # Typecheck & build production bundle
-npm run build
+bun run build
 ```
 
 ### Asset Pipeline Scripts (Optional Re-generation)
@@ -61,8 +65,9 @@ npm run build
 All required optimized WebP textures, `.u16` heightmaps, archival site thumbnails, and `.glb` 3D models are already built in `public/`. To rebuild from raw sources:
 
 ```bash
-npm run fetch:moon     # Download raw NASA SVS #4720 TIFFs into raw/
-npm run build:textures # Slice L0-L3 WebP tiles, normals, and LOLA .u16 heightmap
-node scripts/fetch-site-media.mjs # Fetch & optimize NASA archival Then/Now site images
-node scripts/optimize-models.mjs  # Build/optimize spacecraft .glb models in public/models/
+bun run assets:fetch      # Download raw NASA SVS #4720 TIFFs into raw/
+bun run assets:textures   # Slice L0-L3 WebP tiles, normals, and LOLA .u16 heightmap
+bun run assets:site-media # Fetch & optimize NASA archival Then/Now site images
+bun run assets:models     # Build/optimize spacecraft .glb models in public/models/
+bun run assets:narration  # Synthesize & master dual-voice audio narration in public/audio/narration/
 ```

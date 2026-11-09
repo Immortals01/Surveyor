@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import type { TourChapter } from "@/data/schema";
 import { createInitialTourState, tourReducer } from "./tourEngine";
 

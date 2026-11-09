@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -10,6 +10,7 @@ const ROOT = path.resolve(import.meta.dirname, "..");
 const RAW_DIR = path.join(ROOT, "raw/moon-kit");
 const OUT_MOON = path.join(ROOT, "public/textures/moon");
 const OUT_SKY = path.join(ROOT, "public/textures/sky");
+const OUT_EARTH = path.join(ROOT, "public/textures/earth");
 
 const COLS = 8;
 const ROWS = 4;
@@ -25,6 +26,7 @@ const COLOR_LEVELS = [
 
 mkdirSync(OUT_MOON, { recursive: true });
 mkdirSync(OUT_SKY, { recursive: true });
+mkdirSync(OUT_EARTH, { recursive: true });
 
 async function buildColorPyramid() {
   const builtLevels = [];
@@ -204,15 +206,41 @@ async function buildHeightAndNormals() {
 }
 
 async function buildStarfield() {
-  const starSrc = path.join(RAW_DIR, "starmap_2020_4k_gal.jpg");
-  if (!existsSync(starSrc)) return false;
   const starOut = path.join(OUT_SKY, "stars_4k.webp");
-  await sharp(starSrc, { limitInputPixels: false })
-    .resize(4096, 2048, { fit: "fill" })
-    .webp({ quality: 82 })
-    .toFile(starOut);
-  console.log("[sky] Built public/textures/sky/stars_4k.webp");
-  return true;
+  const starSrc = path.join(RAW_DIR, "starmap_2020_4k_gal.jpg");
+  if (existsSync(starSrc)) {
+    await sharp(starSrc, { limitInputPixels: false })
+      .resize(4096, 2048, { fit: "fill" })
+      .webp({ quality: 86 })
+      .toFile(starOut);
+    console.log("[sky] Built public/textures/sky/stars_4k.webp");
+  }
+  const mwSrc = path.join(RAW_DIR, "milkyway_4k_gal.jpg");
+  const mwOut = path.join(OUT_SKY, "milkyway_4k.webp");
+  if (existsSync(mwSrc)) {
+    await sharp(mwSrc, { limitInputPixels: false })
+      .resize(4096, 2048, { fit: "fill" })
+      .webp({ quality: 84 })
+      .toFile(mwOut);
+    console.log("[sky] Built public/textures/sky/milkyway_4k.webp");
+  }
+  const earthJobs = [
+    ["earth_atmos_2048.jpg", "earth_day_2k.webp", 2048, 1024, 88],
+    ["earth_clouds_1024.png", "earth_clouds_2k.webp", 1024, 512, 86],
+    ["earth_normal_2048.jpg", "earth_normal_2k.webp", 2048, 1024, 86],
+    ["earth_specular_2048.jpg", "earth_specular_2k.webp", 2048, 1024, 84],
+    ["earth_lights_2048.png", "earth_lights_2k.webp", 2048, 1024, 84],
+  ];
+  for (const [srcFile, outFile, w, h, q] of earthJobs) {
+    const src = path.join(RAW_DIR, srcFile);
+    if (existsSync(src)) {
+      await sharp(src, { limitInputPixels: false })
+        .resize(w, h, { fit: "fill" })
+        .webp({ quality: q })
+        .toFile(path.join(OUT_EARTH, outFile));
+    }
+  }
+  return existsSync(starOut);
 }
 
 const colorLevels = await buildColorPyramid();
