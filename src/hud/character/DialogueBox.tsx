@@ -8,12 +8,19 @@ interface DialogueBoxProps {
   onAdvanceTour?: () => void;
 }
 
-const DEFAULT_HOST_MESSAGE =
-  "Click any glowing marker on the Moon—or open 'All 29 Sites' above—to swoop down and hear what our left-behind spacecraft remember!";
+const DEFAULT_MOON_MESSAGE =
+  "Click any glowing marker on the Moon—or open 'Index (29)' above—to swoop down and hear what our left-behind spacecraft remember!";
+
+const DEFAULT_EARTH_MESSAGE =
+  "Click any spaceport or tracking station on Earth—or click 'ISS LIVE' in orbit—to see how many missions started at each site while the Moon gleams in the background!";
+
+const DEFAULT_MARS_MESSAGE =
+  "Click any glowing marker on Mars—or open 'Index (29)' above—to swoop down to Viking, Pathfinder, Opportunity, Curiosity, Perseverance, and Ingenuity!";
 
 export default function DialogueBox({
   onAdvanceTour,
 }: DialogueBoxProps) {
+  const activeBody = useAppStore((s) => s.activeBody);
   const dialogue = useAppStore((s) => s.dialogue);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const mode = useAppStore((s) => s.mode);
@@ -28,11 +35,17 @@ export default function DialogueBox({
 
   // Derive fallback host commentary when no explicit dialogue is active in Explore mode
   const selectedSite = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
+  const defaultMsg =
+    activeBody === "earth"
+      ? DEFAULT_EARTH_MESSAGE
+      : activeBody === "mars"
+        ? DEFAULT_MARS_MESSAGE
+        : DEFAULT_MOON_MESSAGE;
   const fallbackText = selectedSite
     ? selectedSite.tier === "hero"
       ? selectedSite.loroIntro.text
       : `${selectedSite.name} (${selectedSite.year}) — ${selectedSite.summary}`
-    : DEFAULT_HOST_MESSAGE;
+    : defaultMsg;
 
   const fullText = dialogue?.text ?? fallbackText;
   const lineId = dialogue?.lineId ?? `fallback-${selectedSiteId ?? "home"}`;

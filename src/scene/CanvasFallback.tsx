@@ -1,6 +1,6 @@
 import { Component, type ReactNode } from "react";
 import { getSitesForBody } from "@/data";
-import { CATEGORY_META } from "@/lib/constants";
+import { getCategoryMeta } from "@/lib/constants";
 import { useAppStore } from "@/store/useAppStore";
 
 export function Fallback2DMoonMap() {
@@ -10,24 +10,32 @@ export function Fallback2DMoonMap() {
   const enterExplore = useAppStore((s) => s.enterExplore);
   const mode = useAppStore((s) => s.mode);
   const sites = getSitesForBody(celestialBody);
-  const isMars = celestialBody === "mars";
+  const categoryMeta = getCategoryMeta(celestialBody);
 
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-space-950 p-6">
       <div className="relative aspect-[2/1] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/15 bg-space-900 shadow-2xl">
         <img
-          src={`/textures/${celestialBody}/color/L0/0_0.webp`}
+          src={
+            celestialBody === "earth"
+              ? "/textures/earth/earth_day_2k.webp"
+              : celestialBody === "mars"
+                ? "/textures/mars/color/L0/0_0.webp"
+                : "/textures/moon/moon_day_2k.webp"
+          }
           alt={
-            isMars
-              ? "NASA MGS MOLA & Viking Global Mars Map"
-              : "NASA LRO WAC Global Lunar Map"
+            celestialBody === "earth"
+              ? "NASA Blue Marble Global Earth Map"
+              : celestialBody === "mars"
+                ? "NASA MGS MOLA & Viking Global Mars Map"
+                : "NASA LRO WAC Global Lunar Map"
           }
           className="h-full w-full object-cover opacity-80"
         />
         {sites.map((site) => {
           const xPct = ((site.lon + 180) / 360) * 100;
           const yPct = ((90 - site.lat) / 180) * 100;
-          const cat = CATEGORY_META[site.primaryCategory];
+          const cat = categoryMeta[site.primaryCategory];
           const isSelected = site.id === selectedSiteId;
 
           return (

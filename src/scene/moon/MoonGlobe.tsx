@@ -108,7 +108,8 @@ function MoonTileMesh({
 
 export default function MoonGlobe() {
   const { camera, size, gl } = useThree();
-  const body = useAppStore((s) => s.celestialBody);
+  const celestialBody = useAppStore((s) => s.celestialBody);
+  const body: "moon" | "mars" = celestialBody === "mars" ? "mars" : "moon";
   const qualitySetting = useAppStore((s) => s.settings.qualityTier);
   const heightReady = useAppStore((s) => s.heightReady);
   const setHeightReady = useAppStore((s) => s.setHeightReady);

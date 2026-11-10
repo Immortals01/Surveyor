@@ -4,6 +4,7 @@ import type { Category, CelestialBody, LoRoMood, StoryTab } from "@/data/schema"
 import type { QualityTier } from "@/lib/quality";
 import { setActiveHeightBody } from "@/scene/moon/heightSampler";
 
+export type { CelestialBody };
 export type AppMode = "intro" | "tour" | "explore";
 
 export interface ActiveDialogue {
@@ -26,15 +27,18 @@ export interface PersistedSettings {
 }
 
 export interface AppState {
-  // Celestial body ("moon" | "mars")
+  // Celestial body ("moon" | "earth" | "mars")
   celestialBody: CelestialBody;
+  activeBody: CelestialBody;
   setCelestialBody: (body: CelestialBody) => void;
+  setActiveBody: (body: CelestialBody) => void;
 
   // Primary experience state
   mode: AppMode;
   selectedSiteId: string | null;
   hoveredSiteId: string | null;
   activeStoryTab: StoryTab;
+  issPanelOpen: boolean;
 
   // Guided Tour cursor
   tourChapterIndex: number;
@@ -66,6 +70,7 @@ export interface AppState {
 
   // Actions
   setMode: (mode: AppMode) => void;
+  setIssPanelOpen: (open: boolean) => void;
   startTour: (chapterIndex?: number) => void;
   enterExplore: (keepSelection?: boolean) => void;
   returnToIntro: () => void;
@@ -89,55 +94,69 @@ export interface AppState {
   updateSettings: (patch: Partial<PersistedSettings>) => void;
 }
 
+function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
+  if (s.celestialBody === body && s.activeBody === body) return s;
+  setActiveHeightBody(body);
+  return {
+    celestialBody: body,
+    activeBody: body,
+    mode: s.mode === "tour" ? "explore" : s.mode,
+    selectedSiteId: null,
+    hoveredSiteId: null,
+    issPanelOpen: false,
+    siteIndexOpen: false,
+    categoryFilter: "all",
+    heroOnly: false,
+    tourChapterIndex: 0,
+    tourBeatIndex: 0,
+    tourPaused: true,
+    chapterBannerVisible: false,
+    sunLongitude: body === "mars" ? 18 : body === "earth" ? -55 : -48,
+    sunLatitude: body === "mars" ? 8 : body === "earth" ? 12 : 1.5,
+    loroMood: "waving",
+    dialogue:
+      s.mode === "intro"
+        ? null
+        : {
+            lineId: `switch-body-${body}`,
+            speaker: "loro",
+            speakerLabel:
+              body === "mars"
+                ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
+                : body === "earth"
+                  ? "SURVEYOR 3 · EARTH TELEMETRY LINK"
+                  : "SURVEYOR 3 (1967)",
+            text:
+              body === "mars"
+                ? "Deep-Space Network relay locked onto Mars! From Viking 1 and marathon rover Opportunity to Ingenuity's 72 flights and Perseverance's sample depot—click any marker to explore 29 Red Planet pioneers!"
+                : body === "earth"
+                  ? "Welcome home to Earth! Click any launch complex or Mission Control pin to see how many space missions started there—or click 'ISS LIVE' to track the International Space Station!"
+                  : "Back in lunar orbit above my home crater! Click any glowing beacon on the Moon to visit 29 historic Apollo, Surveyor, Ranger, and Artemis hardware sites.",
+            sourceIds:
+              body === "mars"
+                ? ["S-MOLA-MEGDR", "S-HIRISE-HARDWARE"]
+                : body === "earth"
+                  ? ["S-BLUE-MARBLE", "S-NASA-KSC", "S-NASA-ISS"]
+                  : ["S-SVS-4720", "S-WAGNER-2017"],
+            isRevealing: !s.settings.reduceMotion,
+            isSpeaking: false,
+          },
+  };
+}
+
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       celestialBody: "moon",
-      setCelestialBody: (body) =>
-        set((s) => {
-          if (s.celestialBody === body) return s;
-          setActiveHeightBody(body);
-          return {
-            celestialBody: body,
-            selectedSiteId: null,
-            hoveredSiteId: null,
-            categoryFilter: "all",
-            heroOnly: false,
-            tourChapterIndex: 0,
-            tourBeatIndex: 0,
-            tourPaused: true,
-            chapterBannerVisible: false,
-            sunLongitude: body === "mars" ? 18 : -48,
-            sunLatitude: body === "mars" ? 8 : 1.5,
-            loroMood: "waving",
-            dialogue:
-              s.mode === "intro"
-                ? null
-                : {
-                    lineId: `switch-body-${body}`,
-                    speaker: "loro",
-                    speakerLabel:
-                      body === "mars"
-                        ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-                        : "SURVEYOR 3 (1967)",
-                    text:
-                      body === "mars"
-                        ? "Deep-Space Network relay locked onto Mars! From Viking 1 and marathon rover Opportunity to Ingenuity's 72 flights and Perseverance's sample depot—click any marker to explore 29 Red Planet pioneers!"
-                        : "Back in lunar orbit above my home crater! Click any glowing beacon on the Moon to visit 29 historic Apollo, Surveyor, Ranger, and Artemis hardware sites.",
-                    sourceIds:
-                      body === "mars"
-                        ? ["S-MOLA-MEGDR", "S-HIRISE-HARDWARE"]
-                        : ["S-SVS-4720", "S-WAGNER-2017"],
-                    isRevealing: !s.settings.reduceMotion,
-                    isSpeaking: false,
-                  },
-          };
-        }),
+      activeBody: "moon",
+      setCelestialBody: (body) => set((s) => applyBodySwitch(s, body)),
+      setActiveBody: (body) => set((s) => applyBodySwitch(s, body)),
 
       mode: "intro",
       selectedSiteId: null,
       hoveredSiteId: null,
       activeStoryTab: "story",
+      issPanelOpen: false,
 
       tourChapterIndex: 0,
       tourBeatIndex: 0,
@@ -169,6 +188,12 @@ export const useAppStore = create<AppState>()(
 
       setMode: (mode) => set({ mode }),
 
+      setIssPanelOpen: (issPanelOpen) =>
+        set((s) => ({
+          issPanelOpen,
+          selectedSiteId: issPanelOpen ? null : s.selectedSiteId,
+        })),
+
       startTour: (chapterIndex = 0) =>
         set({
           mode: "tour",
@@ -176,6 +201,7 @@ export const useAppStore = create<AppState>()(
           tourBeatIndex: 0,
           tourPaused: false,
           siteIndexOpen: false,
+          issPanelOpen: false,
           chapterBannerVisible: true,
           categoryFilter: "all",
           heroOnly: false,
@@ -187,20 +213,34 @@ export const useAppStore = create<AppState>()(
           tourPaused: true,
           chapterBannerVisible: false,
           selectedSiteId: keepSelection ? s.selectedSiteId : null,
+          issPanelOpen: keepSelection ? s.issPanelOpen : false,
           loroMood: "waving",
         })),
 
       returnToIntro: () =>
-        set({
+        set((s) => ({
           mode: "intro",
           tourPaused: true,
           chapterBannerVisible: false,
           selectedSiteId: null,
           hoveredSiteId: null,
+          issPanelOpen: false,
           dialogue: null,
           loroMood: "waving",
           siteIndexOpen: false,
-        }),
+          sunLongitude:
+            s.celestialBody === "mars"
+              ? 18
+              : s.celestialBody === "earth"
+                ? -55
+                : -48,
+          sunLatitude:
+            s.celestialBody === "mars"
+              ? 8
+              : s.celestialBody === "earth"
+                ? 12
+                : 1.5,
+        })),
 
       setTourCursor: (chapterIndex, beatIndex) =>
         set({ tourChapterIndex: chapterIndex, tourBeatIndex: beatIndex }),
@@ -213,6 +253,7 @@ export const useAppStore = create<AppState>()(
       selectSite: (siteId, tab) =>
         set((s) => ({
           selectedSiteId: siteId,
+          issPanelOpen: siteId !== null ? false : s.issPanelOpen,
           activeStoryTab: tab ?? (siteId !== s.selectedSiteId ? "story" : s.activeStoryTab),
         })),
 

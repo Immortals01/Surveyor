@@ -1,4 +1,5 @@
 export const MOON_RADIUS_KM = 1737.4;
+export const EARTH_RADIUS_KM = 6371.0;
 export const HEIGHT_EXAGGERATION = 3;
 
 export const MARS_RADIUS_KM = 3396.2;
@@ -45,3 +46,75 @@ export const CATEGORY_META = {
     color: "#ffffff",
   },
 } as const;
+
+export const EARTH_CATEGORY_META = {
+  lander: {
+    label: "Crewed Launch Complexes",
+    shortLabel: "Crewed Pads",
+    color: "#ffcf70",
+  },
+  rover: {
+    label: "Planetary & Robotic Hubs",
+    shortLabel: "Deep Space",
+    color: "#ff9f5c",
+  },
+  experiment: {
+    label: "Mission Control & DSN",
+    shortLabel: "Control & DSN",
+    color: "#7ee787",
+  },
+  active: {
+    label: "Active Spaceports",
+    shortLabel: "Spaceports",
+    color: "#5ce1ff",
+  },
+  impact: {
+    label: "Test Stands & Recovery",
+    shortLabel: "Heritage",
+    color: "#c4a7ff",
+  },
+  future: {
+    label: "Artemis & Next-Gen",
+    shortLabel: "Artemis",
+    color: "#ffffff",
+  },
+} as const;
+
+export const MARS_CATEGORY_META = {
+  lander: {
+    label: "Landers & Probes",
+    shortLabel: "Landers",
+    color: "#ffcf70",
+  },
+  rover: {
+    label: "Mars Rovers",
+    shortLabel: "Rovers",
+    color: "#ff9f5c",
+  },
+  experiment: {
+    label: "Seismic & ISRU Labs",
+    shortLabel: "Science",
+    color: "#7ee787",
+  },
+  active: {
+    label: "Active Surface Missions",
+    shortLabel: "Still Active",
+    color: "#5ce1ff",
+  },
+  impact: {
+    label: "Aeroshells & Impacts",
+    shortLabel: "Impacts",
+    color: "#c4a7ff",
+  },
+  future: {
+    label: "Sample Return Frontier",
+    shortLabel: "Sample Return",
+    color: "#ffffff",
+  },
+} as const;
+
+export function getCategoryMeta(body: "moon" | "earth" | "mars") {
+  if (body === "earth") return EARTH_CATEGORY_META;
+  if (body === "mars") return MARS_CATEGORY_META;
+  return CATEGORY_META;
+}

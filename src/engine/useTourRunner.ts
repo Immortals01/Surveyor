@@ -62,7 +62,7 @@ export function useTourRunner() {
       }, 2400);
       return () => window.clearTimeout(timer);
     }
-  }, [mode, chapterIndex]);
+  }, [mode, chapterIndex, celestialBody]);
 
   // Execute active beat with strict AbortController cancellation
   useEffect(() => {
@@ -89,7 +89,9 @@ export function useTourRunner() {
           (line.speaker === "loro"
             ? store.celestialBody === "mars"
               ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-              : "SURVEYOR 3 (1967)"
+              : store.celestialBody === "earth"
+                ? "SURVEYOR 3 · EARTH TELEMETRY LINK"
+                : "SURVEYOR 3 (1967)"
             : "MEMORY LOG"),
         text: line.text,
         sourceIds: line.sourceIds,

@@ -25,6 +25,12 @@ const demByBody: Record<CelestialBody, DemBufferState> = {
     height: DEFAULT_H,
     loadPromise: null,
   },
+  earth: {
+    samples: null,
+    width: DEFAULT_W,
+    height: DEFAULT_H,
+    loadPromise: null,
+  },
   mars: {
     samples: null,
     width: DEFAULT_W,

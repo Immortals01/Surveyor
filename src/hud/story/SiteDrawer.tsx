@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech } from "@/audio/speech";
-import { EVERY_PLANETARY_SITE, getSiteBody, SITE_BY_ID } from "@/data";
+import { getSiteBody, getSitesForBody, SITE_BY_ID } from "@/data";
 import type { StoryTab } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import LaserRetroreflector from "@/hud/interactions/LaserRetroreflector";
@@ -29,6 +29,7 @@ import ThenNowSlider from "./ThenNowSlider";
 const ModelSpotlight = lazy(() => import("./ModelSpotlight"));
 
 export default function SiteDrawer() {
+  const activeBody = useAppStore((s) => s.activeBody);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const activeStoryTab = useAppStore((s) => s.activeStoryTab);
   const setActiveStoryTab = useAppStore((s) => s.setActiveStoryTab);
@@ -36,19 +37,22 @@ export default function SiteDrawer() {
   const openSources = useAppStore((s) => s.openSources);
 
   const site = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
+  const bodySites = getSitesForBody(activeBody);
   const relatedSecondary = useMemo(
     () =>
       site
-        ? EVERY_PLANETARY_SITE.filter(
+        ? bodySites.filter(
             (s) => s.tier === "secondary" && s.parentHeroId === site.id,
           )
         : [],
-    [site],
+    [bodySites, site],
   );
 
   if (!site) return null;
 
-  const isMars = getSiteBody(site.id) === "mars";
+  const siteBody = getSiteBody(site.id);
+  const isMars = siteBody === "mars";
+  const isEarth = siteBody === "earth";
   const parentHero =
     site.tier === "secondary" && site.parentHeroId
       ? SITE_BY_ID.get(site.parentHeroId)
@@ -79,7 +83,7 @@ export default function SiteDrawer() {
 
   return (
     <aside
-      aria-label={`${isMars ? "Martian" : "Lunar"} artifact dossier: ${site.name}`}
+      aria-label={`${isMars ? "Martian artifact" : isEarth ? "Earth space site" : "Lunar artifact"} dossier: ${site.name}`}
       className="pointer-events-auto fixed right-0 bottom-0 left-0 z-30 flex max-h-[62dvh] flex-col overflow-hidden rounded-t-3xl border-t border-loro/35 bg-space-950/92 shadow-[0_-18px_60px_rgba(0,0,0,0.85)] backdrop-blur-xl lg:top-20 lg:right-5 lg:bottom-5 lg:left-auto lg:max-h-[calc(100dvh-6.25rem)] lg:w-[440px] lg:rounded-3xl lg:border"
     >
       {/* Mobile Drag Handle Indicator */}
@@ -211,12 +215,16 @@ export default function SiteDrawer() {
                 {/* Verified Stats Grid */}
                 <StatsGrid stats={site.stats} />
 
-                {/* Hardware Left Behind Inventory */}
+                {/* Hardware Left Behind / Launch Infrastructure Inventory */}
                 <div className="rounded-2xl border border-white/10 bg-space-900/65 p-3.5">
                   <div className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-sunlit uppercase">
                     <Wrench className="h-3.5 w-3.5" />
                     <span>
-                      Hardware Left on {isMars ? "Mars" : "the Moon"}
+                      {isEarth
+                        ? "Key Launch & Mission Infrastructure"
+                        : isMars
+                          ? "Hardware Left on Mars"
+                          : "Hardware Left on the Moon"}
                     </span>
                   </div>
                   <ul className="mt-2 space-y-1.5 text-xs text-regolith-bright">
@@ -242,7 +250,11 @@ export default function SiteDrawer() {
                   <div className="border-t border-white/10 pt-2">
                     <span className="inline-flex items-center gap-1 font-mono text-[10.5px] font-bold text-sunlit uppercase">
                       <Rocket className="h-3 w-3" />{" "}
-                      {isMars ? "Path to Human Mars Exploration" : "Path to Artemis"}
+                      {isMars
+                        ? "Path to Human Mars Exploration"
+                        : isEarth
+                          ? "Path to Artemis & Deep Space"
+                          : "Path to Artemis"}
                     </span>
                     <p className="mt-0.5 text-regolith/90">{site.artemisLink}</p>
                   </div>
@@ -252,7 +264,11 @@ export default function SiteDrawer() {
                 {relatedSecondary.length > 0 && (
                   <div className="rounded-2xl border border-white/10 bg-space-900/50 p-3.5">
                     <p className="font-mono text-[10.5px] font-semibold tracking-wider text-regolith/70 uppercase">
-                      Related {isMars ? "Martian" : "Lunar"} Hardware ({relatedSecondary.length})
+                      {isEarth
+                        ? `Related Space Facilities (${relatedSecondary.length})`
+                        : isMars
+                          ? `Related Martian Hardware (${relatedSecondary.length})`
+                          : `Related Lunar Hardware (${relatedSecondary.length})`}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {relatedSecondary.map((rel) => (

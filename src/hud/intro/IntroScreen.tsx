@@ -13,6 +13,14 @@ const MOON_VOICE_LINE = {
   sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
 };
 
+const EARTH_VOICE_LINE = {
+  id: "loro-earth-intro",
+  speaker: "loro" as const,
+  mood: "excited" as const,
+  text: "Welcome back to Earth! Explore 24 legendary launch complexes and Mission Control hubs where thousands of space missions began—and track the live International Space Station in orbit!",
+  sourceIds: ["S-BLUE-MARBLE", "S-NASA-KSC", "S-NASA-ISS"],
+};
+
 const MARS_VOICE_LINE = {
   id: "mars-viking1-intro",
   speaker: "loro" as const,
@@ -29,6 +37,7 @@ export default function IntroScreen() {
   const enterExplore = useAppStore((s) => s.enterExplore);
 
   const isMars = celestialBody === "mars";
+  const isEarth = celestialBody === "earth";
 
   const handleStartTour = () => {
     audioEngine.unlock(muted);
@@ -40,20 +49,32 @@ export default function IntroScreen() {
     audioEngine.unlock(muted);
     audioEngine.playUiTick();
     enterExplore(false);
-    void cameraBus.flyOverview(8, 12, 2.55);
+    if (isEarth) {
+      void cameraBus.flyOverview(20, -38, 2.75);
+    } else if (isMars) {
+      void cameraBus.flyOverview(18, 77, 2.75);
+    } else {
+      void cameraBus.flyOverview(8, 12, 2.55);
+    }
   };
 
   const handlePreviewVoice = () => {
     audioEngine.unlock(false);
     useAppStore.getState().updateSettings({ muted: false });
-    void speakLine(isMars ? MARS_VOICE_LINE : MOON_VOICE_LINE);
+    void speakLine(
+      isMars
+        ? MARS_VOICE_LINE
+        : isEarth
+          ? EARTH_VOICE_LINE
+          : MOON_VOICE_LINE,
+    );
   };
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-end bg-gradient-to-t from-space-950/95 via-space-950/40 to-transparent p-5 sm:p-10 lg:justify-center lg:bg-gradient-to-r lg:from-space-950/95 lg:via-space-950/65 lg:to-transparent lg:pl-14">
       <div className="animate-hud-fade-up pointer-events-auto w-full max-w-lg">
         {/* World Selector Tabs on Intro Briefing */}
-        <div className="mb-3 inline-flex items-center border border-white/15 bg-space-950/90 p-0.5 backdrop-blur-md">
+        <div className="mb-3 inline-flex flex-wrap items-center border border-white/15 bg-space-950/90 p-0.5 backdrop-blur-md">
           <button
             type="button"
             onClick={() => {
@@ -61,12 +82,26 @@ export default function IntroScreen() {
               setCelestialBody("moon");
             }}
             className={`cursor-pointer px-3 py-1 font-mono text-[10.5px] font-semibold tracking-wider uppercase transition ${
-              !isMars
+              celestialBody === "moon"
                 ? "bg-sunlit font-bold text-space-950"
                 : "text-regolith/75 hover:text-white"
             }`}
           >
-            01 · The Moon (29 Sites)
+            01 · Moon (29)
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              audioEngine.playUiTick();
+              setCelestialBody("earth");
+            }}
+            className={`cursor-pointer px-3 py-1 font-mono text-[10.5px] font-semibold tracking-wider uppercase transition ${
+              isEarth
+                ? "bg-loro font-bold text-space-950"
+                : "text-regolith/75 hover:text-white"
+            }`}
+          >
+            02 · Earth (24)
           </button>
           <button
             type="button"
@@ -80,7 +115,7 @@ export default function IntroScreen() {
                 : "text-regolith/75 hover:text-white"
             }`}
           >
-            02 · Mars (29 Sites)
+            03 · Mars (29)
           </button>
         </div>
 
@@ -88,32 +123,55 @@ export default function IntroScreen() {
         <div className="flex items-center gap-3 font-mono text-[11px] tracking-[0.18em] text-regolith/70 uppercase">
           <span
             className={`inline-block h-1.5 w-1.5 rounded-full ${
-              isMars ? "bg-orange-400" : "bg-sunlit"
+              isMars
+                ? "bg-orange-400"
+                : isEarth
+                  ? "bg-loro"
+                  : "bg-sunlit"
             }`}
           />
           <span>
-            {isMars ? "MGS MOLA & MRO HIRISE" : "SURVEYOR 3 TELEMETRY"}
+            {isMars
+              ? "MGS MOLA & MRO HIRISE"
+              : isEarth
+                ? "EARTH SPACEPORT ARCHIVE"
+                : "SURVEYOR 3 TELEMETRY"}
           </span>
           <span className="text-white/25">·</span>
           <span className="text-loro">
             {isMars
               ? "DEEP-SPACE MARS RELAY"
-              : "OCEANUS PROCELLARUM (1967-035A)"}
+              : isEarth
+                ? "LIVE ISS ORBIT (NORAD #25544)"
+                : "OCEANUS PROCELLARUM (1967-035A)"}
           </span>
         </div>
 
         {/* Editorial Headline — Clean, Solid High-Contrast Typography */}
         <h1 className="mt-2.5 font-display text-4xl leading-[1.05] font-bold tracking-tight text-regolith-bright sm:text-5xl">
-          Abandoned,{" "}
-          <span className="font-normal text-regolith/85 italic">
-            Not Forgotten.
-          </span>
+          {isEarth ? (
+            <>
+              Where Every{" "}
+              <span className="font-normal text-regolith/85 italic">
+                Voyage Begins.
+              </span>
+            </>
+          ) : (
+            <>
+              Abandoned,{" "}
+              <span className="font-normal text-regolith/85 italic">
+                Not Forgotten.
+              </span>
+            </>
+          )}
         </h1>
 
         <p className="mt-3 max-w-xl text-[14.5px] leading-relaxed text-regolith/80">
           {isMars
             ? "Across the rust-red plains and ancient lakebeds of Mars rest Viking landers, marathon rovers, seismic domes, sample depots, and the Ingenuity helicopter—29 robotic pioneers photographed from orbit by HiRISE."
-            : "Across the lunar plains rest three electric rovers, six gold descent stages, seismic stations, and quartz mirror arrays left behind since 1964—preserved in vacuum and still photographed from orbit today."}
+            : isEarth
+              ? "Across Earth's coastlines, deserts, and steppes stand 24 historic spaceports, Mission Control centers, and giant radio dishes where thousands of space missions began—while the International Space Station orbits overhead with the Moon in the background."
+              : "Across the lunar plains rest three electric rovers, six gold descent stages, seismic stations, and quartz mirror arrays left behind since 1964—preserved in vacuum and still photographed from orbit today."}
         </p>
 
         {/* Compact Lunar Host Badge */}
@@ -135,7 +193,9 @@ export default function IntroScreen() {
             <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-loro uppercase">
               {isMars
                 ? "DEEP-SPACE HOST · SURVEYOR 3 RELAY"
-                : "LUNAR HOST · SURVEYOR 3 (1967-035A)"}
+                : isEarth
+                  ? "MISSION HOST · SURVEYOR 3 ON EARTH"
+                  : "LUNAR HOST · SURVEYOR 3 (1967-035A)"}
             </span>
             <div>
               <button
@@ -160,10 +220,10 @@ export default function IntroScreen() {
           >
             <div>
               <div className="font-mono text-[10px] tracking-[0.16em] text-space-950/65 uppercase">
-                01 · NARRATED {isMars ? "MARS" : "LUNAR"} EXPEDITION
+                01 · NARRATED {isMars ? "MARS" : isEarth ? "EARTH" : "LUNAR"} EXPEDITION
               </div>
               <div className="mt-0.5 font-display text-sm font-bold">
-                Start {isMars ? "Mars" : "Moon"} Tour (5 Chapters)
+                Start {isMars ? "Mars" : isEarth ? "Earth" : "Moon"} Tour (5 Chapters)
               </div>
             </div>
             <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
@@ -188,22 +248,41 @@ export default function IntroScreen() {
 
         {/* Dataset Telemetry Specs Footer */}
         <div className="mt-6 grid grid-cols-3 gap-4 border-t border-white/10 pt-3.5 font-mono text-[10px] tracking-wider text-regolith/60 uppercase">
-          <div>
-            <div className="text-regolith-bright">
-              {isMars ? "MGS MOLA DEM" : "NASA SVS #4720"}
-            </div>
-            <div>{isMars ? "VIKING MDIM 2.1" : "LRO WAC + LOLA DEM"}</div>
-          </div>
-          <div>
-            <div className="text-regolith-bright">
-              {isMars ? "29 MARS SITES" : "29 MOON SITES"}
-            </div>
-            <div>{isMars ? "MRO HIRISE ARCHIVE" : "WAGNER ET AL. 2017"}</div>
-          </div>
-          <div>
-            <div className="text-regolith-bright">NSSDCA</div>
-            <div>VERIFIED TELEMETRY</div>
-          </div>
+          {isEarth ? (
+            <>
+              <div>
+                <div className="text-regolith-bright">BLUE MARBLE 2K</div>
+                <div>NASA EO + CITY LIGHTS</div>
+              </div>
+              <div>
+                <div className="text-regolith-bright">24 SPACE SITES</div>
+                <div>LAUNCH &amp; DSN HUBS</div>
+              </div>
+              <div>
+                <div className="text-regolith-bright">ISS LIVE ORBIT</div>
+                <div>NORAD #25544 TRACK</div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <div className="text-regolith-bright">
+                  {isMars ? "MGS MOLA DEM" : "NASA SVS #4720"}
+                </div>
+                <div>{isMars ? "VIKING MDIM 2.1" : "LRO WAC + LOLA DEM"}</div>
+              </div>
+              <div>
+                <div className="text-regolith-bright">
+                  {isMars ? "29 MARS SITES" : "29 MOON SITES"}
+                </div>
+                <div>{isMars ? "MRO HIRISE ARCHIVE" : "WAGNER ET AL. 2017"}</div>
+              </div>
+              <div>
+                <div className="text-regolith-bright">NSSDCA</div>
+                <div>VERIFIED TELEMETRY</div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

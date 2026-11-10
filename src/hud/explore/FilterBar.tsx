@@ -3,7 +3,7 @@ import { audioEngine } from "@/audio/AudioEngine";
 import { getSitesForBody } from "@/data";
 import type { Category } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
-import { CATEGORY_META } from "@/lib/constants";
+import { getCategoryMeta } from "@/lib/constants";
 import { useAppStore } from "@/store/useAppStore";
 
 const FILTER_ORDER: Category[] = [
@@ -24,7 +24,9 @@ export default function FilterBar() {
   const setSunDirection = useAppStore((s) => s.setSunDirection);
 
   const sites = getSitesForBody(celestialBody);
+  const categoryMeta = getCategoryMeta(celestialBody);
   const isMars = celestialBody === "mars";
+  const isEarth = celestialBody === "earth";
 
   const visibleCount = sites.filter((site) => {
     if (heroOnly && site.tier !== "hero") return false;
@@ -50,10 +52,8 @@ export default function FilterBar() {
       </button>
 
       {FILTER_ORDER.map((cat) => {
-        const meta = CATEGORY_META[cat];
+        const meta = categoryMeta[cat];
         const active = categoryFilter === cat;
-        const shortLabel =
-          isMars && cat === "future" ? "Sample Return" : meta.shortLabel;
         return (
           <button
             key={cat}
@@ -72,7 +72,7 @@ export default function FilterBar() {
               className="h-2 w-2 rounded-full"
               style={{ backgroundColor: meta.color }}
             />
-            <span>{shortLabel}</span>
+            <span>{meta.shortLabel}</span>
           </button>
         );
       })}
@@ -110,7 +110,7 @@ export default function FilterBar() {
               }}
               className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
             >
-              Jezero & Syrtis
+              Jezero &amp; Syrtis
             </button>
             <button
               type="button"
@@ -120,7 +120,7 @@ export default function FilterBar() {
               }}
               className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
             >
-              Gale & Elysium
+              Gale &amp; Elysium
             </button>
             <button
               type="button"
@@ -131,6 +131,39 @@ export default function FilterBar() {
               className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
             >
               Olympus Mons
+            </button>
+          </>
+        ) : isEarth ? (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(-75, 15);
+                void cameraBus.flyOverview(28, -90, 2.75);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Americas
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(30, 18);
+                void cameraBus.flyOverview(36, 32, 2.75);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Eurasia
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(115, 10);
+                void cameraBus.flyOverview(12, 118, 2.85);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Asia-Pacific
             </button>
           </>
         ) : (

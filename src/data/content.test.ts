@@ -60,7 +60,7 @@ describe("NASA Open Data & Lunar + Mars Content Integrity", () => {
     expect(MARS_HERO_SITES.length).toBe(9);
     expect(MARS_SECONDARY_SITES.length).toBe(20);
     expect(MARS_SITES.length).toBe(29);
-    expect(EVERY_PLANETARY_SITE.length).toBe(58);
+    expect(EVERY_PLANETARY_SITE.length).toBe(82);
 
     for (const site of MARS_HERO_SITES) {
       const res = HeroSiteSchema.safeParse(site);

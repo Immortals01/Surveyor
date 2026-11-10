@@ -3,12 +3,12 @@ import { useAppStore } from "@/store/useAppStore";
 import Marker from "./Marker";
 
 export default function SiteMarkers() {
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const heightReady = useAppStore((s) => s.heightReady);
-  const body = useAppStore((s) => s.celestialBody);
-  const sites = getSitesForBody(body);
+  const sites = getSitesForBody(celestialBody);
 
   return (
-    <group name="planetary-site-markers">
+    <group name={`${celestialBody}-site-markers`}>
       {sites.map((site) => (
         <Marker key={site.id} site={site} heightReady={heightReady} />
       ))}
