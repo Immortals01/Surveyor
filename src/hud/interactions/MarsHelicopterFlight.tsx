@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Fan, Play, RotateCcw, Wind } from "lucide-react";
+import { Fan, Play, RotateCcw } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -82,35 +82,34 @@ export default function MarsHelicopterFlight() {
   const heliY = 88 - (altitudeM / 12) * 56;
 
   return (
-    <div className="space-y-3.5 rounded-2xl border border-loro/35 bg-space-950/90 p-4 shadow-xl">
-      <div className="flex items-start justify-between gap-2">
+    <div className="space-y-4 border border-white/15 bg-space-950/90 p-4">
+      <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
         <div>
-          <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold tracking-wider text-amber-300 uppercase">
-            <Wind className="h-3 w-3" />
-            Aerodynamics Lab · 1% Earth Atmosphere
+          <span className="font-mono text-[9.5px] font-bold tracking-[0.16em] text-sunlit uppercase">
+            INSTRUMENT 01 // AERODYNAMICS LAB · 0.01 BAR ATMOSPHERE
           </span>
-          <h3 className="mt-0.5 font-display text-base font-bold text-regolith-bright">
+          <h3 className="mt-1 font-display text-base font-bold tracking-tight text-regolith-bright">
             Spin Ingenuity&apos;s Coaxial Rotors in Thin Martian Air
           </h3>
         </div>
         <button
           type="button"
           onClick={() => openSources("S-NSSDCA-2020-052B")}
-          className="cursor-pointer rounded border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-loro hover:border-loro"
+          className="shrink-0 cursor-pointer border border-white/15 bg-white/[0.04] px-2 py-0.5 font-mono text-[9.5px] tracking-wider text-loro uppercase transition hover:border-loro hover:text-white"
         >
-          Cite
+          REF
         </button>
       </div>
 
       <p className="text-xs leading-relaxed text-regolith/85">
         Mars&apos;s atmosphere is <strong>99% thinner</strong> than Earth&apos;s—equivalent
-        to flying 30 km (100,000 ft) above Earth! While an Earth helicopter spins
+        to flying 30 km (100,000 ft) above Earth. While an Earth helicopter spins
         at ~500 RPM, 1.8-kg Ingenuity must spin its 1.2-meter carbon-fiber blades
-        past <strong>2,400 RPM</strong> just to lift off!
+        past <strong>2,400 RPM</strong> to generate lift.
       </p>
 
       {/* Interactive Flight Telemetry SVG */}
-      <div className="relative overflow-hidden rounded-xl border border-white/10 bg-[#140b08] p-3">
+      <div className="relative overflow-hidden border border-white/15 bg-[#140b08] p-3">
         <svg
           viewBox="0 0 340 116"
           className="h-28 w-full select-none"
@@ -166,7 +165,7 @@ export default function MarsHelicopterFlight() {
               y="-6"
               width="16"
               height="10"
-              rx="1.5"
+              rx="1"
               fill="#eab308"
               stroke="#fef08a"
               strokeWidth="1"
@@ -198,7 +197,7 @@ export default function MarsHelicopterFlight() {
           <text
             x="12"
             y="20"
-            className="fill-amber-300 font-mono text-[9.5px] font-bold"
+            className="fill-sunlit font-mono text-[9.5px] font-bold"
           >
             ROTOR: {rpm} RPM
           </text>
@@ -229,21 +228,21 @@ export default function MarsHelicopterFlight() {
         </svg>
 
         {/* RPM Slider */}
-        <div className="mt-2 rounded-lg border border-white/10 bg-space-950/80 p-2.5">
+        <div className="mt-2.5 border border-white/15 bg-space-950/90 p-3">
           <div className="flex items-center justify-between text-xs">
             <label
               htmlFor="ingenuity-rpm-slider"
-              className="font-mono text-[10.5px] font-semibold text-sunlit uppercase"
+              className="font-mono text-[10px] font-bold tracking-[0.12em] text-sunlit uppercase"
             >
-              Blade Speed: {rpm} RPM{" "}
-              {rpm === NOMINAL_MARS_RPM ? "(Nominal Mars Cruise)" : ""}
+              ROTOR SPEED: {rpm} RPM{" "}
+              {rpm === NOMINAL_MARS_RPM ? "(NOMINAL CRUISE)" : ""}
             </label>
             <span
-              className={`font-mono text-[10.5px] font-bold ${
-                canHover ? "text-emerald-300" : "text-rose-300"
+              className={`font-mono text-[10px] font-bold uppercase ${
+                canHover ? "text-loro" : "text-alert"
               }`}
             >
-              {canHover ? "✓ Lift Exceeds Mars Gravity" : "✗ Too Slow for 0.01 bar Air"}
+              {canHover ? "LIFT > MARS GRAVITY" : "INSUFFICIENT LIFT"}
             </span>
           </div>
           <input
@@ -254,13 +253,13 @@ export default function MarsHelicopterFlight() {
             step={25}
             value={rpm}
             onChange={(e) => setRpm(Number(e.target.value))}
-            className="mt-1.5 h-1.5 w-full cursor-pointer accent-sunlit"
+            className="mt-2 h-1 w-full cursor-pointer accent-sunlit"
             aria-label="Adjust Ingenuity rotor blade RPM from 500 Earth RPM to 2800 Mars RPM"
           />
-          <div className="mt-1 flex justify-between font-mono text-[9.5px] text-regolith/60">
-            <span>500 RPM (Earth Heli)</span>
-            <span>2,400 RPM (Liftoff)</span>
-            <span>2,800 RPM (Mach 0.7 Tip)</span>
+          <div className="mt-1.5 flex justify-between font-mono text-[9.5px] text-regolith/55">
+            <span>500 RPM (EARTH)</span>
+            <span>2,400 RPM (LIFTOFF)</span>
+            <span>2,800 RPM (MACH 0.7)</span>
           </div>
         </div>
 
@@ -269,15 +268,15 @@ export default function MarsHelicopterFlight() {
             type="button"
             onClick={launchHop}
             disabled={flying}
-            className={`inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-display text-xs font-bold transition ${
+            className={`inline-flex flex-1 cursor-pointer items-center justify-center gap-2 border px-4 py-2.5 font-mono text-[11px] font-bold tracking-wider uppercase transition ${
               canHover
-                ? "bg-sunlit text-space-950 shadow-[0_0_20px_rgba(255,207,112,0.35)] hover:brightness-110"
-                : "border border-rose-400/40 bg-rose-950/50 text-rose-200"
+                ? "border-regolith-bright bg-regolith-bright text-space-950 hover:bg-white"
+                : "border-alert/50 bg-alert/10 text-alert"
             }`}
           >
             {canHover ? (
               <>
-                <Play className="h-4 w-4 fill-current" />
+                <Play className="h-3.5 w-3.5 fill-current" />
                 <span>
                   {flying
                     ? "Hovering Above Jezero Dunes..."
@@ -286,8 +285,8 @@ export default function MarsHelicopterFlight() {
               </>
             ) : (
               <>
-                <Fan className="h-4 w-4" />
-                <span>Increase RPM Past 2,400 to Lift Off!</span>
+                <Fan className="h-3.5 w-3.5" />
+                <span>Increase RPM Past 2,400 to Lift Off</span>
               </>
             )}
           </button>
@@ -296,11 +295,11 @@ export default function MarsHelicopterFlight() {
             <button
               type="button"
               onClick={reset}
-              className="cursor-pointer rounded-xl border border-white/15 bg-white/5 p-2.5 text-regolith hover:border-loro hover:text-white"
+              className="cursor-pointer border border-white/15 bg-white/5 p-2.5 text-regolith transition hover:border-loro hover:text-white"
               aria-label="Land Ingenuity"
               title="Land"
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw className="h-3.5 w-3.5" />
             </button>
           )}
         </div>

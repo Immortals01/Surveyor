@@ -2,7 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Category, CelestialBody, LoRoMood, StoryTab } from "@/data/schema";
 import type { QualityTier } from "@/lib/quality";
-import { setActiveHeightBody } from "@/scene/moon/heightSampler";
+import {
+  isHeightLoaded,
+  setActiveHeightBody,
+} from "@/scene/moon/heightSampler";
+import { suspendInactiveTileManagers } from "@/scene/moon/tileManager";
 
 export type { CelestialBody };
 export type AppMode = "intro" | "tour" | "explore";
@@ -97,9 +101,11 @@ export interface AppState {
 function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
   if (s.celestialBody === body && s.activeBody === body) return s;
   setActiveHeightBody(body);
+  suspendInactiveTileManagers(body);
   return {
     celestialBody: body,
     activeBody: body,
+    heightReady: isHeightLoaded(body),
     mode: s.mode === "tour" ? "explore" : s.mode,
     selectedSiteId: null,
     hoveredSiteId: null,

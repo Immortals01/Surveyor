@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Flame, HeartPulse, Rocket, Sparkles } from "lucide-react";
+import { Flame, HeartPulse, Rocket } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -21,60 +21,60 @@ export default function MoxieOxygenGenerator() {
   const astronautMinutes = Math.round(totalGramsO2 / 0.55);
 
   return (
-    <div className="space-y-3.5 rounded-2xl border border-loro/35 bg-space-950/90 p-4 shadow-xl">
-      <div className="flex items-start justify-between gap-2">
+    <div className="space-y-4 border border-white/15 bg-space-950/90 p-4">
+      <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
         <div>
-          <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold tracking-wider text-emerald-400 uppercase">
-            <Sparkles className="h-3 w-3" />
-            ISRU Chemistry Lab · Perseverance MOXIE
+          <span className="font-mono text-[9.5px] font-bold tracking-[0.16em] text-loro uppercase">
+            INSTRUMENT 03 // ISRU CHEMISTRY LAB · PERSEVERANCE MOXIE
           </span>
-          <h3 className="mt-0.5 font-display text-base font-bold text-regolith-bright">
-            Brew Breathable Oxygen Out of Martian CO₂ Air!
+          <h3 className="mt-1 font-display text-base font-bold tracking-tight text-regolith-bright">
+            Brew Breathable Oxygen Out of Martian CO₂ Air
           </h3>
         </div>
         <button
           type="button"
           onClick={() => openSources("S-NSSDCA-2020-052A")}
-          className="cursor-pointer rounded border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-loro hover:border-loro"
+          className="shrink-0 cursor-pointer border border-white/15 bg-white/[0.04] px-2 py-0.5 font-mono text-[9.5px] tracking-wider text-loro uppercase transition hover:border-loro hover:text-white"
         >
-          Cite
+          REF
         </button>
       </div>
 
       <p className="text-xs leading-relaxed text-regolith/85">
         Mars&apos;s air is <strong>96% carbon dioxide (CO₂)</strong>. Inside
-        Perseverance&apos;s belly, a gold-plated toaster-sized box called{" "}
+        Perseverance&apos;s belly, a gold-plated reactor called{" "}
         <strong>MOXIE</strong> heats ceramic fuel cells to{" "}
         <span className="font-mono text-sunlit">800°C</span> to electrochemically
-        snap oxygen atoms off CO₂ molecules: <code className="text-emerald-300">2CO₂ → 2CO + O₂</code>!
+        split oxygen atoms off CO₂ molecules:{" "}
+        <code className="font-mono text-loro">2CO₂ → 2CO + O₂</code>.
       </p>
 
-      {/* Gold-Plated MOXIE Reactor Diagram */}
-      <div className="rounded-xl border border-sunlit/35 bg-space-900/95 p-3">
-        <div className="flex items-center justify-between font-mono text-[10px]">
-          <span className="text-amber-300">IN: 96% CO₂ MARTIAN AIR</span>
-          <span className="text-emerald-300">
-            OUT: {gramsPerHour} g/hr PURE O₂ (98%+ PURITY)
+      {/* Gold-Plated MOXIE Reactor Control Block */}
+      <div className="border border-white/15 bg-space-900/80 p-3.5">
+        <div className="flex items-center justify-between border-b border-white/10 pb-2 font-mono text-[9.5px] tracking-wider uppercase">
+          <span className="text-sunlit">INTAKE: 96% CO₂ MARTIAN AIR</span>
+          <span className="text-loro">
+            OUTPUT: {gramsPerHour} g/hr O₂ (98%+ PURITY)
           </span>
         </div>
 
         {/* Temperature & Run Sliders */}
-        <div className="mt-3 space-y-2.5">
+        <div className="mt-3 space-y-3">
           <div>
             <div className="flex items-center justify-between text-xs">
               <label
                 htmlFor="moxie-temp-slider"
-                className="inline-flex items-center gap-1 font-mono text-[10.5px] font-semibold text-sunlit uppercase"
+                className="inline-flex items-center gap-1 font-mono text-[10px] font-bold tracking-[0.12em] text-sunlit uppercase"
               >
-                <Flame className="h-3.5 w-3.5 text-orange-400" />
-                <span>SOXE Ceramic Stack Temp: {tempC}°C</span>
+                <Flame className="h-3 w-3 text-orange-400" />
+                <span>SOXE STACK TEMP: {tempC}°C</span>
               </label>
-              <span className="font-mono text-[10.5px] font-bold text-emerald-300">
+              <span className="font-mono text-[10px] font-bold text-loro uppercase">
                 {tempC >= 760 && tempC <= 830
-                  ? "★ Optimal 800°C Electrolysis"
+                  ? "OPTIMAL 800°C ELECTROLYSIS"
                   : tempC < 650
-                    ? "Too Cold to Split CO₂"
-                    : `${Math.round(tempEfficiency * 100)}% Yield`}
+                    ? "BELOW ACTIVATION THRESHOLD"
+                    : `${Math.round(tempEfficiency * 100)}% YIELD`}
               </span>
             </div>
             <input
@@ -88,21 +88,21 @@ export default function MoxieOxygenGenerator() {
                 setTempC(Number(e.target.value));
                 audioEngine.playUiTick();
               }}
-              className="mt-1.5 h-1.5 w-full cursor-pointer accent-sunlit"
+              className="mt-2 h-1 w-full cursor-pointer accent-sunlit"
               aria-label="Adjust MOXIE solid oxide electrolysis temperature in degrees Celsius"
             />
           </div>
 
-          <div>
+          <div className="border-t border-white/10 pt-2.5">
             <div className="flex items-center justify-between text-xs">
               <label
                 htmlFor="moxie-runs-slider"
-                className="font-mono text-[10.5px] font-semibold text-loro uppercase"
+                className="font-mono text-[10px] font-bold tracking-[0.12em] text-loro uppercase"
               >
-                Experimental Runs Completed: {runsCompleted} / 16
+                EXPERIMENTAL RUNS: {runsCompleted} / 16
               </label>
-              <span className="font-mono text-[10.5px] font-bold text-regolith-bright">
-                {totalGramsO2} g Total O₂ Produced
+              <span className="font-mono text-[10px] font-bold text-regolith-bright uppercase">
+                {totalGramsO2} g CUMULATIVE O₂
               </span>
             </div>
             <input
@@ -116,38 +116,38 @@ export default function MoxieOxygenGenerator() {
                 setRunsCompleted(Number(e.target.value));
                 audioEngine.playUiTick();
               }}
-              className="mt-1.5 h-1.5 w-full cursor-pointer accent-loro"
+              className="mt-2 h-1 w-full cursor-pointer accent-loro"
               aria-label="Adjust number of MOXIE experimental oxygen production runs"
             />
           </div>
         </div>
       </div>
 
-      {/* Output Comparison Cards */}
-      <div className="grid grid-cols-2 gap-2.5">
-        <div className="rounded-xl border border-white/10 bg-space-900/80 p-2.5">
-          <div className="flex items-center gap-1 font-mono text-[10px] text-emerald-300 uppercase">
+      {/* Output Comparison Ledger */}
+      <div className="grid grid-cols-2 border-t border-l border-white/15 bg-space-950">
+        <div className="border-r border-b border-white/15 p-3">
+          <div className="flex items-center gap-1 font-mono text-[9.5px] tracking-[0.14em] text-loro uppercase">
             <HeartPulse className="h-3 w-3" />
-            <span>Breathable Air Yield</span>
+            <span>01 METABOLIC YIELD</span>
           </div>
-          <p className="mt-1 font-display text-xs font-bold text-regolith-bright">
+          <p className="mt-1.5 font-display text-xs font-bold text-regolith-bright">
             {astronautMinutes} min for 1 Astronaut
           </p>
-          <p className="font-mono text-[10px] text-regolith/65">
-            ({dogBreathingMinutes} min for a small dog!)
+          <p className="mt-0.5 font-mono text-[9.5px] text-regolith/60">
+            ({dogBreathingMinutes} min for a small dog)
           </p>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-space-900/80 p-2.5">
-          <div className="flex items-center gap-1 font-mono text-[10px] text-sunlit uppercase">
+        <div className="border-r border-b border-white/15 p-3">
+          <div className="flex items-center gap-1 font-mono text-[9.5px] tracking-[0.14em] text-sunlit uppercase">
             <Rocket className="h-3 w-3" />
-            <span>Why Astronauts Need O₂</span>
+            <span>02 ASCENT OXIDIZER</span>
           </div>
-          <p className="mt-1 font-display text-xs font-bold text-regolith-bright">
-            ~25–30 Tons for Liftoff!
+          <p className="mt-1.5 font-display text-xs font-bold text-regolith-bright">
+            ~25–30 Tons Required
           </p>
-          <p className="font-mono text-[10px] text-regolith/65">
-            78% of rocket fuel mass is liquid O₂
+          <p className="mt-0.5 font-mono text-[9.5px] text-regolith/60">
+            78% of propellant mass is LOX
           </p>
         </div>
       </div>

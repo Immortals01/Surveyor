@@ -263,8 +263,8 @@ function TripodLeg({
   return (
     <group>
       {/* Hip socket */}
-      <mesh position={hipPos} castShadow>
-        <sphereGeometry args={[0.1, 20, 16]} />
+      <mesh position={hipPos}>
+        <sphereGeometry args={[0.1, 14, 10]} />
         <meshStandardMaterial color={BELLOWS_GREY} metalness={0.55} roughness={0.35} />
       </mesh>
 
@@ -280,20 +280,19 @@ function TripodLeg({
           0,
           -(kneePos[0] - hipPos[0]) * 1.6,
         ]}
-        castShadow
       >
-        <cylinderGeometry args={[0.068, 0.062, 0.26, 20]} />
+        <cylinderGeometry args={[0.068, 0.062, 0.26, 12]} />
         <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.18} metalness={0.05} clearcoat={0.85} />
       </mesh>
 
       {/* Mechanical knee joint with dark pivot cap */}
       <group position={kneePos}>
-        <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.078, 0.078, 0.09, 24]} />
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.078, 0.078, 0.09, 14]} />
           <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.2} clearcoat={0.8} />
         </mesh>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.048, 0.048, 0.1, 20]} />
+          <cylinderGeometry args={[0.048, 0.048, 0.1, 12]} />
           <meshStandardMaterial color={DARK_METAL} metalness={0.7} roughness={0.3} />
         </mesh>
       </group>
@@ -310,28 +309,27 @@ function TripodLeg({
           0,
           -(anklePos[0] - kneePos[0]) * 1.6,
         ]}
-        castShadow
       >
-        <cylinderGeometry args={[0.06, 0.056, 0.22, 20]} />
+        <cylinderGeometry args={[0.06, 0.056, 0.22, 12]} />
         <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.18} metalness={0.05} clearcoat={0.85} />
       </mesh>
 
       {/* Ankle joint */}
       <group position={anklePos}>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.068, 0.068, 0.08, 20]} />
+          <cylinderGeometry args={[0.068, 0.068, 0.08, 12]} />
           <meshStandardMaterial color={BELLOWS_GREY} metalness={0.5} roughness={0.35} />
         </mesh>
         <mesh rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 0.09, 16]} />
+          <cylinderGeometry args={[0.04, 0.04, 0.09, 10]} />
           <meshStandardMaterial color={DARK_METAL} metalness={0.7} roughness={0.3} />
         </mesh>
       </group>
 
       {/* Chunky glossy white rounded boot-pod */}
       <group position={footPos} rotation={[0, footRotY, 0]}>
-        <mesh scale={[0.92, 1.18, 1.35]} castShadow>
-          <sphereGeometry args={[0.17, 28, 22]} />
+        <mesh scale={[0.92, 1.18, 1.35]}>
+          <sphereGeometry args={[0.17, 16, 12]} />
           <meshPhysicalMaterial
             color={WHITE_SHELL}
             roughness={0.16}
@@ -342,7 +340,7 @@ function TripodLeg({
         </mesh>
         {/* Blue-grey toe band groove */}
         <mesh position={[0, -0.04, 0.05]} rotation={[0.35, 0, 0]}>
-          <torusGeometry args={[0.145, 0.015, 12, 28]} />
+          <torusGeometry args={[0.145, 0.015, 8, 18]} />
           <meshStandardMaterial color="#49658c" metalness={0.5} roughness={0.35} />
         </mesh>
         {/* Front vertical telemetry vent badge on boot */}
@@ -375,7 +373,7 @@ function BellowsArm({
     >
       {/* Shoulder socket ring */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.11, 0.11, 0.06, 24]} />
+        <cylinderGeometry args={[0.11, 0.11, 0.06, 14]} />
         <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.2} clearcoat={0.85} />
       </mesh>
 
@@ -385,9 +383,8 @@ function BellowsArm({
           key={idx}
           position={[sign * offset, 0, 0]}
           rotation={[0, 0, Math.PI / 2]}
-          castShadow
         >
-          <cylinderGeometry args={[0.088, 0.082, 0.046, 20]} />
+          <cylinderGeometry args={[0.088, 0.082, 0.046, 12]} />
           <meshStandardMaterial
             color={idx % 2 === 0 ? BELLOWS_GREY : "#7e8a9b"}
             metalness={0.45}
@@ -407,9 +404,8 @@ function BellowsArm({
             key={idx}
             position={[sign * offset, 0, 0]}
             rotation={[0, 0, Math.PI / 2]}
-            castShadow
           >
-            <cylinderGeometry args={[0.084, 0.08, 0.045, 20]} />
+            <cylinderGeometry args={[0.084, 0.08, 0.045, 12]} />
             <meshStandardMaterial
               color={idx % 2 === 0 ? BELLOWS_GREY : "#7e8a9b"}
               metalness={0.45}
@@ -422,13 +418,13 @@ function BellowsArm({
         <group position={[sign * 0.33, 0, 0]} rotation={[0, 0, isWaveArm ? -0.35 : 0.2]}>
           {/* Blue-grey wrist ring */}
           <mesh position={[-sign * 0.055, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.095, 0.095, 0.025, 24]} />
+            <cylinderGeometry args={[0.095, 0.095, 0.025, 14]} />
             <meshStandardMaterial color="#49658c" metalness={0.55} roughness={0.3} />
           </mesh>
 
           {/* Rounded white hand palm */}
-          <mesh scale={[1.05, 0.95, 0.78]} castShadow>
-            <sphereGeometry args={[0.115, 24, 18]} />
+          <mesh scale={[1.05, 0.95, 0.78]}>
+            <sphereGeometry args={[0.115, 14, 10]} />
             <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.18} clearcoat={0.9} />
           </mesh>
 
@@ -443,8 +439,8 @@ function BellowsArm({
               ]}
               rotation={[0, 0, sign * angle * 0.65]}
             >
-              <mesh position={[sign * 0.035, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-                <capsuleGeometry args={[0.022, 0.045, 8, 12]} />
+              <mesh position={[sign * 0.035, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+                <capsuleGeometry args={[0.022, 0.045, 4, 8]} />
                 <meshStandardMaterial color={BELLOWS_GREY} metalness={0.45} roughness={0.35} />
               </mesh>
             </group>
@@ -455,8 +451,8 @@ function BellowsArm({
             position={[sign * 0.02, isWaveArm ? 0.095 : -0.095, 0.03]}
             rotation={[0.2, 0, isWaveArm ? sign * 0.75 : -sign * 0.75]}
           >
-            <mesh position={[sign * 0.03, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-              <capsuleGeometry args={[0.024, 0.038, 8, 12]} />
+            <mesh position={[sign * 0.03, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <capsuleGeometry args={[0.024, 0.038, 4, 8]} />
               <meshStandardMaterial color={BELLOWS_GREY} metalness={0.45} roughness={0.35} />
             </mesh>
           </group>
@@ -723,8 +719,8 @@ export default function SurveyorHost3D({
         {/* ================================================================ */}
         <group ref={head} position={[0, 0.56, 0]}>
           {/* Outer glossy white rounded helmet shell */}
-          <mesh scale={[1.1, 0.93, 0.96]} castShadow>
-            <sphereGeometry args={[0.56, 48, 36]} />
+          <mesh scale={[1.1, 0.93, 0.96]}>
+            <sphereGeometry args={[0.56, 28, 20]} />
             <meshPhysicalMaterial
               color={WHITE_SHELL}
               roughness={0.15}
@@ -738,7 +734,7 @@ export default function SurveyorHost3D({
           <RoundedBox
             args={[0.92, 0.56, 0.24]}
             radius={0.26}
-            smoothness={8}
+            smoothness={4}
             position={[0, -0.01, 0.36]}
           >
             <meshPhysicalMaterial color="#dce4f0" roughness={0.22} metalness={0.1} clearcoat={0.8} />
@@ -748,7 +744,7 @@ export default function SurveyorHost3D({
           <RoundedBox
             args={[0.86, 0.5, 0.22]}
             radius={0.23}
-            smoothness={8}
+            smoothness={4}
             position={[0, -0.01, 0.39]}
           >
             <meshPhysicalMaterial
@@ -771,7 +767,7 @@ export default function SurveyorHost3D({
             {/* Left Oval LED Eye */}
             <group ref={eyeLeft} position={[-0.19, 0.035, 0]}>
               <mesh scale={[1, 1.28, 1]}>
-                <circleGeometry args={[0.105, 32]} />
+                <circleGeometry args={[0.105, 20]} />
                 <meshBasicMaterial ref={registerGlowMat} color={activeColorHex} transparent opacity={0.22} />
               </mesh>
               <mesh position={[0, 0, 0.004]}>
@@ -789,7 +785,7 @@ export default function SurveyorHost3D({
             {/* Right Oval LED Eye */}
             <group ref={eyeRight} position={[0.19, 0.035, 0]}>
               <mesh scale={[1, 1.28, 1]}>
-                <circleGeometry args={[0.105, 32]} />
+                <circleGeometry args={[0.105, 20]} />
                 <meshBasicMaterial ref={registerGlowMat} color={activeColorHex} transparent opacity={0.22} />
               </mesh>
               <mesh position={[0, 0, 0.004]}>
@@ -807,12 +803,12 @@ export default function SurveyorHost3D({
             {/* Cute Curved LED Smile Mouth (between & slightly below the eyes) */}
             <group ref={mouthGroup} position={[0, -0.09, 0.005]}>
               <mesh rotation={[0, 0, Math.PI * 1.18]}>
-                <torusGeometry args={[0.062, 0.014, 12, 28, Math.PI * 0.64]} />
+                <torusGeometry args={[0.062, 0.014, 8, 18, Math.PI * 0.64]} />
                 <meshBasicMaterial ref={registerLedMat} color={activeColorHex} toneMapped={false} />
               </mesh>
               {/* Soft glow halo behind the smile */}
               <mesh position={[0, -0.04, -0.002]} scale={[1.4, 0.7, 1]}>
-                <circleGeometry args={[0.055, 20]} />
+                <circleGeometry args={[0.055, 16]} />
                 <meshBasicMaterial ref={registerGlowMat} color={activeColorHex} transparent opacity={0.2} />
               </mesh>
             </group>
@@ -824,11 +820,11 @@ export default function SurveyorHost3D({
           <group ref={solarGroup} position={[-0.28, 0.5, 0.02]} rotation={[0.28, 0.18, 0.38]}>
             {/* Pivot stem */}
             <mesh position={[0, -0.04, 0]}>
-              <cylinderGeometry args={[0.035, 0.045, 0.12, 16]} />
+              <cylinderGeometry args={[0.035, 0.045, 0.12, 12]} />
               <meshStandardMaterial color={BELLOWS_GREY} metalness={0.6} roughness={0.3} />
             </mesh>
             {/* Solar panel frame */}
-            <RoundedBox args={[0.56, 0.026, 0.34]} radius={0.01} position={[-0.06, 0.03, 0]} castShadow>
+            <RoundedBox args={[0.56, 0.026, 0.34]} radius={0.01} position={[-0.06, 0.03, 0]}>
               <meshStandardMaterial color="#cbd5e1" metalness={0.5} roughness={0.3} />
             </RoundedBox>
             {/* 3x5 gridded blue photovoltaic surface */}
@@ -850,12 +846,12 @@ export default function SurveyorHost3D({
           <group ref={dishGroup} position={[0.27, 0.5, 0.0]} rotation={[0.32, -0.25, -0.45]}>
             {/* Pivot stem */}
             <mesh position={[0, -0.05, 0]}>
-              <cylinderGeometry args={[0.035, 0.045, 0.12, 16]} />
+              <cylinderGeometry args={[0.035, 0.045, 0.12, 12]} />
               <meshStandardMaterial color={BELLOWS_GREY} metalness={0.6} roughness={0.3} />
             </mesh>
             {/* Parabolic dish bowl */}
-            <mesh position={[0, 0.02, 0]} scale={[1, 0.38, 1]} castShadow>
-              <sphereGeometry args={[0.25, 32, 20, 0, Math.PI * 2, Math.PI * 0.48, Math.PI * 0.52]} />
+            <mesh position={[0, 0.02, 0]} scale={[1, 0.38, 1]}>
+              <sphereGeometry args={[0.25, 20, 12, 0, Math.PI * 2, Math.PI * 0.48, Math.PI * 0.52]} />
               <meshPhysicalMaterial
                 color={WHITE_SHELL}
                 roughness={0.2}
@@ -866,16 +862,16 @@ export default function SurveyorHost3D({
             </mesh>
             {/* Dish rim torus */}
             <mesh position={[0, 0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
-              <torusGeometry args={[0.25, 0.016, 12, 32]} />
+              <torusGeometry args={[0.25, 0.016, 8, 20]} />
               <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.2} clearcoat={0.85} />
             </mesh>
             {/* Central feed horn spike + ball tip */}
             <mesh position={[0, 0.08, 0]}>
-              <cylinderGeometry args={[0.01, 0.022, 0.2, 14]} />
+              <cylinderGeometry args={[0.01, 0.022, 0.2, 10]} />
               <meshStandardMaterial color="#cbd5e1" metalness={0.6} roughness={0.3} />
             </mesh>
             <mesh position={[0, 0.19, 0]}>
-              <sphereGeometry args={[0.026, 16, 12]} />
+              <sphereGeometry args={[0.026, 12, 8]} />
               <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.18} clearcoat={0.9} />
             </mesh>
           </group>
@@ -885,7 +881,7 @@ export default function SurveyorHost3D({
         {/* NECK COLLAR RING                                                 */}
         {/* ================================================================ */}
         <mesh position={[0, 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <torusGeometry args={[0.34, 0.028, 16, 36]} />
+          <torusGeometry args={[0.34, 0.028, 10, 24]} />
           <meshStandardMaterial color={BELLOWS_GREY} metalness={0.55} roughness={0.32} />
         </mesh>
 
@@ -894,7 +890,7 @@ export default function SurveyorHost3D({
         {/* ================================================================ */}
         <group position={[0, -0.24, 0]}>
           {/* Main rounded cylindrical space-suit body */}
-          <RoundedBox args={[0.88, 0.52, 0.68]} radius={0.18} smoothness={8} castShadow>
+          <RoundedBox args={[0.88, 0.52, 0.68]} radius={0.18} smoothness={4}>
             <meshPhysicalMaterial
               color={WHITE_SHELL}
               roughness={0.16}
@@ -910,7 +906,6 @@ export default function SurveyorHost3D({
             radius={0.025}
             position={[-0.24, 0.01, 0.325]}
             rotation={[0, -0.18, 0]}
-            castShadow
           >
             <meshStandardMaterial
               color={GOLD_FOIL}
@@ -925,7 +920,6 @@ export default function SurveyorHost3D({
             radius={0.025}
             position={[0.24, 0.01, 0.325]}
             rotation={[0, 0.18, 0]}
-            castShadow
           >
             <meshStandardMaterial
               color={GOLD_FOIL}
@@ -938,11 +932,11 @@ export default function SurveyorHost3D({
 
           {/* Center Raised White Chest Plate + NASA Meatball Emblem */}
           <group position={[0, 0.04, 0.35]}>
-            <RoundedBox args={[0.25, 0.23, 0.055]} radius={0.035} smoothness={6} castShadow>
+            <RoundedBox args={[0.25, 0.23, 0.055]} radius={0.035} smoothness={4}>
               <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.18} clearcoat={0.9} />
             </RoundedBox>
             <mesh position={[0, 0, 0.029]}>
-              <circleGeometry args={[0.088, 36]} />
+              <circleGeometry args={[0.088, 24]} />
               <meshStandardMaterial map={nasaTex} roughness={0.25} metalness={0.05} />
             </mesh>
           </group>
@@ -958,11 +952,11 @@ export default function SurveyorHost3D({
           ).map(([bx, by], idx) => (
             <group key={idx} position={[bx, by, 0.342]}>
               <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.022, 0.022, 0.02, 16]} />
+                <cylinderGeometry args={[0.022, 0.022, 0.02, 10]} />
                 <meshStandardMaterial color={BELLOWS_GREY} metalness={0.75} roughness={0.25} />
               </mesh>
               <mesh position={[0, 0, 0.008]} rotation={[Math.PI / 2, 0, 0]}>
-                <cylinderGeometry args={[0.011, 0.011, 0.015, 12]} />
+                <cylinderGeometry args={[0.011, 0.011, 0.015, 8]} />
                 <meshStandardMaterial color={DARK_METAL} metalness={0.8} roughness={0.3} />
               </mesh>
             </group>
@@ -981,12 +975,12 @@ export default function SurveyorHost3D({
 
           {/* Life-Support / Telemetry Backpack */}
           <group position={[-0.04, 0.02, -0.36]}>
-            <RoundedBox args={[0.52, 0.38, 0.18]} radius={0.06} castShadow>
+            <RoundedBox args={[0.52, 0.38, 0.18]} radius={0.06}>
               <meshPhysicalMaterial color={WHITE_SHELL} roughness={0.2} clearcoat={0.85} />
             </RoundedBox>
             {/* Glowing cyan side telemetry port on backpack */}
             <mesh position={[-0.265, 0.02, 0]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.055, 0.055, 0.02, 20]} />
+              <cylinderGeometry args={[0.055, 0.055, 0.02, 12]} />
               <meshBasicMaterial ref={registerLedMat} color={activeColorHex} />
             </mesh>
           </group>

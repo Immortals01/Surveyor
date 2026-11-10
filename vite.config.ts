@@ -152,6 +152,9 @@ export default defineConfig({
           if (id.includes("node_modules/motion") || id.includes("node_modules/framer-motion")) {
             return "motion";
           }
+          if (id.includes("/src/data/")) {
+            return "planetary-data";
+          }
         },
       },
     },

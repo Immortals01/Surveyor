@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { AdditiveBlending, BackSide, ShaderMaterial } from "three";
 import { useAppStore } from "@/store/useAppStore";
+
+const NOOP_RAYCAST = () => {};
 
 export default function LunarHorizonGlow() {
   const body = useAppStore((s) => s.celestialBody);
@@ -40,8 +42,18 @@ export default function LunarHorizonGlow() {
     });
   }, [body]);
 
+  useEffect(() => {
+    return () => {
+      limbMaterial.dispose();
+    };
+  }, [limbMaterial]);
+
   return (
-    <mesh name="planetary-limb-glow" material={limbMaterial}>
+    <mesh
+      name="planetary-limb-glow"
+      material={limbMaterial}
+      raycast={NOOP_RAYCAST}
+    >
       <sphereGeometry args={[body === "mars" ? 1.022 : 1.018, 64, 64]} />
     </mesh>
   );

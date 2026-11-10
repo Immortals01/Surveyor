@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, Play, RotateCcw, Tv } from "lucide-react";
+import { Camera, Play, RotateCcw } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -84,37 +84,36 @@ export default function RoverLiftoffCam() {
 
   let verdict = "";
   if (pressedAtSec === null && phase === "done") {
-    verdict = "Missed button! Challenger rocketed right out of the top of the TV frame!";
+    verdict = "SIGNAL MISSED // Challenger rocketed out of the top of the TV frame before command transmission.";
   } else if (pressedAtSec !== null && timingError !== null) {
     if (timingError <= 0.35) {
-      verdict = `🎯 Bullseye (T ${pressedAtSec.toFixed(2)}s)! Just like Ed Fendell in Houston, you nailed the 1.3s speed-of-light delay!`;
+      verdict = `BULLSEYE (T ${pressedAtSec.toFixed(2)}s) // Just like Ed Fendell in Houston, you compensated for the 1.3s speed-of-light delay.`;
     } else if (timingError <= 0.85) {
-      verdict = `👍 Close (T ${pressedAtSec.toFixed(2)}s)! You caught most of Challenger's climb into orbit!`;
+      verdict = `ON TARGET (T ${pressedAtSec.toFixed(2)}s) // You captured most of Challenger's climb into lunar orbit.`;
     } else if (pressedAtSec < IDEAL_LEAD_SEC) {
-      verdict = `⏩ Too early (T ${pressedAtSec.toFixed(2)}s)! The camera tilted up at empty black sky before ignition!`;
+      verdict = `EARLY TRANSMISSION (T ${pressedAtSec.toFixed(2)}s) // The camera tilted up at empty black sky prior to ascent ignition.`;
     } else {
-      verdict = `⏪ Too late (T ${pressedAtSec.toFixed(2)}s)! By the time your radio wave reached the Moon, Challenger was already high above!`;
+      verdict = `LATE TRANSMISSION (T ${pressedAtSec.toFixed(2)}s) // By the time your S-band signal reached the Moon, Challenger was already high above.`;
     }
   }
 
   return (
-    <div className="space-y-3.5 rounded-2xl border border-loro/35 bg-space-950/90 p-4 shadow-xl">
-      <div className="flex items-start justify-between gap-2">
+    <div className="space-y-4 border border-white/15 bg-space-950/90 p-4">
+      <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
         <div>
-          <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold tracking-wider text-orange-300 uppercase">
-            <Tv className="h-3 w-3" />
-            Apollo 17 LRV-3 · Dec 14, 1972
+          <span className="font-mono text-[9.5px] font-bold tracking-[0.16em] text-sunlit uppercase">
+            INSTRUMENT 03 // APOLLO 17 LRV-3 · DEC 14, 1972
           </span>
-          <h3 className="mt-0.5 font-display text-base font-bold text-regolith-bright">
-            Beat the 1.3-Second Radio Delay!
+          <h3 className="mt-1 font-display text-base font-bold tracking-tight text-regolith-bright">
+            Beat the 1.3-Second Radio Delay
           </h3>
         </div>
         <button
           type="button"
           onClick={() => openSources("S-NSSDCA-1972-096C")}
-          className="cursor-pointer rounded border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-loro hover:border-loro"
+          className="shrink-0 cursor-pointer border border-white/15 bg-white/[0.04] px-2 py-0.5 font-mono text-[9.5px] tracking-wider text-loro uppercase transition hover:border-loro hover:text-white"
         >
-          Cite
+          REF
         </button>
       </div>
 
@@ -122,27 +121,27 @@ export default function RoverLiftoffCam() {
         To film Apollo 17&apos;s liftoff using the parked rover&apos;s TV camera,
         Mission Control&apos;s Ed Fendell had to press <strong>TILT UP</strong>{" "}
         at <span className="font-mono text-sunlit">T − 1.3s</span>—because radio
-        commands take 1.3 seconds to cross 384,400 km of space!
+        commands take 1.3 seconds to cross 384,400 km of space.
       </p>
 
       {/* Vintage 4:3 RCA TV Monitor View */}
-      <div className="telemetry-scanlines relative overflow-hidden rounded-xl border-2 border-regolith/25 bg-space-900 p-2.5">
-        <div className="mb-1 flex items-center justify-between font-mono text-[10px]">
-          <span className="text-sunlit">LRV-3 RCA COLOR TV · TAURUS-LITTROW</span>
+      <div className="telemetry-scanlines relative overflow-hidden border border-white/20 bg-space-900 p-3">
+        <div className="mb-1.5 flex items-center justify-between font-mono text-[9.5px] tracking-wider uppercase">
+          <span className="text-sunlit">LRV-3 GCTA COLOR TV · TAURUS-LITTROW</span>
           <span
             className={`font-bold ${
               Math.abs(missionTimeSec - IDEAL_LEAD_SEC) < 0.35 && phase === "countdown"
-                ? "animate-pulse text-emerald-300"
+                ? "animate-pulse text-sunlit"
                 : "text-loro"
             }`}
           >
-            T {missionTimeSec >= 0 ? `+${missionTimeSec.toFixed(1)}` : missionTimeSec.toFixed(1)} s
+            MET T {missionTimeSec >= 0 ? `+${missionTimeSec.toFixed(1)}` : missionTimeSec.toFixed(1)} s
           </span>
         </div>
 
         <svg
           viewBox="0 0 320 120"
-          className="h-32 w-full overflow-hidden rounded-lg bg-[#05070e]"
+          className="h-32 w-full overflow-hidden border border-white/10 bg-[#05070e]"
           role="img"
           aria-label="Simulated rover television view of Apollo 17 Challenger liftoff"
         >
@@ -169,7 +168,7 @@ export default function RoverLiftoffCam() {
               y="-8"
               width="36"
               height="10"
-              rx="2"
+              rx="1"
               fill="#eab308"
               stroke="#fef08a"
               strokeWidth="1"
@@ -180,7 +179,7 @@ export default function RoverLiftoffCam() {
           {missionTimeSec >= 0 && (
             <g transform={`translate(160, ${descentScreenY - 8})`}>
               <circle
-                 cx={-18 - missionTimeSec * 22}
+                cx={-18 - missionTimeSec * 22}
                 cy={-missionTimeSec * 8}
                 r="2"
                 fill="#ffcf70"
@@ -231,17 +230,17 @@ export default function RoverLiftoffCam() {
             <button
               type="button"
               onClick={startCountdown}
-              className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-sunlit px-4 py-2.5 font-display text-xs font-bold text-space-950 transition hover:brightness-110"
+              className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 border border-regolith-bright bg-regolith-bright px-4 py-2.5 font-mono text-[11px] font-bold tracking-wider text-space-950 uppercase transition hover:bg-white"
             >
               {phase === "done" ? (
                 <>
-                  <RotateCcw className="h-4 w-4" />
-                  <span>Try Liftoff Again</span>
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>Replay Liftoff Sequence</span>
                 </>
               ) : (
                 <>
-                  <Play className="h-4 w-4 fill-current" />
-                  <span>Start T − 5.0s Countdown</span>
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                  <span>Initiate T − 5.0s Countdown</span>
                 </>
               )}
             </button>
@@ -250,13 +249,13 @@ export default function RoverLiftoffCam() {
               type="button"
               onClick={handleTiltPress}
               disabled={pressedAtSec !== null}
-              className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-loro px-4 py-2.5 font-display text-xs font-bold text-space-950 shadow-[0_0_24px_rgba(92,225,255,0.4)] transition hover:bg-white disabled:opacity-55"
+              className="inline-flex flex-1 cursor-pointer items-center justify-center gap-2 border border-loro bg-loro px-4 py-2.5 font-mono text-[11px] font-bold tracking-wider text-space-950 uppercase transition hover:bg-white disabled:opacity-55"
             >
-              <Camera className="h-4 w-4" />
+              <Camera className="h-3.5 w-3.5" />
               <span>
                 {pressedAtSec !== null
-                  ? `Signal Sent at T ${pressedAtSec.toFixed(2)}s (Arrives +1.3s)`
-                  : "SEND 'TILT UP' COMMAND (Aim for T − 1.3s!)"}
+                  ? `Command Transmitted T ${pressedAtSec.toFixed(2)}s (+1.3s Delay)`
+                  : "TRANSMIT 'TILT UP' (TARGET T − 1.3s)"}
               </span>
             </button>
           )}
@@ -264,7 +263,7 @@ export default function RoverLiftoffCam() {
       </div>
 
       {verdict && (
-        <div className="rounded-xl border border-loro/35 bg-space-900/85 p-3 text-xs leading-relaxed text-regolith-bright">
+        <div className="border border-white/15 border-l-2 border-l-loro bg-space-900/75 p-3 font-mono text-[11px] leading-relaxed text-regolith-bright">
           {verdict}
         </div>
       )}

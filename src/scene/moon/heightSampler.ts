@@ -64,9 +64,33 @@ export function setHeightSamples(
   entry.height = height;
 }
 
+export interface DemGridDescriptor {
+  samples: Uint16Array;
+  width: number;
+  height: number;
+  rawOffset: number;
+  rawScaleToRadius: number;
+}
+
 export function isHeightLoaded(body?: CelestialBody): boolean {
   const b = getActiveBody(body);
   return demByBody[b].samples !== null;
+}
+
+export function getDemGrid(body?: CelestialBody): DemGridDescriptor | null {
+  const b = getActiveBody(body);
+  const entry = demByBody[b];
+  if (!entry.samples) return null;
+  const isMars = b === "mars";
+  return {
+    samples: entry.samples,
+    width: entry.width,
+    height: entry.height,
+    rawOffset: isMars ? 10000 : 20000,
+    rawScaleToRadius: isMars
+      ? MARS_HEIGHT_EXAGGERATION / (1000 * MARS_RADIUS_KM)
+      : HEIGHT_EXAGGERATION / (2000 * MOON_RADIUS_KM),
+  };
 }
 
 /**

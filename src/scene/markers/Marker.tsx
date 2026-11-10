@@ -29,8 +29,12 @@ const UP = new Vector3(0, 1, 0);
 const _toCam = new Vector3();
 const NOOP_RAYCAST = () => {};
 
-// Shared singleton geometries reused across all 29 markers (6 geometries instead of ~100)
+// Shared singleton geometries & hit-sphere material reused across all 29 markers
 const HIT_SPHERE_GEO = new SphereGeometry(1.15, 10, 10);
+const HIT_SPHERE_MAT = new MeshBasicMaterial({
+  colorWrite: false,
+  depthWrite: false,
+});
 const HERO_CORE_GEO = new CircleGeometry(0.42, 24);
 const SECONDARY_CORE_GEO = new CircleGeometry(0.42, 6);
 const STEM_GEO = new CylinderGeometry(0.04, 0.04, 0.7, 8);
@@ -80,10 +84,22 @@ export default function Marker({ site, heightReady }: MarkerProps) {
   const reticleMatRef = useRef<MeshBasicMaterial>(null);
 
   const clickableRef = useRef(true);
+  const lastCamPosRef = useRef(new Vector3(Infinity, Infinity, Infinity));
+  const lastStateKeyRef = useRef("");
 
   useFrame(({ camera }) => {
     const g = groupRef.current;
     if (!g) return;
+
+    const stateKey = `${isSelected ? 1 : 0}_${isHovered ? 1 : 0}_${matchesFilter ? 1 : 0}_${position.x.toFixed(4)}`;
+    if (
+      lastStateKeyRef.current === stateKey &&
+      lastCamPosRef.current.distanceToSquared(camera.position) < 1e-8
+    ) {
+      return;
+    }
+    lastStateKeyRef.current = stateKey;
+    lastCamPosRef.current.copy(camera.position);
 
     const camDist = camera.position.distanceTo(position);
 
@@ -183,13 +199,12 @@ export default function Marker({ site, heightReady }: MarkerProps) {
       {/* Generous invisible hit sphere for effortless mouse/touch picking */}
       <mesh
         geometry={HIT_SPHERE_GEO}
+        material={HIT_SPHERE_MAT}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
         onPointerDown={handlePointerDown}
         onClick={handleClick}
-      >
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
+      />
 
       {/* Surface disc core */}
       <mesh

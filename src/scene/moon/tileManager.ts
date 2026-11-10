@@ -42,8 +42,8 @@ interface TileRecord {
   centerDir: Vector3;
   colorByLevel: Map<number, Texture>;
   normalByLevel: Map<number, Texture>;
-  loadingColor: Set<number>;
-  loadingNormal: Set<number>;
+  loadingColor: Map<number, AbortController>;
+  loadingNormal: Map<number, AbortController>;
   desiredColorLevel: number;
   pinnedUntil: number;
   overResolvedSince: number | null;
@@ -111,8 +111,8 @@ export class MoonTileManager {
           centerDir: sphere.center.clone().normalize(),
           colorByLevel: new Map(),
           normalByLevel: new Map(),
-          loadingColor: new Set(),
-          loadingNormal: new Set(),
+          loadingColor: new Map(),
+          loadingNormal: new Map(),
           desiredColorLevel: 1,
           pinnedUntil: 0,
           overResolvedSince: null,
@@ -312,6 +312,7 @@ export class MoonTileManager {
 
       if (!visible) {
         tile.desiredColorLevel = 1;
+        this.abortStaleLoads(tile, now);
         this.checkDowngrade(tile, now);
         continue;
       }
@@ -341,6 +342,7 @@ export class MoonTileManager {
 
       tile.desiredColorLevel = chosenColor;
       tile.lastUsedAt = Math.max(tile.lastUsedAt, now);
+      this.abortStaleLoads(tile, now);
 
       // Prioritize visible high-res upgrades above background L1 loads
       const prioBase = 500 + horizonDot * 120 + chosenColor * 90;
@@ -379,13 +381,82 @@ export class MoonTileManager {
     this.pumpQueue();
   }
 
+  /**
+   * Release high-resolution (L2/L3) GPU textures and cancel pending high-res
+   * downloads when switching away from this celestial body so inactive globes
+   * do not retain hundreds of MB of VRAM.
+   */
+  suspendBackgroundBody(): void {
+    this.queue = this.queue.filter((job) => job.level <= 0);
+    this.lastCamPos.set(Infinity, Infinity, Infinity);
+
+    for (const tile of this.tiles.values()) {
+      tile.desiredColorLevel = 1;
+      tile.pinnedUntil = 0;
+      tile.overResolvedSince = null;
+
+      for (const [lvl, ctrl] of tile.loadingColor.entries()) {
+        if (lvl >= 1) {
+          ctrl.abort();
+          tile.loadingColor.delete(lvl);
+        }
+      }
+      for (const [lvl, ctrl] of tile.loadingNormal.entries()) {
+        if (lvl >= 1) {
+          ctrl.abort();
+          tile.loadingNormal.delete(lvl);
+        }
+      }
+
+      let evicted = false;
+      for (const [lvl, tex] of tile.colorByLevel.entries()) {
+        if (lvl >= 2) {
+          disposeTexture(tex);
+          tile.colorByLevel.delete(lvl);
+          evicted = true;
+        }
+      }
+      for (const [lvl, tex] of tile.normalByLevel.entries()) {
+        if (lvl >= 2) {
+          disposeTexture(tex);
+          tile.normalByLevel.delete(lvl);
+          evicted = true;
+        }
+      }
+      if (evicted) {
+        this.notify(tile);
+      }
+    }
+  }
+
   disposeAll(): void {
     this.queue = [];
     for (const tile of this.tiles.values()) {
+      for (const ctrl of tile.loadingColor.values()) ctrl.abort();
+      for (const ctrl of tile.loadingNormal.values()) ctrl.abort();
+      tile.loadingColor.clear();
+      tile.loadingNormal.clear();
       for (const tex of tile.colorByLevel.values()) disposeTexture(tex);
       for (const tex of tile.normalByLevel.values()) disposeTexture(tex);
       tile.colorByLevel.clear();
       tile.normalByLevel.clear();
+    }
+  }
+
+  private abortStaleLoads(tile: TileRecord, now: number): void {
+    if (now < tile.pinnedUntil) return;
+    const keepLevel = Math.max(1, tile.desiredColorLevel);
+    for (const [lvl, ctrl] of tile.loadingColor.entries()) {
+      if (lvl > keepLevel) {
+        ctrl.abort();
+        tile.loadingColor.delete(lvl);
+      }
+    }
+    for (const [lvl, ctrl] of tile.loadingNormal.entries()) {
+      if (lvl > keepLevel) {
+        ctrl.abort();
+        tile.loadingNormal.delete(lvl);
+      }
     }
   }
 
@@ -443,7 +514,11 @@ export class MoonTileManager {
   }
 
   private checkDowngrade(tile: TileRecord, now: number): void {
-    const highestLoaded = Math.max(...tile.colorByLevel.keys(), 0);
+    const highestLoaded = Math.max(
+      ...tile.colorByLevel.keys(),
+      ...tile.normalByLevel.keys(),
+      0,
+    );
     if (highestLoaded > Math.max(1, tile.desiredColorLevel)) {
       if (tile.overResolvedSince === null) {
         tile.overResolvedSince = now;
@@ -459,7 +534,7 @@ export class MoonTileManager {
     if (level <= 1) return;
     const holders: TileRecord[] = [];
     for (const tile of this.tiles.values()) {
-      if (tile.colorByLevel.has(level)) {
+      if (tile.colorByLevel.has(level) || tile.normalByLevel.has(level)) {
         holders.push(tile);
       }
     }
@@ -529,7 +604,8 @@ export class MoonTileManager {
         continue;
       }
 
-      loading.add(job.level);
+      const controller = new AbortController();
+      loading.set(job.level, controller);
       this.activeLoads++;
 
       const url = `${this.baseUrl}/${job.kind}/L${job.level}/${job.tile.row}_${job.tile.col}.webp`;
@@ -540,11 +616,25 @@ export class MoonTileManager {
         minFilter: LinearMipmapLinearFilter,
         magFilter: LinearFilter,
         anisotropy: this.maxAnisotropy,
+        signal: controller.signal,
       })
         .then((tex) => {
           loading.delete(job.level);
-          map.set(job.level, tex);
           this.activeLoads--;
+
+          const finishNow = performance.now();
+          if (
+            controller.signal.aborted ||
+            (job.level > 1 &&
+              finishNow >= job.tile.pinnedUntil &&
+              job.level > Math.max(1, job.tile.desiredColorLevel))
+          ) {
+            disposeTexture(tex);
+            this.pumpQueue();
+            return;
+          }
+
+          map.set(job.level, tex);
           this.notify(job.tile);
           this.pumpQueue();
         })
@@ -567,4 +657,12 @@ export function getTileManagerForBody(
   if (body === "mars") return marsTileManager;
   if (body === "earth") return earthTileManager;
   return moonTileManager;
+}
+
+export function suspendInactiveTileManagers(
+  activeBody: "moon" | "earth" | "mars",
+): void {
+  if (activeBody !== "moon") moonTileManager.suspendBackgroundBody();
+  if (activeBody !== "earth") earthTileManager.suspendBackgroundBody();
+  if (activeBody !== "mars") marsTileManager.suspendBackgroundBody();
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Activity, Flame, Rocket, Sun } from "lucide-react";
+import { Flame, Rocket, Sun } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -89,7 +89,7 @@ export default function Moonquake() {
       ctx.stroke();
 
       // Top trace: EARTH CRUST (damps rapidly because water & soil absorb energy)
-      ctx.strokeStyle = "#60a5fa";
+      ctx.strokeStyle = "#5ce1ff";
       ctx.lineWidth = 1.8;
       ctx.beginPath();
       for (let x = 0; x < w; x++) {
@@ -114,6 +114,7 @@ export default function Moonquake() {
       ctx.strokeStyle = "#ffcf70";
       ctx.lineWidth = 1.9;
       ctx.beginPath();
+      let maxAbsY = 0;
       for (let x = 0; x < w; x++) {
         const t = elapsedSec - (w - x) * 0.015;
         let yOff = 0;
@@ -125,6 +126,8 @@ export default function Moonquake() {
             env *
             preset.amplitude *
             26;
+          const absY = Math.abs(yOff);
+          if (absY > maxAbsY) maxAbsY = absY;
         }
         const py = h * 0.75 + yOff;
         if (x === 0) ctx.moveTo(x, py);
@@ -132,7 +135,11 @@ export default function Moonquake() {
       }
       ctx.stroke();
 
-      rafId = requestAnimationFrame(render);
+      // Stop 60 FPS redraw loop once the entire visible trace has decayed to a flat line
+      const minWindowT = elapsedSec - w * 0.015;
+      if (minWindowT < 1.5 || maxAbsY > 0.08) {
+        rafId = requestAnimationFrame(render);
+      }
     };
 
     rafId = requestAnimationFrame(render);
@@ -140,35 +147,34 @@ export default function Moonquake() {
   }, [preset, triggerTime]);
 
   return (
-    <div className="space-y-3.5 rounded-2xl border border-loro/35 bg-space-950/90 p-4 shadow-xl">
-      <div className="flex items-start justify-between gap-2">
+    <div className="space-y-4 border border-white/15 bg-space-950/90 p-4">
+      <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-3">
         <div>
-          <span className="inline-flex items-center gap-1.5 font-mono text-[10.5px] font-semibold tracking-wider text-sunlit uppercase">
-            <Activity className="h-3 w-3" />
-            ALSEP Seismic Network (1969–1977)
+          <span className="font-mono text-[9.5px] font-bold tracking-[0.16em] text-sunlit uppercase">
+            INSTRUMENT 02 // ALSEP SEISMIC NETWORK (1969–1977)
           </span>
-          <h3 className="mt-0.5 font-display text-base font-bold text-regolith-bright">
+          <h3 className="mt-1 font-display text-base font-bold tracking-tight text-regolith-bright">
             Why Does the Moon &ldquo;Ring Like a Bell&rdquo;?
           </h3>
         </div>
         <button
           type="button"
           onClick={() => openSources("S-NAKAMURA-1981")}
-          className="cursor-pointer rounded border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-loro hover:border-loro"
+          className="shrink-0 cursor-pointer border border-white/15 bg-white/[0.04] px-2 py-0.5 font-mono text-[9.5px] tracking-wider text-loro uppercase transition hover:border-loro hover:text-white"
         >
-          Cite
+          REF
         </button>
       </div>
 
       {/* Trigger Buttons */}
-      <div className="grid grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-3 border-t border-l border-white/15 bg-space-950">
         <button
           type="button"
           onClick={() => handleTrigger("meteoroid")}
-          className={`flex cursor-pointer flex-col items-center gap-1 rounded-xl border p-2 text-center font-mono text-[10.5px] transition ${
+          className={`flex cursor-pointer flex-col items-center gap-1 border-r border-b border-white/15 p-2.5 text-center font-mono text-[10px] tracking-wider uppercase transition ${
             activePreset === "meteoroid"
-              ? "border-sunlit bg-sunlit/20 font-bold text-sunlit"
-              : "border-white/10 bg-space-900/80 text-regolith hover:border-white/30"
+              ? "bg-regolith-bright font-bold text-space-950"
+              : "bg-space-900/50 text-regolith/75 hover:bg-white/[0.05] hover:text-white"
           }`}
         >
           <Flame className="h-3.5 w-3.5" />
@@ -178,23 +184,23 @@ export default function Moonquake() {
         <button
           type="button"
           onClick={() => handleTrigger("thermal")}
-          className={`flex cursor-pointer flex-col items-center gap-1 rounded-xl border p-2 text-center font-mono text-[10.5px] transition ${
+          className={`flex cursor-pointer flex-col items-center gap-1 border-r border-b border-white/15 p-2.5 text-center font-mono text-[10px] tracking-wider uppercase transition ${
             activePreset === "thermal"
-              ? "border-sunlit bg-sunlit/20 font-bold text-sunlit"
-              : "border-white/10 bg-space-900/80 text-regolith hover:border-white/30"
+              ? "bg-regolith-bright font-bold text-space-950"
+              : "bg-space-900/50 text-regolith/75 hover:bg-white/[0.05] hover:text-white"
           }`}
         >
           <Sun className="h-3.5 w-3.5" />
-          <span>Sunrise Quake</span>
+          <span>Thermal</span>
         </button>
 
         <button
           type="button"
           onClick={() => handleTrigger("sivb")}
-          className={`flex cursor-pointer flex-col items-center gap-1 rounded-xl border p-2 text-center font-mono text-[10.5px] transition ${
+          className={`flex cursor-pointer flex-col items-center gap-1 border-r border-b border-white/15 p-2.5 text-center font-mono text-[10px] tracking-wider uppercase transition ${
             activePreset === "sivb"
-              ? "border-sunlit bg-sunlit/20 font-bold text-sunlit"
-              : "border-white/10 bg-space-900/80 text-regolith hover:border-white/30"
+              ? "bg-regolith-bright font-bold text-space-950"
+              : "bg-space-900/50 text-regolith/75 hover:bg-white/[0.05] hover:text-white"
           }`}
         >
           <Rocket className="h-3.5 w-3.5" />
@@ -203,10 +209,10 @@ export default function Moonquake() {
       </div>
 
       {/* Dual Seismogram Canvas */}
-      <div className="relative overflow-hidden rounded-xl border border-white/10 bg-space-900/95 p-2.5">
-        <div className="pointer-events-none flex justify-between font-mono text-[10px]">
-          <span className="text-sky-400">
-            EARTH CRUST (Water damps waves in ~30s)
+      <div className="relative overflow-hidden border border-white/15 bg-space-900/90 p-3">
+        <div className="pointer-events-none flex justify-between font-mono text-[9.5px] tracking-wider uppercase">
+          <span className="text-loro">
+            CH 1 · EARTH CRUST (WATER DAMPS IN ~30S)
           </span>
           <span className="text-regolith/50">LIVE SEISMOGRAM</span>
         </div>
@@ -215,24 +221,26 @@ export default function Moonquake() {
           ref={canvasRef}
           width={360}
           height={128}
-          className="my-1 h-32 w-full"
+          className="my-1.5 h-32 w-full"
           aria-label="Comparison seismogram showing Earth waves damping fast while Moon waves keep ringing"
         />
 
-        <div className="pointer-events-none flex justify-between font-mono text-[10px]">
+        <div className="pointer-events-none flex justify-between font-mono text-[9.5px] tracking-wider uppercase">
           <span className="text-sunlit">
-            MOON CRUST (Bone-dry fractured rock echoes!)
+            CH 2 · MOON CRUST (DRY FRACTURED BRECCIA)
           </span>
           <span className="text-sunlit/80">{preset.lunarRingNote}</span>
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-space-900/70 p-3 text-xs leading-relaxed text-regolith/85">
+      <div className="border border-white/15 bg-space-900/50 p-3.5 text-xs leading-relaxed text-regolith/90">
         <p>
-          <strong className="font-mono text-sunlit">{preset.label}:</strong>{" "}
+          <strong className="font-mono tracking-wider text-sunlit uppercase">
+            {preset.label}:
+          </strong>{" "}
           {preset.energyNote}. Over 8 years, Apollo&apos;s left-behind
           seismometers logged <strong>12,558 moonquakes</strong> and revealed the
-          Moon&apos;s tiny 500 km iron core!
+          Moon&apos;s 500 km iron core.
         </p>
       </div>
     </div>
