@@ -161,8 +161,6 @@ export default function Sun() {
 
   const primaryLightRef = useRef<DirectionalLight>(null);
   const backLightRef = useRef<DirectionalLight>(null);
-  const eastLightRef = useRef<DirectionalLight>(null);
-  const westLightRef = useRef<DirectionalLight>(null);
   const sunGroupRef = useRef<Group>(null);
   const sunWorldVecRef = useRef(
     latLonToVector3(sunLatitude, sunLongitude, SUN_VISUAL_DISTANCE),
@@ -180,14 +178,10 @@ export default function Sun() {
       normalizeLon(sunLongitude + 180),
       24,
     );
-    const east = latLonToVector3(0, normalizeLon(sunLongitude + 90), 24);
-    const west = latLonToVector3(0, normalizeLon(sunLongitude - 90), 24);
     return {
       sunPos: [primary.x, primary.y, primary.z] as [number, number, number],
       sunVisualPos: [visual.x, visual.y, visual.z] as [number, number, number],
       backPos: [back.x, back.y, back.z] as [number, number, number],
-      eastFillPos: [east.x, east.y, east.z] as [number, number, number],
-      westFillPos: [west.x, west.y, west.z] as [number, number, number],
     };
     // Only needed for initial mount; dynamic updates happen smoothly in useFrame
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -265,14 +259,6 @@ export default function Sun() {
       if (backLightRef.current) {
         latLonToVector3(-lat + 8, normalizeLon(lon + 180), 24, tmp);
         backLightRef.current.position.copy(tmp);
-      }
-      if (eastLightRef.current) {
-        latLonToVector3(0, normalizeLon(lon + 90), 24, tmp);
-        eastLightRef.current.position.copy(tmp);
-      }
-      if (westLightRef.current) {
-        latLonToVector3(0, normalizeLon(lon - 90), 24, tmp);
-        westLightRef.current.position.copy(tmp);
       }
       latLonToVector3(lat, lon, SUN_VISUAL_DISTANCE, sunWorldVecRef.current);
       if (sunGroupRef.current) {
@@ -354,29 +340,15 @@ export default function Sun() {
       <directionalLight
         ref={backLightRef}
         position={initialPositions.backPos}
-        intensity={1.35}
+        intensity={1.45}
         color="#dbeafe"
       />
 
-      {/* Quadrature limb fill lights so the terminator transitions smoothly with full relief */}
-      <directionalLight
-        ref={eastLightRef}
-        position={initialPositions.eastFillPos}
-        intensity={0.75}
-        color="#dce6f5"
-      />
-      <directionalLight
-        ref={westLightRef}
-        position={initialPositions.westFillPos}
-        intensity={0.75}
-        color="#dce6f5"
-      />
-
-      {/* Global ambient & hemisphere fill so every crater and farside basin stays clear */}
+      {/* Global ambient & hemisphere fill (including folded quadrature fill) so every crater and farside basin stays clear */}
       <hemisphereLight
-        args={["#f1f5f9", "#94a3b8", 0.5]}
+        args={["#f1f5f9", "#94a3b8", 0.92]}
       />
-      <ambientLight intensity={0.4} color="#cbd5e1" />
+      <ambientLight intensity={0.56} color="#dce6f5" />
     </>
   );
 }

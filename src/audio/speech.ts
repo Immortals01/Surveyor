@@ -4,21 +4,30 @@ import { audioEngine } from "./AudioEngine";
 
 let activeCancel: (() => void) | null = null;
 let cachedManifest: Set<string> | null = null;
+let manifestPromise: Promise<Set<string>> | null = null;
 
-async function getNarrationManifest(): Promise<Set<string>> {
-  if (cachedManifest) return cachedManifest;
-  try {
-    const res = await fetch("/audio/narration/manifest.json");
-    if (res.ok) {
-      const list = (await res.json()) as string[];
-      cachedManifest = new Set(list);
-      return cachedManifest;
+export function preloadNarrationManifest(): Promise<Set<string>> {
+  if (cachedManifest) return Promise.resolve(cachedManifest);
+  if (manifestPromise) return manifestPromise;
+  manifestPromise = (async () => {
+    try {
+      const res = await fetch("/audio/narration/manifest.json");
+      if (res.ok) {
+        const list = (await res.json()) as string[];
+        cachedManifest = new Set(list);
+        return cachedManifest;
+      }
+    } catch {
+      // optional pre-generated manifest
     }
-  } catch {
-    // optional pre-generated manifest
-  }
-  cachedManifest = new Set();
-  return cachedManifest;
+    cachedManifest = new Set();
+    return cachedManifest;
+  })();
+  return manifestPromise;
+}
+
+function getNarrationManifest(): Promise<Set<string>> {
+  return preloadNarrationManifest();
 }
 
 export function cancelSpeech(): void {
@@ -110,19 +119,21 @@ export async function speakLine(
 function waitMs(ms: number, signal?: AbortSignal): Promise<boolean> {
   return new Promise((resolve) => {
     let settled = false;
-    const id = window.setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      activeCancel = null;
-      resolve(true);
-    }, ms);
     const abort = () => {
       if (settled) return;
       settled = true;
       window.clearTimeout(id);
+      signal?.removeEventListener("abort", abort);
       activeCancel = null;
       resolve(false);
     };
+    const id = window.setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      signal?.removeEventListener("abort", abort);
+      activeCancel = null;
+      resolve(true);
+    }, ms);
     activeCancel = abort;
     signal?.addEventListener("abort", abort, { once: true });
   });
@@ -138,9 +149,11 @@ function playMp3(
     const unregister = audioEngine.registerVoiceAudio(audio);
 
     let done = false;
+    const onAbort = () => finish("cancelled");
     const finish = (result: "played" | "cancelled" | "error") => {
       if (done) return;
       done = true;
+      signal?.removeEventListener("abort", onAbort);
       unregister();
       audio.pause();
       audio.src = "";
@@ -148,8 +161,8 @@ function playMp3(
       resolve(result);
     };
 
-    activeCancel = () => finish("cancelled");
-    signal?.addEventListener("abort", () => finish("cancelled"), { once: true });
+    activeCancel = onAbort;
+    signal?.addEventListener("abort", onAbort, { once: true });
     audio.addEventListener("ended", () => finish("played"), { once: true });
     audio.addEventListener("error", () => finish("error"), { once: true });
     void audio.play().catch(() => finish("error"));
@@ -194,11 +207,13 @@ function tryWebSpeech(
 
     const watchdogMs = Math.max(4000, wordCount * 480 + 2400);
     const timer = window.setTimeout(() => done("played"), watchdogMs);
+    const onAbort = () => done("cancelled");
 
     const done = (result: "played" | "cancelled" | "unavailable") => {
       if (settled) return;
       settled = true;
       window.clearTimeout(timer);
+      signal?.removeEventListener("abort", onAbort);
       activeCancel = null;
       try {
         synth.cancel();
@@ -208,8 +223,8 @@ function tryWebSpeech(
       resolve(result);
     };
 
-    activeCancel = () => done("cancelled");
-    signal?.addEventListener("abort", () => done("cancelled"), { once: true });
+    activeCancel = onAbort;
+    signal?.addEventListener("abort", onAbort, { once: true });
 
     utterance.onend = () => done("played");
     utterance.onerror = () => done("unavailable");

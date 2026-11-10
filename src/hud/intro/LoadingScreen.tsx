@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
+import { preloadNarrationManifest } from "@/audio/speech";
 import {
   isHeightLoaded,
   loadLunarHeightGrid,
-  loadPlanetaryHeightGrid,
 } from "@/scene/moon/heightSampler";
-import { marsTileManager, moonTileManager } from "@/scene/moon/tileManager";
+import { moonTileManager } from "@/scene/moon/tileManager";
 
 const MIN_BOOT_MS = 420;
 const MAX_BOOT_MS = 1200;
@@ -23,10 +23,8 @@ export default function LoadingScreen() {
     void loadLunarHeightGrid().then((ok) => {
       if (ok) setDemReady(true);
     });
-    void loadPlanetaryHeightGrid("mars");
     void moonTileManager.init();
-    void marsTileManager.init();
-    void fetch("/audio/narration/manifest.json").catch(() => {});
+    void preloadNarrationManifest();
 
     const startTime = performance.now();
     let rafId = 0;

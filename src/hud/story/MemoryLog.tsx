@@ -11,11 +11,10 @@ interface MemoryLogProps {
 
 export default function MemoryLog({ memoryLog }: MemoryLogProps) {
   const [playing, setPlaying] = useState(false);
-  const settings = useAppStore((s) => s.settings);
   const openSources = useAppStore((s) => s.openSources);
 
   const handleTogglePlay = async () => {
-    audioEngine.unlock(settings.muted);
+    audioEngine.unlock(useAppStore.getState().settings.muted);
     if (playing) {
       cancelSpeech();
       setPlaying(false);

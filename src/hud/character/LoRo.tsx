@@ -74,6 +74,7 @@ export default function LoRo({ size = "lg" }: LoRoProps) {
           className="pointer-events-none! absolute! inset-0"
           camera={{ position: [0, 0.14, 4.65], fov: 32 }}
           dpr={[1, 1.5]}
+          frameloop={reduceMotion ? "demand" : "always"}
           gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
           onCreated={({ camera }) => camera.lookAt(0, 0.06, 0)}
         >

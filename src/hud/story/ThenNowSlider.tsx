@@ -10,9 +10,11 @@ export default function ThenNowSlider({ thenNow }: ThenNowSliderProps) {
   const [splitPct, setSplitPct] = useState(48);
   const [showHotspots, setShowHotspots] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const cachedRectRef = useRef<DOMRect | null>(null);
 
   const updateFromClientX = (clientX: number) => {
-    const rect = containerRef.current?.getBoundingClientRect();
+    const rect =
+      cachedRectRef.current ?? containerRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
     const raw = ((clientX - rect.left) / rect.width) * 100;
     setSplitPct(Math.max(2, Math.min(98, raw)));
@@ -25,6 +27,7 @@ export default function ThenNowSlider({ thenNow }: ThenNowSliderProps) {
         <div
           ref={containerRef}
           onPointerDown={(e) => {
+            cachedRectRef.current = e.currentTarget.getBoundingClientRect();
             e.currentTarget.setPointerCapture(e.pointerId);
             updateFromClientX(e.clientX);
           }}
@@ -32,6 +35,12 @@ export default function ThenNowSlider({ thenNow }: ThenNowSliderProps) {
             if (e.buttons > 0) {
               updateFromClientX(e.clientX);
             }
+          }}
+          onPointerUp={() => {
+            cachedRectRef.current = null;
+          }}
+          onPointerCancel={() => {
+            cachedRectRef.current = null;
           }}
           className="relative aspect-[4/3] w-full cursor-ew-resize overflow-hidden border border-white/10 bg-space-900 select-none"
         >

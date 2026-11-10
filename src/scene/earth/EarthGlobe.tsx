@@ -105,50 +105,61 @@ const EARTH_TILE_FRAGMENT = /* glsl */ `
     float clouds = uHasClouds > 0.5
       ? texture2D(uCloudsMap, vec2(vGlobalUv.x + uCloudOffset, vGlobalUv.y)).r
       : 0.0;
-    vec3 lightsSample = uHasLights > 0.5
-      ? texture2D(uLightsMap, vGlobalUv).rgb
-      : vec3(0.0);
 
     // Rich sapphire water shading & vibrant continental tones
     vec3 baseAlbedo = pow(daySample, vec3(0.95)) * 1.12;
     vec3 oceanRich = baseAlbedo * vec3(0.92, 1.20, 1.68) + vec3(0.018, 0.085, 0.22);
     baseAlbedo = mix(baseAlbedo, oceanRich, specMask * 0.66);
 
-    // Ocean specular reflection & sun glint (masked by clouds & water mask)
-    vec3 H = normalize(L + V);
-    float specCore = pow(max(0.0, dot(N, H)), 56.0);
-    float specBroad = pow(max(0.0, dot(geomN, H)), 16.0) * 0.25;
-    float spec = (specCore + specBroad) * specMask * (1.0 - clouds * 0.88) * dayFactor;
-    vec3 specColor = mix(vec3(0.86, 0.94, 1.0), vec3(1.0, 0.84, 0.62), twilight * 0.6) * spec * 0.28;
-
-    // Illuminated day surface + drifting cloud deck
-    float litIntensity = 0.14 + 0.86 * (0.65 * pow(diffuse, 0.82) + 0.35 * pow(macroDiffuse, 0.75));
-    vec3 daySurface = baseAlbedo * litIntensity + specColor;
-    vec3 cloudColor = mix(vec3(0.97, 0.99, 1.0), vec3(1.0, 0.78, 0.58), twilight * 0.55);
+    float oneMinusNdotV = 1.0 - ndotv;
+    float fresnel = oneMinusNdotV * oneMinusNdotV * oneMinusNdotV;
     float cloudAlpha = smoothstep(0.05, 0.72, clouds) * 0.84;
-    float cloudLit = 0.20 + 0.88 * pow(macroDiffuse, 0.72);
-    vec3 dayWithClouds = mix(daySurface, cloudColor * cloudLit, cloudAlpha);
 
-    // Rayleigh blue atmospheric scattering toward the sunlit limb
-    float fresnel = pow(1.0 - ndotv, 3.0);
-    vec3 atmosphereTint = mix(vec3(0.26, 0.62, 1.0), vec3(0.96, 0.56, 0.32), twilight * 0.48);
-    float limbSun = smoothstep(-0.22, 0.42, geomSunDot);
-    dayWithClouds = mix(dayWithClouds, atmosphereTint, fresnel * 0.52 * limbSun);
-    dayWithClouds += vec3(0.20, 0.52, 1.0) * pow(1.0 - ndotv, 4.4) * 0.46 * limbSun;
+    // Illuminated day surface + ocean specular glint + drifting cloud deck
+    vec3 dayWithClouds = vec3(0.0);
+    if (dayFactor > 0.0 || geomSunDot > -0.22) {
+      vec3 specColor = vec3(0.0);
+      if (dayFactor > 0.0 && specMask > 0.01) {
+        vec3 H = normalize(L + V);
+        float specCore = pow(max(0.0, dot(N, H)), 56.0);
+        float specBroad = pow(max(0.0, dot(geomN, H)), 16.0) * 0.25;
+        float spec = (specCore + specBroad) * specMask * (1.0 - clouds * 0.88) * dayFactor;
+        specColor = mix(vec3(0.86, 0.94, 1.0), vec3(1.0, 0.84, 0.62), twilight * 0.6) * spec * 0.28;
+      }
+
+      float litIntensity = 0.14 + 0.86 * (0.65 * pow(diffuse, 0.82) + 0.35 * pow(macroDiffuse, 0.75));
+      vec3 daySurface = baseAlbedo * litIntensity + specColor;
+      vec3 cloudColor = mix(vec3(0.97, 0.99, 1.0), vec3(1.0, 0.78, 0.58), twilight * 0.55);
+      float cloudLit = 0.20 + 0.88 * pow(macroDiffuse, 0.72);
+      dayWithClouds = mix(daySurface, cloudColor * cloudLit, cloudAlpha);
+
+      // Rayleigh blue atmospheric scattering toward the sunlit limb
+      vec3 atmosphereTint = mix(vec3(0.26, 0.62, 1.0), vec3(0.96, 0.56, 0.32), twilight * 0.48);
+      float limbSun = smoothstep(-0.22, 0.42, geomSunDot);
+      dayWithClouds = mix(dayWithClouds, atmosphereTint, fresnel * 0.52 * limbSun);
+      dayWithClouds += vec3(0.20, 0.52, 1.0) * pow(oneMinusNdotV, 4.4) * 0.46 * limbSun;
+    }
 
     // Night hemisphere: subtle starlight/moonlight continental visibility + warm golden city lights
-    float nightRelief = 0.82 + 0.18 * dot(N, geomN);
-    vec3 nightBase = (baseAlbedo * 0.085 + vec3(0.008, 0.016, 0.032)) * nightRelief;
-    vec3 nightClouds = mix(nightBase, nightBase + vec3(0.025, 0.038, 0.062), cloudAlpha * 0.45);
+    vec3 nightSide = vec3(0.0);
+    if (dayFactor < 1.0) {
+      float nightRelief = 0.82 + 0.18 * dot(N, geomN);
+      vec3 nightBase = (baseAlbedo * 0.085 + vec3(0.008, 0.016, 0.032)) * nightRelief;
+      vec3 nightClouds = mix(nightBase, nightBase + vec3(0.025, 0.038, 0.062), cloudAlpha * 0.45);
 
-    float cityBrightness = smoothstep(
-      0.20,
-      0.80,
-      max(lightsSample.r, lightsSample.g) - lightsSample.b * 0.62
-    );
-    vec3 cityGlow = vec3(1.0, 0.78, 0.42) * cityBrightness * (1.0 - clouds * 0.72) * 0.92;
-    float nightMask = 1.0 - smoothstep(-0.08, 0.10, geomSunDot);
-    vec3 nightSide = nightClouds + cityGlow * nightMask + vec3(0.04, 0.08, 0.18) * fresnel * 0.35;
+      float nightMask = 1.0 - smoothstep(-0.08, 0.10, geomSunDot);
+      vec3 cityGlow = vec3(0.0);
+      if (nightMask > 0.0 && uHasLights > 0.5) {
+        vec3 lightsSample = texture2D(uLightsMap, vGlobalUv).rgb;
+        float cityBrightness = smoothstep(
+          0.20,
+          0.80,
+          max(lightsSample.r, lightsSample.g) - lightsSample.b * 0.62
+        );
+        cityGlow = vec3(1.0, 0.78, 0.42) * cityBrightness * (1.0 - clouds * 0.72) * 0.92;
+      }
+      nightSide = nightClouds + cityGlow * nightMask + vec3(0.04, 0.08, 0.18) * fresnel * 0.35;
+    }
 
     vec3 finalColor = mix(nightSide, dayWithClouds, dayFactor);
     gl_FragColor = vec4(finalColor, 1.0);
@@ -382,8 +393,12 @@ export default function EarthGlobe() {
         sharedUniforms.uHasSpec.value = 1;
       },
     );
+    const lightsPrimaryUrl =
+      effectiveTier === "high"
+        ? "/textures/earth/earth_lights_8k.webp"
+        : "/textures/earth/earth_lights_2k.webp";
     loadTex(
-      "/textures/earth/earth_lights_8k.webp",
+      lightsPrimaryUrl,
       "/textures/earth/earth_lights_2k.webp",
       true,
       (lights) => {
@@ -396,7 +411,7 @@ export default function EarthGlobe() {
       controller.abort();
       for (const t of loaded) disposeTexture(t);
     };
-  }, [gl, sharedUniforms]);
+  }, [gl, sharedUniforms, effectiveTier]);
 
   useEffect(() => {
     return () => {

@@ -2,6 +2,7 @@ import { Component, type ReactNode, Suspense, useMemo } from "react";
 import { Center, OrbitControls, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { Box, Rotate3d } from "lucide-react";
+import { CylinderGeometry, MeshStandardMaterial } from "three";
 import type { HeroSite } from "@/data/schema";
 import { detectDefaultQualityTier } from "@/lib/quality";
 import { useAppStore } from "@/store/useAppStore";
@@ -10,6 +11,13 @@ interface ModelSpotlightProps {
   model3d: NonNullable<HeroSite["model3d"]>;
   fallbackImage: string;
 }
+
+const PEDESTAL_GEO = new CylinderGeometry(1.65, 1.8, 0.08, 32);
+const PEDESTAL_MAT = new MeshStandardMaterial({
+  color: "#3b362e",
+  roughness: 0.92,
+  metalness: 0.05,
+});
 
 function GlbScene({ glbPath, scale }: { glbPath: string; scale: number }) {
   const { scene } = useGLTF(glbPath);
@@ -21,10 +29,11 @@ function GlbScene({ glbPath, scale }: { glbPath: string; scale: number }) {
         <primitive object={cloned} scale={scale} />
       </Center>
       {/* Subtle Lunar Regolith Pedestal Disc */}
-      <mesh position={[0, -0.04, 0]} receiveShadow>
-        <cylinderGeometry args={[1.65, 1.8, 0.08, 40]} />
-        <meshStandardMaterial color="#3b362e" roughness={0.92} metalness={0.05} />
-      </mesh>
+      <mesh
+        position={[0, -0.04, 0]}
+        geometry={PEDESTAL_GEO}
+        material={PEDESTAL_MAT}
+      />
     </group>
   );
 }
@@ -91,6 +100,7 @@ export default function ModelSpotlight({
                 <Canvas
                   camera={{ position: [2.6, 1.7, 2.6], fov: 38 }}
                   dpr={[1, 1.5]}
+                  frameloop={reduceMotion ? "demand" : "always"}
                 >
                   <ambientLight intensity={0.75} />
                   <directionalLight position={[4, 6, 3]} intensity={2.4} color="#fff4dc" />
