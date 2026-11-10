@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Category, CelestialBody, LoRoMood, StoryTab } from "@/data/schema";
+import type { Category, CelestialBody, LoRoMood } from "@/data/schema";
 import type { QualityTier } from "@/lib/quality";
 import {
   isHeightLoaded,
@@ -19,7 +19,6 @@ export interface ActiveDialogue {
   sourceIds: string[];
   isRevealing: boolean;
   isSpeaking: boolean;
-  holdForInteraction?: boolean;
 }
 
 export interface PersistedSettings {
@@ -41,7 +40,6 @@ export interface AppState {
   mode: AppMode;
   selectedSiteId: string | null;
   hoveredSiteId: string | null;
-  activeStoryTab: StoryTab;
   issPanelOpen: boolean;
 
   // Guided Tour cursor
@@ -81,9 +79,8 @@ export interface AppState {
   setTourCursor: (chapterIndex: number, beatIndex: number) => void;
   setTourPaused: (paused: boolean) => void;
   setChapterBannerVisible: (visible: boolean) => void;
-  selectSite: (siteId: string | null, tab?: StoryTab) => void;
+  selectSite: (siteId: string | null) => void;
   setHoveredSite: (siteId: string | null) => void;
-  setActiveStoryTab: (tab: StoryTab) => void;
   setCategoryFilter: (cat: Category | "all") => void;
   setHeroOnly: (heroOnly: boolean) => void;
   setSiteIndexOpen: (open: boolean) => void;
@@ -161,7 +158,6 @@ export const useAppStore = create<AppState>()(
       mode: "intro",
       selectedSiteId: null,
       hoveredSiteId: null,
-      activeStoryTab: "story",
       issPanelOpen: false,
 
       tourChapterIndex: 0,
@@ -256,16 +252,13 @@ export const useAppStore = create<AppState>()(
       setChapterBannerVisible: (chapterBannerVisible) =>
         set({ chapterBannerVisible }),
 
-      selectSite: (siteId, tab) =>
+      selectSite: (siteId) =>
         set((s) => ({
           selectedSiteId: siteId,
           issPanelOpen: siteId !== null ? false : s.issPanelOpen,
-          activeStoryTab: tab ?? (siteId !== s.selectedSiteId ? "story" : s.activeStoryTab),
         })),
 
       setHoveredSite: (hoveredSiteId) => set({ hoveredSiteId }),
-
-      setActiveStoryTab: (activeStoryTab) => set({ activeStoryTab }),
 
       setCategoryFilter: (categoryFilter) => set({ categoryFilter }),
 

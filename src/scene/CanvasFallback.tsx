@@ -44,7 +44,7 @@ export function Fallback2DMoonMap() {
               type="button"
               onClick={() => {
                 if (mode === "intro") enterExplore(true);
-                selectSite(site.id, "story");
+                selectSite(site.id);
               }}
               style={{ left: `${xPct}%`, top: `${yPct}%` }}
               className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full transition hover:scale-125 ${

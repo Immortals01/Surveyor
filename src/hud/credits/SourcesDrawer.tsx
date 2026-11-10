@@ -201,7 +201,7 @@ export default function SourcesDrawer() {
                                   const targetBody = getSiteBody(s.id);
                                   setCelestialBody(targetBody);
                                   if (mode !== "explore") enterExplore(true);
-                                  selectSite(s.id, "story");
+                                  selectSite(s.id);
                                   closeSources();
                                   void cameraBus.flyToLatLon(s.lat, s.lon);
                                 }}

@@ -99,9 +99,6 @@ describe("NASA Open Data & Lunar + Mars Content Integrity", () => {
         for (const sid of site.memoryLog.sourceIds) {
           expect(SOURCES_BY_ID.has(sid)).toBe(true);
         }
-        if (site.model3d) {
-          expect(SOURCES_BY_ID.has(site.model3d.sourceId)).toBe(true);
-        }
       } else if (site.parentHeroId) {
         const parent = SITE_BY_ID.get(site.parentHeroId);
         expect(parent?.tier).toBe("hero");
@@ -109,21 +106,14 @@ describe("NASA Open Data & Lunar + Mars Content Integrity", () => {
     }
   });
 
-  it("verifies that every image and 3D model path referenced in Moon and Mars sites exists in /public", () => {
+  it("verifies that every image path referenced in Moon and Mars sites exists in /public", () => {
     for (const site of EVERY_PLANETARY_SITE) {
       const thumbDisk = path.join(PUBLIC_DIR, site.thumbnailImage);
       expect(existsSync(thumbDisk)).toBe(true);
 
       if (site.tier === "hero") {
-        const thenDisk = path.join(PUBLIC_DIR, site.thenNow.thenImage);
-        const nowDisk = path.join(PUBLIC_DIR, site.thenNow.nowImage);
-        expect(existsSync(thenDisk)).toBe(true);
-        expect(existsSync(nowDisk)).toBe(true);
-
-        if (site.model3d) {
-          const glbDisk = path.join(PUBLIC_DIR, site.model3d.glbPath);
-          expect(existsSync(glbDisk)).toBe(true);
-        }
+        const plateDisk = path.join(PUBLIC_DIR, site.archivePlate.image);
+        expect(existsSync(plateDisk)).toBe(true);
       }
     }
   });
@@ -139,7 +129,7 @@ describe("NASA Open Data & Lunar + Mars Content Integrity", () => {
         expect(SITE_BY_ID.get(hid)?.tier).toBe("hero");
       }
       for (const beat of ch.beats) {
-        if (beat.kind === "flySite" || beat.kind === "spotlightWidget") {
+        if (beat.kind === "flySite") {
           expect(SITE_BY_ID.has(beat.siteId)).toBe(true);
         }
       }

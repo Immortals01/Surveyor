@@ -22,24 +22,6 @@ export type LoRoMood = z.infer<typeof LoRoMoodSchema>;
 export const CelestialBodySchema = z.enum(["moon", "earth", "mars"]);
 export type CelestialBody = z.infer<typeof CelestialBodySchema>;
 
-export const WidgetKindSchema = z.enum([
-  "laser-retroreflector",
-  "moonquake",
-  "rover-liftoff-cam",
-  "mars-helicopter-flight",
-  "marsquake",
-  "moxie-oxygen",
-]);
-export type WidgetKind = z.infer<typeof WidgetKindSchema>;
-
-export const StoryTabSchema = z.enum([
-  "story",
-  "then-now",
-  "science",
-  "model",
-]);
-export type StoryTab = z.infer<typeof StoryTabSchema>;
-
 export const DatasetPortalSchema = z.enum([
   "SVS",
   "LROC",
@@ -80,13 +62,6 @@ export const DialogueLineSchema = z.object({
 });
 export type DialogueLine = z.infer<typeof DialogueLineSchema>;
 
-export const HotspotSchema = z.object({
-  xPct: z.number().min(0).max(100),
-  yPct: z.number().min(0).max(100),
-  label: z.string(),
-});
-export type Hotspot = z.infer<typeof HotspotSchema>;
-
 export const BaseSiteSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+$/),
   tier: z.enum(["hero", "secondary"]),
@@ -114,25 +89,11 @@ export const HeroSiteSchema = BaseSiteSchema.extend({
   memoryLog: DialogueLineSchema,
   scienceImpact: z.string(),
   artemisLink: z.string(),
-  thenNow: z.object({
-    thenImage: z.string().startsWith("/"),
-    thenCaption: z.string(),
-    thenYear: z.number().int(),
-    nowImage: z.string().startsWith("/"),
-    nowCaption: z.string(),
-    lrocImageId: z.string(),
-    hotspots: z.array(HotspotSchema).default([]),
+  archivePlate: z.object({
+    image: z.string().startsWith("/"),
+    caption: z.string(),
+    year: z.number().int(),
   }),
-  model3d: z
-    .object({
-      glbPath: z.string().startsWith("/"),
-      title: z.string(),
-      caption: z.string(),
-      scale: z.number().positive().default(1),
-      sourceId: z.string(),
-    })
-    .optional(),
-  widget: WidgetKindSchema.optional(),
 });
 
 export const SecondarySiteSchema = BaseSiteSchema.extend({
@@ -154,7 +115,6 @@ export const TourBeatSchema = z.discriminatedUnion("kind", [
     siteId: z.string(),
     sunLon: z.number().min(-180).max(180).optional(),
     sunLat: z.number().min(-90).max(90).optional(),
-    openTab: StoryTabSchema.optional(),
     announce: DialogueLineSchema.optional(),
   }),
   z.object({
@@ -169,12 +129,6 @@ export const TourBeatSchema = z.discriminatedUnion("kind", [
     kind: z.literal("speak"),
     line: DialogueLineSchema,
     siteId: z.string().optional(),
-    openTab: StoryTabSchema.optional(),
-  }),
-  z.object({
-    kind: z.literal("spotlightWidget"),
-    siteId: z.string(),
-    promptLine: DialogueLineSchema,
   }),
 ]);
 export type TourBeat = z.infer<typeof TourBeatSchema>;

@@ -48,7 +48,7 @@ export default function SiteIndex() {
     } else if (!isNearside(site.lon)) {
       setSunDirection(site.lon > 0 ? 140 : -140, 1.5);
     }
-    selectSite(site.id, "story");
+    selectSite(site.id);
     setOpen(false);
     void cameraBus.flyToLatLon(site.lat, site.lon);
   };

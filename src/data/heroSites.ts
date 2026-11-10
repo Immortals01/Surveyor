@@ -46,17 +46,10 @@ export const HERO_SITES: HeroSite[] = [
       "Proved the lunar plains weren't jagged lava spikes, revealing smooth, rolling craters 1,000 times sharper than any Earth telescope could see.",
     artemisLink:
       "Just like Ranger 7 mapped Apollo's path, modern optical navigation cameras guide Artemis landers autonomously around boulders in real time.",
-    thenNow: {
-      thenImage: "/images/sites/ranger-7/then.webp",
-      thenCaption: "Ranger 7's final partial TV frame taken 0.18 seconds before impact from 300 m altitude.",
-      thenYear: 1964,
-      nowImage: "/images/sites/ranger-7/now.webp",
-      nowCaption: "LROC Narrow Angle Camera view revealing Ranger 7's bright, rayed 14 m impact crater today.",
-      lrocImageId: "M109869099RE",
-      hotspots: [
-        { xPct: 50, yPct: 50, label: "Ranger 7 14m Impact Crater" },
-        { xPct: 64, yPct: 38, label: "Bright Ejecta Blanket Rays" },
-      ],
+    archivePlate: {
+      image: "/images/sites/ranger-7/then.webp",
+      caption: "Ranger 7's final partial TV frame taken 0.18 seconds before impact from 300 m altitude.",
+      year: 1964,
     },
     thumbnailImage: "/images/sites/ranger-7/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1964-041A", "S-LROC-FEATURED"],
@@ -106,24 +99,10 @@ export const HERO_SITES: HeroSite[] = [
       "Settled the biggest safety question of the Space Race: lunar regolith easily supports heavy landers and walking astronauts.",
     artemisLink:
       "NASA's new robotic Commercial Lunar Payload Services (CLPS) scouts follow directly in Surveyor 1's footsteps ahead of crewed Artemis landings.",
-    thenNow: {
-      thenImage: "/images/sites/surveyor-1/then.webp",
-      thenCaption: "Surveyor 1's own camera looking down at Footpad 2 resting cleanly on firm lunar dust (1966).",
-      thenYear: 1966,
-      nowImage: "/images/sites/surveyor-1/now.webp",
-      nowCaption: "LROC orbital view catching Surveyor 1 casting a long evening spire shadow across Oceanus Procellarum.",
-      lrocImageId: "M109892275LE",
-      hotspots: [
-        { xPct: 48, yPct: 52, label: "Surveyor 1 Tripod Body" },
-        { xPct: 68, yPct: 52, label: "15m Sunset Mast Shadow" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/surveyor.glb",
-      title: "Surveyor Lunar Lander",
-      caption: "Three-legged robotic scout with solar mast and rotating mirror TV camera.",
-      scale: 1,
-      sourceId: "S-3D-SURVEYOR",
+    archivePlate: {
+      image: "/images/sites/surveyor-1/then.webp",
+      caption: "Surveyor 1's own camera looking down at Footpad 2 resting cleanly on firm lunar dust (1966).",
+      year: 1966,
     },
     thumbnailImage: "/images/sites/surveyor-1/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1966-045A", "S-LROC-FEATURED"],
@@ -173,27 +152,11 @@ export const HERO_SITES: HeroSite[] = [
       "Fifty-plus years of laser ranging tested Einstein's General Relativity, proved the Moon has a fluid core, and measured the Moon spiraling 3.8 cm farther away each year.",
     artemisLink:
       "Next-generation single-crystal retroreflectors fly aboard NASA CLPS and Artemis landers to sharpen lunar GPS and gravity maps by 10×.",
-    thenNow: {
-      thenImage: "/images/sites/apollo-11/then.webp",
-      thenCaption: "Buzz Aldrin setting up the Tranquility Base experiments in front of Eagle (AS11-40-5948, July 1969).",
-      thenYear: 1969,
-      nowImage: "/images/sites/apollo-11/now.webp",
-      nowCaption: "High-resolution LROC NAC overhead photo showing Eagle, the LRRR mirror, and Neil's trail to Little West Crater.",
-      lrocImageId: "M175124932R",
-      hotspots: [
-        { xPct: 47, yPct: 50, label: "Eagle Descent Stage" },
-        { xPct: 41, yPct: 63, label: "Laser Retroreflector (Still Active!)" },
-        { xPct: 78, yPct: 48, label: "Footpath to Little West Crater" },
-      ],
+    archivePlate: {
+      image: "/images/sites/apollo-11/then.webp",
+      caption: "Buzz Aldrin setting up the Tranquility Base experiments in front of Eagle (AS11-40-5948, July 1969).",
+      year: 1969,
     },
-    model3d: {
-      glbPath: "/models/apollo-lm.glb",
-      title: "Apollo Lunar Module (Eagle)",
-      caption: "Octagonal Kapton-foil Descent Stage that served as launchpad for the crew's return.",
-      scale: 1,
-      sourceId: "S-3D-LM",
-    },
-    widget: "laser-retroreflector",
     thumbnailImage: "/images/sites/apollo-11/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1969-059C", "S-LLR-SCIENCE", "S-LROC-FEATURED"],
   },
@@ -242,25 +205,10 @@ export const HERO_SITES: HeroSite[] = [
       "Inspecting Surveyor 3's sun-baked, micrometeorite-peppered parts taught NASA how solar radiation and rocket-exhaust dust blast affect long-term lunar hardware.",
     artemisLink:
       "Protecting future Artemis habitats from razor-sharp rocket-plume dust kicks starts directly with what Apollo 12 learned on Surveyor 3's hull.",
-    thenNow: {
-      thenImage: "/images/sites/apollo-12-surveyor-3/then.webp",
-      thenCaption: "Pete Conrad examining Surveyor 3 with Intrepid perched on the crater rim behind him (AS12-48-7136).",
-      thenYear: 1969,
-      nowImage: "/images/sites/apollo-12-surveyor-3/now.webp",
-      nowCaption: "LROC NAC view showing Intrepid on the north rim, bootprint loops, and Surveyor 3 inside the crater.",
-      lrocImageId: "M175428601R",
-      hotspots: [
-        { xPct: 36, yPct: 33, label: "Intrepid Descent Stage" },
-        { xPct: 62, yPct: 66, label: "Surveyor 3 Inside Crater" },
-        { xPct: 50, yPct: 48, label: "Astronaut Footpath Loop" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/surveyor.glb",
-      title: "Surveyor 3 Lander",
-      caption: "Visited in person by Apollo 12 astronauts after 2.5 years in the lunar environment.",
-      scale: 1,
-      sourceId: "S-3D-SURVEYOR",
+    archivePlate: {
+      image: "/images/sites/apollo-12-surveyor-3/then.webp",
+      caption: "Pete Conrad examining Surveyor 3 with Intrepid perched on the crater rim behind him (AS12-48-7136).",
+      year: 1969,
     },
     thumbnailImage: "/images/sites/apollo-12-surveyor-3/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1967-035A", "S-ALSEP-ARCHIVE", "S-LROC-FEATURED"],
@@ -310,19 +258,11 @@ export const HERO_SITES: HeroSite[] = [
       "Revealed the Moon's crust thickness, mapped shallow faults that can reach magnitude 5, and showed dry fractured rock scatters seismic waves for nearly an hour.",
     artemisLink:
       "NASA's Farside Seismic Suite and Artemis geophysical stations use Apollo moonquake maps to design quake-safe lunar bases!",
-    thenNow: {
-      thenImage: "/images/sites/apollo-14-alsep/then.webp",
-      thenCaption: "Apollo 14's ALSEP instruments arrayed across the Fra Mauro highlands with Antares in the distance (AS14-67-9367).",
-      thenYear: 1971,
-      nowImage: "/images/sites/apollo-14-alsep/now.webp",
-      nowCaption: "LROC orbital view showing the ALSEP central station, wheel tracks of the 'rickshaw' cart, and Antares.",
-      lrocImageId: "M150633128L",
-      hotspots: [
-        { xPct: 35, yPct: 54, label: "ALSEP Seismic Station" },
-        { xPct: 72, yPct: 46, label: "Antares Descent Stage" },
-      ],
+    archivePlate: {
+      image: "/images/sites/apollo-14-alsep/then.webp",
+      caption: "Apollo 14's ALSEP instruments arrayed across the Fra Mauro highlands with Antares in the distance (AS14-67-9367).",
+      year: 1971,
     },
-    widget: "moonquake",
     thumbnailImage: "/images/sites/apollo-14-alsep/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1971-008C", "S-ALSEP-ARCHIVE", "S-LROC-FEATURED"],
   },
@@ -371,24 +311,10 @@ export const HERO_SITES: HeroSite[] = [
       "Expanded astronaut exploration range 10× beyond walking distance, recovering ancient anorthosite highland crust ('Genesis Rock') that proved the infant Moon once had a global magma ocean.",
     artemisLink:
       "NASA's upcoming Artemis Lunar Terrain Vehicle (LTV) inherits LRV-1's flexible non-pneumatic mesh wheel concept for icy South Pole boulders.",
-    thenNow: {
-      thenImage: "/images/sites/apollo-15-lrv/then.webp",
-      thenCaption: "Jim Irwin beside LRV-1 with Mount Hadley rising behind him (AS15-86-11603, August 1971).",
-      thenYear: 1971,
-      nowImage: "/images/sites/apollo-15-lrv/now.webp",
-      nowCaption: "LROC NAC orbital photo showing Falcon, twin rover wheel tracks, and LRV-1's final parking spot.",
-      lrocImageId: "M175252641L",
-      hotspots: [
-        { xPct: 45, yPct: 52, label: "Falcon Descent Stage" },
-        { xPct: 73, yPct: 48, label: "LRV-1 ParkedMoon Buggy" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/apollo-lrv.glb",
-      title: "Apollo Lunar Roving Vehicle",
-      caption: "Battery-powered 4WD rover with wire-mesh wheels and umbrella high-gain antenna.",
-      scale: 1,
-      sourceId: "S-3D-LRV",
+    archivePlate: {
+      image: "/images/sites/apollo-15-lrv/then.webp",
+      caption: "Jim Irwin beside LRV-1 with Mount Hadley rising behind him (AS15-86-11603, August 1971).",
+      year: 1971,
     },
     thumbnailImage: "/images/sites/apollo-15-lrv/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1971-063C", "S-LROC-FEATURED"],
@@ -438,24 +364,10 @@ export const HERO_SITES: HeroSite[] = [
       "Captured the first ultraviolet portrait of Earth's geocorona and Magellanic Clouds, while highland rocks rewrote lunar geology—proving Descartes was sculpted by giant asteroid impacts, not volcanoes.",
     artemisLink:
       "Paved the way for future lunar farside radio and ultraviolet telescopes shielded from all Earth interference.",
-    thenNow: {
-      thenImage: "/images/sites/apollo-16-descartes/then.webp",
-      thenCaption: "Orion Descent Stage with the gold-plated Far-UV Telescope resting in its shadow (AS16-114-18423).",
-      thenYear: 1972,
-      nowImage: "/images/sites/apollo-16-descartes/now.webp",
-      nowCaption: "LROC NAC orbital view of Orion, LRV-2, and John Young's 'Grand Prix' rover loop tracks.",
-      lrocImageId: "M175179080R",
-      hotspots: [
-        { xPct: 48, yPct: 50, label: "Orion & UV Telescope" },
-        { xPct: 68, yPct: 54, label: "LRV-2 Final Parking Spot" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/apollo-lm.glb",
-      title: "Orion Lunar Module Base",
-      caption: "Provided shade for the first astronomical telescope operated on another world.",
-      scale: 1,
-      sourceId: "S-3D-LM",
+    archivePlate: {
+      image: "/images/sites/apollo-16-descartes/then.webp",
+      caption: "Orion Descent Stage with the gold-plated Far-UV Telescope resting in its shadow (AS16-114-18423).",
+      year: 1972,
     },
     thumbnailImage: "/images/sites/apollo-16-descartes/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1972-031C", "S-LROC-FEATURED"],
@@ -505,26 +417,11 @@ export const HERO_SITES: HeroSite[] = [
       "Geologist-astronaut Harrison Schmitt spotted 3.7-billion-year-old orange volcanic glass beads from ancient lunar fire fountains—later found to trap tiny traces of ancient interior water!",
     artemisLink:
       "Apollo 17 was the end of humanity's first lunar chapter—and its remote cameras and sample science are the direct playbook for Artemis geologists.",
-    thenNow: {
-      thenImage: "/images/sites/apollo-17-lrv/then.webp",
-      thenCaption: "Gene Cernan parking LRV-3 at its final Taurus-Littrow vantage point before liftoff (AS17-143-21932).",
-      thenYear: 1972,
-      nowImage: "/images/sites/apollo-17-lrv/now.webp",
-      nowCaption: "Sharp LROC NAC image showing Challenger, dark astronaut trails, and LRV-3 parked 145 m east.",
-      lrocImageId: "M168000580LR",
-      hotspots: [
-        { xPct: 44, yPct: 52, label: "Challenger Descent Stage" },
-        { xPct: 76, yPct: 49, label: "LRV-3 Final Parking Spot" },
-      ],
+    archivePlate: {
+      image: "/images/sites/apollo-17-lrv/then.webp",
+      caption: "Gene Cernan parking LRV-3 at its final Taurus-Littrow vantage point before liftoff (AS17-143-21932).",
+      year: 1972,
     },
-    model3d: {
-      glbPath: "/models/apollo-lrv.glb",
-      title: "Lunar Roving Vehicle #3",
-      caption: "Equipped with the color TV camera controlled across 384,400 km from Mission Control.",
-      scale: 1,
-      sourceId: "S-3D-LRV",
-    },
-    widget: "rover-liftoff-cam",
     thumbnailImage: "/images/sites/apollo-17-lrv/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-1972-096C", "S-LROC-FEATURED"],
   },
@@ -573,17 +470,10 @@ export const HERO_SITES: HeroSite[] = [
       "Unmistakably proved that permanently shadowed polar craters preserve billions of tons of water ice—transforming the Moon from a dry museum into a stepping-stone to Mars.",
     artemisLink:
       "Every forgotten machine we've met—from Surveyor's footpads to Apollo's rovers and LCROSS's icy splash—built the roadmap for NASA's Artemis astronauts returning to the South Pole.",
-    thenNow: {
-      thenImage: "/images/sites/artemis-south-pole/then.webp",
-      thenCaption: "LCROSS ultraviolet/infrared spectrometer view of the Cabeus crater impact flash and icy ejecta plume (2009).",
-      thenYear: 2009,
-      nowImage: "/images/sites/artemis-south-pole/now.webp",
-      nowCaption: "LRO LOLA & WAC South Pole illumination mosaic highlighting sunlit ridges beside shadowed ice traps targeted by Artemis.",
-      lrocImageId: "SVS-SOUTH-POLE-LOLA",
-      hotspots: [
-        { xPct: 38, yPct: 44, label: "Cabeus Crater Ice Trap" },
-        { xPct: 54, yPct: 58, label: "Sunlit Artemis Landing Ridges" },
-      ],
+    archivePlate: {
+      image: "/images/sites/artemis-south-pole/then.webp",
+      caption: "LCROSS ultraviolet/infrared spectrometer view of the Cabeus crater impact flash and icy ejecta plume (2009).",
+      year: 2009,
     },
     thumbnailImage: "/images/sites/artemis-south-pole/thumb.webp",
     sourceIds: ["S-WAGNER-2017", "S-NSSDCA-2009-031B", "S-SVS-4720"],

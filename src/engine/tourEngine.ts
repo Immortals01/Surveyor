@@ -71,11 +71,6 @@ export function tourReducer(
 
     case "BEAT_AUTO_COMPLETED": {
       if (!state.active || state.paused) return state;
-      const currentBeat = getActiveBeat(chapters, state);
-      // Spotlight widget beats hold until the user explicitly clicks Next!
-      if (currentBeat?.kind === "spotlightWidget") {
-        return state;
-      }
       return stepForward(state, chapters);
     }
 

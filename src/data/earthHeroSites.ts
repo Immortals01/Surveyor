@@ -47,27 +47,11 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Enabled every human voyage beyond low-Earth orbit, construction of the International Space Station, deployment of the Hubble Space Telescope, and commercial crew rotation.",
     artemisLink:
       "Pad 39B's upgraded flame deflector and 1.5-million-liter water deluge system launched Artemis I in 2022 and now stands ready to send Artemis II astronauts around the Moon.",
-    thenNow: {
-      thenImage: "/images/sites/kennedy-lc39/then.webp",
-      thenCaption: "Apollo 11's Saturn V lifting off from Launch Complex 39A on July 16, 1969 with Armstrong, Aldrin, and Collins aboard.",
-      thenYear: 1969,
-      nowImage: "/images/sites/kennedy-lc39/now.webp",
-      nowCaption: "Modern orbital & aerial view of LC-39B launching NASA's Space Launch System (SLS) on Artemis I alongside Pad 39A.",
-      lrocImageId: "ISS-KSC-LC39",
-      hotspots: [
-        { xPct: 48, yPct: 46, label: "Launch Pad 39A Octagon" },
-        { xPct: 35, yPct: 68, label: "Twin Crawlerway Tracks" },
-        { xPct: 66, yPct: 52, label: "Flame Trench & Water Tower" },
-      ],
+    archivePlate: {
+      image: "/images/sites/kennedy-lc39/then.webp",
+      caption: "Apollo 11's Saturn V lifting off from Launch Complex 39A on July 16, 1969 with Armstrong, Aldrin, and Collins aboard.",
+      year: 1969,
     },
-    model3d: {
-      glbPath: "/models/apollo-lm.glb",
-      title: "Apollo Lunar Module (Launched atop Saturn V)",
-      caption: "Every Apollo Lunar Module began its 384,400 km voyage tucked inside a Saturn V SLA adapter at LC-39.",
-      scale: 1,
-      sourceId: "S-3D-LM",
-    },
-    widget: "laser-retroreflector",
     thumbnailImage: "/images/sites/kennedy-lc39/thumb.webp",
     sourceIds: ["S-NASA-KSC", "S-NSSDCA-1969-059C", "S-IVL-ARCHIVE"],
   },
@@ -117,17 +101,10 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Launched humanity's first artificial satellite (Sputnik 1), the first spacecraft to impact the Moon (Luna 2), the first farside lunar photographs (Luna 3), the first soft lunar lander (Luna 9), and the core modules of Mir and the ISS.",
     artemisLink:
       "Robotic sample-return techniques pioneered by Baikonur's Luna 16, 20, and 24 missions proved automated drill cores could return pristine regolith before crewed expeditions.",
-    thenNow: {
-      thenImage: "/images/sites/baikonur-gagarin/then.webp",
-      thenCaption: "Historic R-7 Soyuz rocket poised in the tulip-petal service arms of Site 1/5 at Baikonur Cosmodrome.",
-      thenYear: 1961,
-      nowImage: "/images/sites/baikonur-gagarin/now.webp",
-      nowCaption: "Modern Soyuz launch and orbital view of Baikonur Cosmodrome supporting International Space Station crews.",
-      lrocImageId: "ISS-BAIKONUR-LC1",
-      hotspots: [
-        { xPct: 50, yPct: 52, label: "Site 1/5 'Gagarin's Start' Flame Pit" },
-        { xPct: 38, yPct: 46, label: "Tulip-Petal Suspension Arms" },
-      ],
+    archivePlate: {
+      image: "/images/sites/baikonur-gagarin/then.webp",
+      caption: "Historic R-7 Soyuz rocket poised in the tulip-petal service arms of Site 1/5 at Baikonur Cosmodrome.",
+      year: 1961,
     },
     thumbnailImage: "/images/sites/baikonur-gagarin/thumb.webp",
     sourceIds: ["S-GLOBAL-SPACEPORTS", "S-NSSDCA-MOON", "S-NASA-ISS", "S-IVL-ARCHIVE"],
@@ -178,25 +155,10 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Launched the robotic vanguard of solar system exploration: every Ranger, Surveyor, and Lunar Orbiter that mapped the Moon for Apollo, plus LRO/LCROSS (SLC-41), Voyager 1 & 2, New Horizons, and all six NASA Mars rovers.",
     artemisLink:
       "SLC-40 and SLC-41 actively launch NASA Commercial Lunar Payload Services (CLPS) landers, including Astrobotic Peregrine and Intuitive Machines missions scouting the Lunar South Pole.",
-    thenNow: {
-      thenImage: "/images/sites/cape-canaveral-slc/then.webp",
-      thenCaption: "Atlas-Centaur AC-10 lifting off from Cape Canaveral Launch Complex 36A carrying Surveyor 1 toward Oceanus Procellarum (May 30, 1966).",
-      thenYear: 1966,
-      nowImage: "/images/sites/cape-canaveral-slc/now.webp",
-      nowCaption: "Modern orbital & aerial view of Cape Canaveral's coastal Launch Row where Falcon 9 and Vulcan Centaur pads dispatch lunar and planetary craft.",
-      lrocImageId: "ISS-CAPE-CANAVERAL",
-      hotspots: [
-        { xPct: 52, yPct: 48, label: "LC-36 Surveyor Atlas-Centaur Pad" },
-        { xPct: 38, yPct: 34, label: "SLC-41 (LRO, Voyager & Mars Rovers)" },
-        { xPct: 45, yPct: 62, label: "Mercury & Gemini Historic Pads" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/surveyor.glb",
-      title: "Surveyor Lander (Launched from LC-36)",
-      caption: "All seven Surveyor lunar landers lifted off atop Atlas-Centaur rockets from Cape Canaveral LC-36A and LC-36B.",
-      scale: 1,
-      sourceId: "S-3D-SURVEYOR",
+    archivePlate: {
+      image: "/images/sites/cape-canaveral-slc/then.webp",
+      caption: "Atlas-Centaur AC-10 lifting off from Cape Canaveral Launch Complex 36A carrying Surveyor 1 toward Oceanus Procellarum (May 30, 1966).",
+      year: 1966,
     },
     thumbnailImage: "/images/sites/cape-canaveral-slc/thumb.webp",
     sourceIds: ["S-NASA-KSC", "S-NSSDCA-1966-045A", "S-NSSDCA-1967-035A", "S-IVL-ARCHIVE"],
@@ -247,26 +209,11 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Home to NASA's Astromaterials Acquisition and Curation Office, which preserves 382 kg of Apollo lunar rocks, Genesis solar wind atoms, Stardust comet grains, and OSIRIS-REx asteroid Bennu samples for scientists worldwide.",
     artemisLink:
       "JSC trains the Artemis astronaut corps, manages the Orion spacecraft program, and recently opened sealed 50-year-old Apollo 17 core tubes under the ANGSA program to prepare for Artemis III samples.",
-    thenNow: {
-      thenImage: "/images/sites/houston-jsc-mcc/then.webp",
-      thenCaption: "Flight controllers in Mission Operations Control Room 2 (MOCR-2) monitoring Apollo 11's lunar surface EVA in July 1969.",
-      thenYear: 1969,
-      nowImage: "/images/sites/houston-jsc-mcc/now.webp",
-      nowCaption: "Restored Apollo MOCR-2 National Historic Landmark and modern ISS/Artemis Flight Control Room at Johnson Space Center today.",
-      lrocImageId: "JSC-MOCR2-FCR1",
-      hotspots: [
-        { xPct: 48, yPct: 55, label: "Flight Director & CAPCOM Consoles" },
-        { xPct: 50, yPct: 24, label: "10-Foot World & Lunar Trajectory Map" },
-      ],
+    archivePlate: {
+      image: "/images/sites/houston-jsc-mcc/then.webp",
+      caption: "Flight controllers in Mission Operations Control Room 2 (MOCR-2) monitoring Apollo 11's lunar surface EVA in July 1969.",
+      year: 1969,
     },
-    model3d: {
-      glbPath: "/models/apollo-lrv.glb",
-      title: "Lunar Roving Vehicle (Commanded from Houston)",
-      caption: "From Houston's INCO console, Ed Fendell remotely panned and tilted the Apollo 15, 16, and 17 rover TV cameras on the Moon.",
-      scale: 1,
-      sourceId: "S-3D-LRV",
-    },
-    widget: "rover-liftoff-cam",
     thumbnailImage: "/images/sites/houston-jsc-mcc/thumb.webp",
     sourceIds: ["S-NASA-JSC", "S-NASA-ISS", "S-NSSDCA-1969-059C", "S-NSSDCA-1972-096C"],
   },
@@ -316,24 +263,10 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Pioneered three-axis spacecraft stabilization, radar-doppler closed-loop soft landing (Surveyor), gravity-assist Grand Tours (Voyager), sky-crane rover landings, and the Deep Space Network.",
     artemisLink:
       "JPL's CADRE (Cooperative Autonomous Distributed Robotic Explorers) mini-rovers and Lunar Trailblazer water-mapping orbiter directly support Artemis surface exploration.",
-    thenNow: {
-      thenImage: "/images/sites/jpl-pasadena/then.webp",
-      thenCaption: "JPL engineers inspecting a Surveyor lunar lander inside the Pasadena Spacecraft Assembly Facility before launch (1966).",
-      thenYear: 1966,
-      nowImage: "/images/sites/jpl-pasadena/now.webp",
-      nowCaption: "The Space Flight Operations Facility ('Center of the Universe') at JPL monitoring live Deep Space Network telemetry streams today.",
-      lrocImageId: "JPL-SFOF-230",
-      hotspots: [
-        { xPct: 50, yPct: 68, label: "'Center of the Universe' Floor Seal" },
-        { xPct: 48, yPct: 32, label: "Deep Space Network Live Telemetry Wall" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/surveyor.glb",
-      title: "JPL Surveyor Lunar Lander",
-      caption: "Designed at JPL and Hughes Aircraft in California to prove the Moon could support Apollo astronauts.",
-      scale: 1,
-      sourceId: "S-3D-SURVEYOR",
+    archivePlate: {
+      image: "/images/sites/jpl-pasadena/then.webp",
+      caption: "JPL engineers inspecting a Surveyor lunar lander inside the Pasadena Spacecraft Assembly Facility before launch (1966).",
+      year: 1966,
     },
     thumbnailImage: "/images/sites/jpl-pasadena/thumb.webp",
     sourceIds: ["S-NASA-JPL", "S-NSSDCA-1964-041A", "S-NSSDCA-1966-045A", "S-IVL-ARCHIVE"],
@@ -384,17 +317,10 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Launched the world's premier space observatories (JWST, Herschel, Planck, XMM-Newton, Euclid), Europe's first lunar orbiter (SMART-1), and flagship missions to Comet 67P (Rosetta), Mercury (BepiColombo), and Jupiter's icy moons (JUICE).",
     artemisLink:
       "ESA builds the European Service Module (ESM) that powers and propels NASA's Orion spacecraft on every Artemis lunar mission, while Ariane 6 supports future European Argonaut lunar cargo landers.",
-    thenNow: {
-      thenImage: "/images/sites/kourou-csg/then.webp",
-      thenCaption: "Ariane 5 rocket rolling out and launching the James Webb Space Telescope from ELA-3 at Kourou (December 2021).",
-      thenYear: 2021,
-      nowImage: "/images/sites/kourou-csg/now.webp",
-      nowCaption: "Aerial and satellite view of the Guiana Space Centre showing the ELA-3 and new ELA-4 Ariane 6 equatorial pads.",
-      lrocImageId: "ESA-CSG-KOUROU",
-      hotspots: [
-        { xPct: 50, yPct: 48, label: "ELA-3 JWST & JUICE Launch Pad" },
-        { xPct: 68, yPct: 38, label: "ELA-4 Ariane 6 Mobile Gantry" },
-      ],
+    archivePlate: {
+      image: "/images/sites/kourou-csg/then.webp",
+      caption: "Ariane 5 rocket rolling out and launching the James Webb Space Telescope from ELA-3 at Kourou (December 2021).",
+      year: 2021,
     },
     thumbnailImage: "/images/sites/kourou-csg/thumb.webp",
     sourceIds: ["S-ESA-CSG", "S-GLOBAL-SPACEPORTS", "S-IVL-ARCHIVE"],
@@ -445,17 +371,10 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Home port for NASA/USGS's 50-year continuous Landsat climate record, Nobel Prize-winning COBE cosmic microwave background mapper, GRACE-FO gravity twins, ICESat-2 laser altimeter, and the DART planetary defense demonstration.",
     artemisLink:
       "Polar orbiters and sun-synchronous radar/laser mapping techniques perfected by Vandenberg's Earth-observing fleet directly informed LRO's polar orbit around the Moon.",
-    thenNow: {
-      thenImage: "/images/sites/vandenberg-sfb/then.webp",
-      thenCaption: "Delta rocket lifting off from Vandenberg Space Launch Complex 2 to place an Earth-observing Landsat satellite into polar orbit.",
-      thenYear: 1972,
-      nowImage: "/images/sites/vandenberg-sfb/now.webp",
-      nowCaption: "Launch of NASA's DART asteroid impactor and modern polar missions from Vandenberg Space Launch Complex 4E.",
-      lrocImageId: "VSFB-SLC4E-PACIFIC",
-      hotspots: [
-        { xPct: 48, yPct: 50, label: "SLC-4E Polar Launch Pad" },
-        { xPct: 64, yPct: 58, label: "LZ-4 Booster Return Landing Pad" },
-      ],
+    archivePlate: {
+      image: "/images/sites/vandenberg-sfb/then.webp",
+      caption: "Delta rocket lifting off from Vandenberg Space Launch Complex 2 to place an Earth-observing Landsat satellite into polar orbit.",
+      year: 1972,
     },
     thumbnailImage: "/images/sites/vandenberg-sfb/thumb.webp",
     sourceIds: ["S-GLOBAL-SPACEPORTS", "S-BLUE-MARBLE", "S-IVL-ARCHIVE"],
@@ -506,17 +425,10 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Chandrayaan-1's Moon Impact Probe and NASA M³ spectrometer detected widespread hydroxyl/water molecules across the lunar poles, while Chandrayaan-3 measured the first in-situ southern highland topsoil temperatures and sulfur profiles.",
     artemisLink:
       "India is a signatory to the Artemis Accords, and Chandrayaan-3's precision hazard-avoidance landing near 69.37°S provided vital ground truth for upcoming international Lunar South Pole expeditions.",
-    thenNow: {
-      thenImage: "/images/sites/sriharikota-sdsc/then.webp",
-      thenCaption: "PSLV-C11 launching Chandrayaan-1 with NASA's Moon Mineralogy Mapper (M³) from Sriharikota in October 2008.",
-      thenYear: 2008,
-      nowImage: "/images/sites/sriharikota-sdsc/now.webp",
-      nowCaption: "Orbital view of Sriharikota barrier island between Pulicat Lake and the Bay of Bengal where LVM3 launched Chandrayaan-3.",
-      lrocImageId: "ISS-SRIHARIKOTA-SDSC",
-      hotspots: [
-        { xPct: 54, yPct: 46, label: "Second Launch Pad (Chandrayaan-2 & 3)" },
-        { xPct: 48, yPct: 62, label: "First Launch Pad (Chandrayaan-1 & Mangalyaan)" },
-      ],
+    archivePlate: {
+      image: "/images/sites/sriharikota-sdsc/then.webp",
+      caption: "PSLV-C11 launching Chandrayaan-1 with NASA's Moon Mineralogy Mapper (M³) from Sriharikota in October 2008.",
+      year: 2008,
     },
     thumbnailImage: "/images/sites/sriharikota-sdsc/thumb.webp",
     sourceIds: ["S-ISRO-SDSC", "S-NSSDCA-MOON", "S-IVL-ARCHIVE"],
@@ -567,19 +479,11 @@ export const EARTH_HERO_SITES: HeroSite[] = [
       "Provided the S-band and X-band communication link for Ranger, Surveyor, Lunar Orbiter, Apollo, ALSEP seismic stations, and every NASA planetary probe, while Goldstone radar mapped the topography of the Lunar South Pole.",
     artemisLink:
       "Goldstone's 70-meter dish and upgraded 34-meter optical/radio hybrid dishes form the primary high-rate communication backbone for Artemis Orion flights and Lunar Gateway.",
-    thenNow: {
-      thenImage: "/images/sites/goldstone-dsn/then.webp",
-      thenCaption: "Goldstone's giant DSS-14 dish in the Mojave Desert during the Apollo and Surveyor lunar missions (1966).",
-      thenYear: 1966,
-      nowImage: "/images/sites/goldstone-dsn/now.webp",
-      nowCaption: "Upgraded 70-meter DSS-14 'Mars Antenna' at Goldstone tracking Artemis, LRO, and Voyager spacecraft day and night.",
-      lrocImageId: "DSN-GOLDSTONE-DSS14",
-      hotspots: [
-        { xPct: 50, yPct: 45, label: "70-Meter Parabolic Reflector & Subreflector" },
-        { xPct: 50, yPct: 76, label: "Hydrostatic Oil-Bearing Pedestal" },
-      ],
+    archivePlate: {
+      image: "/images/sites/goldstone-dsn/then.webp",
+      caption: "Goldstone's giant DSS-14 dish in the Mojave Desert during the Apollo and Surveyor lunar missions (1966).",
+      year: 1966,
     },
-    widget: "moonquake",
     thumbnailImage: "/images/sites/goldstone-dsn/thumb.webp",
     sourceIds: ["S-NASA-DSN", "S-ALSEP-ARCHIVE", "S-NSSDCA-1966-045A", "S-IVL-ARCHIVE"],
   },

@@ -8,7 +8,7 @@ import { getActiveBeat, tourReducer, type TourEvent } from "./tourEngine";
 
 /**
  * Bridges the pure Guided Tour cursor in useAppStore with camera flights,
- * sun terminator shifts, story drawer tabs, and voice/caption playback.
+ * sun terminator shifts, story drawer selection, and voice/caption playback.
  */
 export function useTourRunner() {
   const mode = useAppStore((s) => s.mode);
@@ -78,7 +78,7 @@ export function useTourRunner() {
     const controller = new AbortController();
     const { signal } = controller;
 
-    const activateLine = (line: DialogueLine, hold = false) => {
+    const activateLine = (line: DialogueLine) => {
       const store = useAppStore.getState();
       store.setLoRoMood(line.mood);
       store.setDialogue({
@@ -97,7 +97,6 @@ export function useTourRunner() {
         sourceIds: line.sourceIds,
         isRevealing: !store.settings.reduceMotion,
         isSpeaking: true,
-        holdForInteraction: hold,
       });
     };
 
@@ -112,11 +111,11 @@ export function useTourRunner() {
           store.setSunDirection(beat.sunLon, beat.sunLat);
         }
         store.setLoRoMood("scanning");
-        store.selectSite(site.id, beat.openTab ?? "story");
+        store.selectSite(site.id);
 
         let spokeCompletely = true;
         if (beat.announce) {
-          activateLine(beat.announce, false);
+          activateLine(beat.announce);
           const [, completed] = await Promise.all([
             cameraBus.flyToLatLon(site.lat, site.lon),
             speakLine(beat.announce, signal),
@@ -142,7 +141,7 @@ export function useTourRunner() {
         store.setLoRoMood("scanning");
         let spokeCompletely = true;
         if (beat.announce) {
-          activateLine(beat.announce, false);
+          activateLine(beat.announce);
           const [, completed] = await Promise.all([
             cameraBus.flyOverview(beat.lat, beat.lon, beat.distance),
             speakLine(beat.announce, signal),
@@ -162,11 +161,9 @@ export function useTourRunner() {
 
       if (beat.kind === "speak") {
         if (beat.siteId && store.selectedSiteId !== null) {
-          store.selectSite(beat.siteId, beat.openTab);
-        } else if (beat.openTab && store.selectedSiteId) {
-          store.setActiveStoryTab(beat.openTab);
+          store.selectSite(beat.siteId);
         }
-        activateLine(beat.line, false);
+        activateLine(beat.line);
         const spokeCompletely = await speakLine(beat.line, signal);
         if (signal.aborted || !spokeCompletely) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });
@@ -175,15 +172,6 @@ export function useTourRunner() {
           dispatchTour({ type: "BEAT_AUTO_COMPLETED" });
         }
         return;
-      }
-
-      if (beat.kind === "spotlightWidget") {
-        store.selectSite(beat.siteId, "science");
-        activateLine(beat.promptLine, true);
-        await speakLine(beat.promptLine, signal);
-        if (signal.aborted) return;
-        store.patchDialogue({ isSpeaking: false, isRevealing: false });
-        // Holds here intentionally until user clicks Next!
       }
     };
 

@@ -13,13 +13,13 @@ const MOCK_CHAPTERS: TourChapter[] = [
     beats: [
       { kind: "flySite", siteId: "ranger-7" },
       {
-        kind: "spotlightWidget",
+        kind: "speak",
         siteId: "apollo-11",
-        promptLine: {
+        line: {
           id: "p1",
           speaker: "loro",
           mood: "excited",
-          text: "Try firing the laser!",
+          text: "Welcome to Tranquility Base!",
           sourceIds: [],
         },
       },
@@ -61,24 +61,19 @@ describe("tourReducer state machine", () => {
     expect(s1.beatIndex).toBe(0);
   });
 
-  it("holds auto-advance on spotlightWidget beats until NEXT_BEAT", () => {
+  it("advances across beats and chapters on BEAT_AUTO_COMPLETED and NEXT_BEAT", () => {
     let s = tourReducer(
       createInitialTourState(),
       { type: "START_CHAPTER", chapterIndex: 0 },
       MOCK_CHAPTERS,
     );
-    // Beat 0 (flySite) auto-completes -> moves to Beat 1 (spotlightWidget)
+    // Beat 0 (flySite) auto-completes -> moves to Beat 1
     s = tourReducer(s, { type: "BEAT_AUTO_COMPLETED" }, MOCK_CHAPTERS);
     expect(s.beatIndex).toBe(1);
 
-    // Beat 1 is spotlightWidget -> BEAT_AUTO_COMPLETED must NOT advance!
-    const held = tourReducer(s, { type: "BEAT_AUTO_COMPLETED" }, MOCK_CHAPTERS);
-    expect(held.chapterIndex).toBe(0);
-    expect(held.beatIndex).toBe(1);
-
     // Explicit NEXT_BEAT advances into Chapter 2 Beat 0
     const next = tourReducer(
-      held,
+      s,
       { type: "NEXT_BEAT" },
       MOCK_CHAPTERS,
     );

@@ -46,24 +46,10 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Provided our baseline understanding of Martian meteorology, atmospheric nitrogen/argon ratios, and reactive iron-rich regolith chemistry.",
     artemisLink:
       "Viking 1's long-duration weather and radiation baseline directly informs environmental hazard models for the first human Mars explorers.",
-    thenNow: {
-      thenImage: "/images/sites/viking-1/then.webp",
-      thenCaption: "Viking 1's first surface panorama across boulder-strewn Chryse Planitia with 'Big Joe' rock on the left (1976).",
-      thenYear: 1976,
-      nowImage: "/images/sites/viking-1/now.webp",
-      nowCaption: "MRO HiRISE orbital view capturing Viking 1 Lander, its heat shield, and its backshell/parachute in Chryse Planitia.",
-      lrocImageId: "PSP_001521_2025",
-      hotspots: [
-        { xPct: 50, yPct: 50, label: "Viking 1 Lander Deck" },
-        { xPct: 68, yPct: 38, label: "Sampling Trench Area" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/mars-lander.glb",
-      title: "Viking / Mars Tripod Lander",
-      caption: "Three-legged Martian deck lander with RTG windscreens, weather boom, and soil-sampling arm.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
+    archivePlate: {
+      image: "/images/sites/viking-1/then.webp",
+      caption: "Viking 1's first surface panorama across boulder-strewn Chryse Planitia with 'Big Joe' rock on the left (1976).",
+      year: 1976,
     },
     thumbnailImage: "/images/sites/viking-1/thumb.webp",
     sourceIds: ["S-NSSDCA-1975-075C", "S-HIRISE-HARDWARE", "S-MOLA-MEGDR"],
@@ -113,24 +99,10 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Proved the rocker-bogie six-wheel suspension and airbag landing architecture, while rounded conglomerate pebbles confirmed catastrophic ancient floods once roared down Ares Vallis.",
     artemisLink:
       "Every modern Mars rover—from Spirit and Opportunity to Curiosity and Perseverance—is a direct giant descendant of 11.5-kilogram Sojourner.",
-    thenNow: {
-      thenImage: "/images/sites/mars-pathfinder/then.webp",
-      thenCaption: "Pathfinder's camera watching little Sojourner press her APXS sensor against the 'Yogi' boulder (July 1997).",
-      thenYear: 1997,
-      nowImage: "/images/sites/mars-pathfinder/now.webp",
-      nowCaption: "MRO HiRISE orbital view spotting Pathfinder's unfolded petals, airbag cluster, and Twin Peaks on the horizon.",
-      lrocImageId: "PSP_001918_1995",
-      hotspots: [
-        { xPct: 48, yPct: 52, label: "Pathfinder Petal Lander & Airbags" },
-        { xPct: 60, yPct: 45, label: "Sojourner Near 'Yogi' Rock" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/mars-rover.glb",
-      title: "6-Wheel Rocker-Bogie Mars Rover",
-      caption: "Articulated six-wheel Martian rover chassis engineered to climb boulders twice its wheel diameter.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
+    archivePlate: {
+      image: "/images/sites/mars-pathfinder/then.webp",
+      caption: "Pathfinder's camera watching little Sojourner press her APXS sensor against the 'Yogi' boulder (July 1997).",
+      year: 1997,
     },
     thumbnailImage: "/images/sites/mars-pathfinder/thumb.webp",
     sourceIds: ["S-NSSDCA-1996-068A", "S-HIRISE-HARDWARE"],
@@ -180,24 +152,10 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Spirit's 90%-pure opaline silica trench near Home Plate proved Gusev Crater once hosted hydrothermal hot springs or steam vents—prime habitats for ancient microbial life.",
     artemisLink:
       "Hydrothermal silica deposits like Spirit's Home Plate remain top candidate biosignature targets for future human astrobiologists.",
-    thenNow: {
-      thenImage: "/images/sites/spirit-rover/then.webp",
-      thenCaption: "Spirit's panoramic view atop Husband Hill overlooking the rusty plains of Gusev Crater (2005).",
-      thenYear: 2005,
-      nowImage: "/images/sites/spirit-rover/now.webp",
-      nowCaption: "MRO HiRISE orbital view pinpointing Spirit perched at 'Troy' on the western edge of the Home Plate plateau.",
-      lrocImageId: "ESP_016455_1650",
-      hotspots: [
-        { xPct: 46, yPct: 54, label: "Spirit Rover at 'Troy'" },
-        { xPct: 64, yPct: 50, label: "Home Plate Volcaniclastic Plateau" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/mars-rover.glb",
-      title: "Mars Exploration Rover (Spirit)",
-      caption: "Solar-winged six-wheel geologist with panoramic camera mast and robotic instrument arm.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
+    archivePlate: {
+      image: "/images/sites/spirit-rover/then.webp",
+      caption: "Spirit's panoramic view atop Husband Hill overlooking the rusty plains of Gusev Crater (2005).",
+      year: 2005,
     },
     thumbnailImage: "/images/sites/spirit-rover/thumb.webp",
     sourceIds: ["S-NSSDCA-2003-027A", "S-HIRISE-HARDWARE"],
@@ -247,24 +205,10 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Proved beyond doubt that ancient Mars had standing, pH-neutral groundwater and surface playas capable of supporting microbial life.",
     artemisLink:
       "Opportunity's 15-year traverse taught mission controllers how to operate long-range robotic surface explorers across decades.",
-    thenNow: {
-      thenImage: "/images/sites/opportunity-rover/then.webp",
-      thenCaption: "Opportunity looking back at her own twin wheel tracks curving across the wind-rippled plains of Meridiani Planum.",
-      thenYear: 2010,
-      nowImage: "/images/sites/opportunity-rover/now.webp",
-      nowCaption: "MRO HiRISE orbital view showing Opportunity resting silently in Perseverance Valley after the 2018 global dust storm.",
-      lrocImageId: "ESP_056873_1775",
-      hotspots: [
-        { xPct: 50, yPct: 50, label: "Opportunity Final Resting Spot" },
-        { xPct: 35, yPct: 62, label: "Perseverance Valley Slope" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/mars-rover.glb",
-      title: "Opportunity Marathon Rover",
-      caption: "Solar-powered Mars Exploration Rover that drove 45.16 km across Meridiani Planum.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
+    archivePlate: {
+      image: "/images/sites/opportunity-rover/then.webp",
+      caption: "Opportunity looking back at her own twin wheel tracks curving across the wind-rippled plains of Meridiani Planum.",
+      year: 2010,
     },
     thumbnailImage: "/images/sites/opportunity-rover/thumb.webp",
     sourceIds: ["S-NSSDCA-2003-032A", "S-HIRISE-HARDWARE"],
@@ -311,27 +255,13 @@ export const MARS_HERO_SITES: HeroSite[] = [
       sourceIds: ["S-NSSDCA-2007-034A"],
     },
     scienceImpact:
-      "Confirmed shallow subsurface water ice across the northern plains, detected calcium carbonate and perchlorate salts, and激光-profiled Martian water-ice snow.",
+      "Confirmed shallow subsurface water ice across the northern plains, detected calcium carbonate and perchlorate salts, and laser-profiled Martian water-ice snow.",
     artemisLink:
       "Subsurface polar water ice verified by Phoenix is the foundational resource for making rocket propellant and drinking water on future crewed Mars missions.",
-    thenNow: {
-      thenImage: "/images/sites/phoenix-lander/then.webp",
-      thenCaption: "Phoenix's robotic arm trench ('Dodo-Goldilocks') exposing bright white water ice that sublimated over four days (2008).",
-      thenYear: 2008,
-      nowImage: "/images/sites/phoenix-lander/now.webp",
-      nowCaption: "MRO HiRISE orbital view showing Phoenix's dust-coated deck and winter dry-ice damaged solar wings.",
-      lrocImageId: "ESP_017662_2485",
-      hotspots: [
-        { xPct: 50, yPct: 50, label: "Phoenix Lander Deck" },
-        { xPct: 38, yPct: 56, label: "Ice-Damaged Solar Wing" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/mars-lander.glb",
-      title: "Phoenix Arctic Lander",
-      caption: "Polar deck lander equipped with robotic backhoe scoop arm and thermal gas analyzer ovens.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
+    archivePlate: {
+      image: "/images/sites/phoenix-lander/then.webp",
+      caption: "Phoenix's robotic arm trench ('Dodo-Goldilocks') exposing bright white water ice that sublimated over four days (2008).",
+      year: 2008,
     },
     thumbnailImage: "/images/sites/phoenix-lander/thumb.webp",
     sourceIds: ["S-NSSDCA-2007-034A", "S-HIRISE-HARDWARE"],
@@ -381,24 +311,10 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Discovered ancient freshwater lake mudstones at Yellowknife Bay containing sulfur, nitrogen, hydrogen, oxygen, phosphorus, and carbon—plus complex organic molecules and seasonal methane spikes.",
     artemisLink:
       "Curiosity's Radiation Assessment Detector (RAD) measured exact cosmic and solar radiation doses on the Martian surface to design shielding for human crews.",
-    thenNow: {
-      thenImage: "/images/sites/curiosity-rover/then.webp",
-      thenCaption: "Curiosity's MAHLI self-portrait at Mount Sharp showing its ChemCam laser mast and rock drill (NASA/JPL-Caltech/MSSS).",
-      thenYear: 2012,
-      nowImage: "/images/sites/curiosity-rover/now.webp",
-      nowCaption: "MRO HiRISE orbital view tracking Curiosity's bright rover body and wheel tracks winding up Mount Sharp.",
-      lrocImageId: "ESP_028269_1755",
-      hotspots: [
-        { xPct: 50, yPct: 48, label: "Curiosity Rover (Active!)" },
-        { xPct: 32, yPct: 64, label: "Wheel Tracks Climbing Mount Sharp" },
-      ],
-    },
-    model3d: {
-      glbPath: "/models/mars-rover.glb",
-      title: "Curiosity (MSL) Nuclear Rover",
-      caption: "One-ton nuclear-powered analytical laboratory with ChemCam laser mast and 2.1 m drill arm.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
+    archivePlate: {
+      image: "/images/sites/curiosity-rover/then.webp",
+      caption: "Curiosity's MAHLI self-portrait at Mount Sharp showing its ChemCam laser mast and rock drill (NASA/JPL-Caltech/MSSS).",
+      year: 2012,
     },
     thumbnailImage: "/images/sites/curiosity-rover/thumb.webp",
     sourceIds: ["S-NSSDCA-2011-070A", "S-HIRISE-HARDWARE", "S-MOLA-MEGDR"],
@@ -448,26 +364,11 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Measured the thickness of Mars's crust (24–72 km), discovered a large, light-element-rich liquid core (~1,830 km radius), and caught live seismic waves from meteoroid impacts that exposed subsurface ice.",
     artemisLink:
       "InSight's seismic catalog establishes tectonic and meteoroid impact hazard models for future human habitats on Mars.",
-    thenNow: {
-      thenImage: "/images/sites/insight-lander/then.webp",
-      thenCaption: "InSight's newly deployed copper-and-white SEIS seismometer dome gleaming on Elysium Planitia alongside the HP3 Mole (2019).",
-      thenYear: 2019,
-      nowImage: "/images/sites/insight-lander/now.webp",
-      nowCaption: "MRO HiRISE orbital view showing InSight's circular solar panels gradually blending into red Martian dust.",
-      lrocImageId: "ESP_073556_1845",
-      hotspots: [
-        { xPct: 50, yPct: 48, label: "InSight Lander & Twin Solar Fans" },
-        { xPct: 52, yPct: 62, label: "SEIS Seismometer Wind Shield" },
-      ],
+    archivePlate: {
+      image: "/images/sites/insight-lander/then.webp",
+      caption: "InSight's newly deployed copper-and-white SEIS seismometer dome gleaming on Elysium Planitia alongside the HP3 Mole (2019).",
+      year: 2019,
     },
-    model3d: {
-      glbPath: "/models/mars-lander.glb",
-      title: "InSight Geophysical Lander",
-      caption: "Stationary Mars geophysical lander with deployed SEIS seismometer dome and grapple arm.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
-    },
-    widget: "marsquake",
     thumbnailImage: "/images/sites/insight-lander/thumb.webp",
     sourceIds: ["S-NSSDCA-2018-042A", "S-HIRISE-HARDWARE"],
   },
@@ -516,26 +417,11 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Demonstrated the first In-Situ Resource Utilization (ISRU) on another planet via MOXIE, while caching igneous and sedimentary river-delta cores with organic carbon.",
     artemisLink:
       "Full-scale successors to Perseverance's MOXIE box will produce tens of tons of liquid oxygen on Mars before the first Artemis-era human crew even launches from Earth.",
-    thenNow: {
-      thenImage: "/images/sites/perseverance-rover/then.webp",
-      thenCaption: "Perseverance's selfie beside one of the sealed titanium sample tubes placed at the Three Forks Depot in Jezero Crater (2023).",
-      thenYear: 2023,
-      nowImage: "/images/sites/perseverance-rover/now.webp",
-      nowCaption: "MRO HiRISE orbital view showing Perseverance and its bright blast marks on the floor of Jezero Crater.",
-      lrocImageId: "ESP_068294_1985",
-      hotspots: [
-        { xPct: 48, yPct: 50, label: "Perseverance Rover & Blast Zone" },
-        { xPct: 66, yPct: 44, label: "Three Forks Sample Tube Depot" },
-      ],
+    archivePlate: {
+      image: "/images/sites/perseverance-rover/then.webp",
+      caption: "Perseverance's selfie beside one of the sealed titanium sample tubes placed at the Three Forks Depot in Jezero Crater (2023).",
+      year: 2023,
     },
-    model3d: {
-      glbPath: "/models/mars-rover.glb",
-      title: "Perseverance Mars 2020 Rover",
-      caption: "Car-sized astrobiology rover carrying the MOXIE oxygen generator and coring drill.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
-    },
-    widget: "moxie-oxygen",
     thumbnailImage: "/images/sites/perseverance-rover/thumb.webp",
     sourceIds: ["S-NSSDCA-2020-052A", "S-HIRISE-HARDWARE", "S-MOLA-MEGDR"],
   },
@@ -584,26 +470,11 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "Proved aerodynamic flight is possible in Mars's 0.01-bar atmosphere and continues functioning as a long-term stationary weather and avionics testbed in Jezero Crater.",
     artemisLink:
       "Ingenuity paved the way for future Mars Sample Recovery Helicopters and six-rotor 'Mars Chopper' science drones that will scout canyons ahead of astronauts.",
-    thenNow: {
-      thenImage: "/images/sites/ingenuity-helicopter/then.webp",
-      thenCaption: "Perseverance's SuperCam view of Ingenuity standing on the Valinor Hills sand dune after Flight 72 with its damaged rotor blade tip.",
-      thenYear: 2024,
-      nowImage: "/images/sites/ingenuity-helicopter/now.webp",
-      nowCaption: "MRO HiRISE orbital view capturing Ingenuity's tiny shadow and rotor glint inside the Jezero Crater dune field.",
-      lrocImageId: "ESP_073877_1985",
-      hotspots: [
-        { xPct: 50, yPct: 50, label: "Ingenuity Upright at Valinor Hills" },
-        { xPct: 34, yPct: 54, label: "Detached Carbon-Fiber Blade Tip" },
-      ],
+    archivePlate: {
+      image: "/images/sites/ingenuity-helicopter/then.webp",
+      caption: "Perseverance's SuperCam view of Ingenuity standing on the Valinor Hills sand dune after Flight 72 with its damaged rotor blade tip.",
+      year: 2024,
     },
-    model3d: {
-      glbPath: "/models/ingenuity.glb",
-      title: "Ingenuity Mars Helicopter",
-      caption: "Coaxial 1.2-meter carbon-fiber rotorcraft with top solar panel and four spindly landing legs.",
-      scale: 1,
-      sourceId: "S-3D-MARS-ROVER",
-    },
-    widget: "mars-helicopter-flight",
     thumbnailImage: "/images/sites/ingenuity-helicopter/thumb.webp",
     sourceIds: ["S-NSSDCA-2020-052B", "S-HIRISE-HARDWARE"],
   },

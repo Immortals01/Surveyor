@@ -115,10 +115,10 @@ export default function DialogueBox({
   return (
     <div className="pointer-events-auto relative flex w-full flex-col items-start">
       {/* ================================================================== */}
-      {/* SPEECH CALLOUT BOX (Shown above Surveyor 3)                        */}
+      {/* SPEECH CALLOUT BOX (Shown above Surveyor 3 — Vertical & Narrow)    */}
       {/* ================================================================== */}
       <div
-        className={`relative w-full max-w-xl border p-4 shadow-[0_20px_60px_rgba(0,0,0,0.9)] backdrop-blur-xl transition-colors sm:p-5 ${
+        className={`relative w-[272px] max-w-[calc(100vw-2rem)] border p-4 shadow-[0_20px_60px_rgba(0,0,0,0.9)] backdrop-blur-xl transition-colors sm:w-[300px] sm:p-4.5 ${
           isEquipment
             ? "telemetry-scanlines border-sunlit/60 bg-space-950/94"
             : "border-loro/55 bg-space-950/94"
@@ -147,22 +147,22 @@ export default function DialogueBox({
           {speakerLabel}: {fullText}
         </span>
 
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+        <div className="mb-2.5 flex items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             {isEquipment ? (
-              <Radio className="h-4 w-4 text-sunlit" />
+              <Radio className="h-3.5 w-3.5 shrink-0 text-sunlit" />
             ) : (
-              <Satellite className="h-4 w-4 text-loro" />
+              <Satellite className="h-3.5 w-3.5 shrink-0 text-loro" />
             )}
             <span
-              className={`font-mono text-[11px] font-bold tracking-[0.14em] uppercase ${
+              className={`font-mono text-[10px] leading-tight font-bold tracking-[0.13em] uppercase ${
                 isEquipment ? "text-sunlit" : "text-loro"
               }`}
             >
               {speakerLabel}
             </span>
             {dialogue?.isSpeaking && (
-              <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+              <span className="inline-flex shrink-0 items-center gap-0.5" aria-hidden="true">
                 <span className="h-2.5 w-0.5 animate-pulse bg-current opacity-80" />
                 <span className="h-3.5 w-0.5 animate-pulse bg-current" />
                 <span className="h-2 w-0.5 animate-pulse bg-current opacity-70" />
@@ -170,7 +170,7 @@ export default function DialogueBox({
             )}
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-1.5">
             <button
               type="button"
               onClick={toggleMute}
@@ -189,7 +189,7 @@ export default function DialogueBox({
 
         <p
           onClick={handlePrimaryClick}
-          className={`cursor-pointer text-[15px] leading-relaxed sm:text-[15.5px] ${
+          className={`cursor-pointer text-[14px] leading-[1.6] sm:text-[14.5px] ${
             isEquipment ? "text-amber-100/95 italic" : "text-regolith-bright"
           }`}
         >
@@ -199,26 +199,20 @@ export default function DialogueBox({
           )}
         </p>
 
-        <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2.5 font-mono text-[10.5px] text-regolith/65">
+        <div className="mt-3 flex flex-col gap-2 border-t border-white/10 pt-2.5 font-mono text-[9.5px] text-regolith/65">
           <span>
-            {dialogue?.holdForInteraction
-              ? "INTERACTIVE EXPERIMENT READY"
-              : isRevealing
-                ? "CLICK TO REVEAL ALL"
-                : mode === "tour"
-                  ? "AUTO-ADVANCING · OR CLICK CONTINUE"
-                  : "SURVEYOR 3 LIVE TELEMETRY LINK"}
+            {isRevealing
+              ? "CLICK TO REVEAL ALL"
+              : mode === "tour"
+                ? "AUTO-ADVANCING · OR CLICK CONTINUE"
+                : "SURVEYOR 3 LIVE TELEMETRY LINK"}
           </span>
 
           {(isRevealing || mode === "tour") && (
             <button
               type="button"
               onClick={handlePrimaryClick}
-              className={`inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
-                dialogue?.holdForInteraction
-                  ? "bg-regolith-bright text-space-950 hover:bg-white"
-                  : "border border-loro/40 bg-loro/10 text-regolith-bright hover:border-loro hover:bg-loro/20 hover:text-white"
-              }`}
+              className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 border border-loro/40 bg-loro/10 px-3 py-1.5 font-mono text-[10.5px] font-semibold text-regolith-bright uppercase transition hover:border-loro hover:bg-loro/20 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
             >
               {isRevealing ? <span>Reveal</span> : <span>Continue →</span>}
             </button>

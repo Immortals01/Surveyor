@@ -47,7 +47,7 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("resolves every referenced sourceId across lunar & Earth sites, stats, models, and tour beats", () => {
+  it("resolves every referenced sourceId across lunar & Earth sites, stats, and tour beats", () => {
     for (const site of ALL_COMBINED_SITES) {
       for (const sid of site.sourceIds) {
         expect(SOURCES_BY_ID.has(sid), `${site.id} missing source ${sid}`).toBe(
@@ -69,9 +69,6 @@ describe("NASA dataset integrity & citation ledger", () => {
         for (const sid of site.memoryLog.sourceIds) {
           expect(SOURCES_BY_ID.has(sid)).toBe(true);
         }
-        if (site.model3d) {
-          expect(SOURCES_BY_ID.has(site.model3d.sourceId)).toBe(true);
-        }
       }
     }
   });
@@ -87,7 +84,7 @@ describe("NASA dataset integrity & citation ledger", () => {
         expect(SITE_BY_ID.get(hid)?.tier).toBe("hero");
       }
       for (const beat of ch.beats) {
-        if (beat.kind === "flySite" || beat.kind === "spotlightWidget") {
+        if (beat.kind === "flySite") {
           expect(SITE_BY_ID.has(beat.siteId)).toBe(true);
         }
         if (beat.kind === "speak") {
@@ -96,10 +93,6 @@ describe("NASA dataset integrity & citation ledger", () => {
           }
           expect(lineIds.has(beat.line.id)).toBe(false);
           lineIds.add(beat.line.id);
-        }
-        if (beat.kind === "spotlightWidget") {
-          expect(lineIds.has(beat.promptLine.id)).toBe(false);
-          lineIds.add(beat.promptLine.id);
         }
       }
     }
@@ -132,7 +125,7 @@ describe("NASA dataset integrity & citation ledger", () => {
     expect(pksc.z).toBeGreaterThan(0.8);
   });
 
-  it("verifies all referenced public image, texture, and 3D model files exist on disk", () => {
+  it("verifies all referenced public image and texture files exist on disk", () => {
     expect(ALL_SITES.length + ALL_EARTH_SITES.length + MARS_SITES.length).toBe(
       ALL_COMBINED_SITES.length,
     );
@@ -150,23 +143,11 @@ describe("NASA dataset integrity & citation ledger", () => {
       );
 
       if (site.tier === "hero") {
-        const thenDisk = path.join(PUBLIC_DIR, site.thenNow.thenImage.slice(1));
-        const nowDisk = path.join(PUBLIC_DIR, site.thenNow.nowImage.slice(1));
-        expect(existsSync(thenDisk), `Missing ${site.thenNow.thenImage}`).toBe(
+        const plateDisk = path.join(PUBLIC_DIR, site.archivePlate.image.slice(1));
+        expect(existsSync(plateDisk), `Missing ${site.archivePlate.image}`).toBe(
           true,
         );
-        expect(existsSync(nowDisk), `Missing ${site.thenNow.nowImage}`).toBe(
-          true,
-        );
-
-        if (site.model3d) {
-          const modelDisk = path.join(PUBLIC_DIR, site.model3d.glbPath.slice(1));
-          expect(existsSync(modelDisk), `Missing ${site.model3d.glbPath}`).toBe(
-            true,
-          );
-        }
       }
     }
   });
 });
-

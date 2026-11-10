@@ -449,8 +449,8 @@ export default function Hud() {
         <div
           className={`mt-auto flex flex-col items-start gap-0 transition-all ${
             selectedSiteId || issPanelOpen
-              ? "hidden lg:flex lg:max-w-[calc(100vw-470px)]"
-              : "max-w-xl"
+              ? "hidden lg:flex lg:w-[300px]"
+              : "w-[272px] sm:w-[300px]"
           }`}
         >
           <DialogueBox

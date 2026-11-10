@@ -44,7 +44,7 @@ export default function IssDrawer() {
     audioEngine.playUiTick();
     setIssPanelOpen(false);
     setSunDirection(normalizeLon(lon - 18), 12);
-    selectSite(siteId, "story");
+    selectSite(siteId);
     void cameraBus.flyToLatLon(lat, lon);
   };
 
