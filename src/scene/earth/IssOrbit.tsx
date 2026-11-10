@@ -6,6 +6,7 @@ import {
   DoubleSide,
   Group,
   Matrix4,
+  MeshBasicMaterial,
   Quaternion,
   Vector3,
 } from "three";
@@ -20,6 +21,13 @@ import { useAppStore } from "@/store/useAppStore";
 
 export const ISS_ORBIT_RADIUS = 1.072; // Visual low-Earth orbit altitude (~415 km scaled)
 const SURFACE_TRACK_RADIUS = 1.003;
+const NOOP_RAYCAST = () => {};
+
+// Non-blended hit-sphere material: raycastable without transparent draw-list sorting or alpha blending
+const ISS_HIT_SPHERE_MAT = new MeshBasicMaterial({
+  colorWrite: false,
+  depthWrite: false,
+});
 
 const _pos = new Vector3();
 const _surfacePos = new Vector3();
@@ -33,6 +41,37 @@ const _quat = new Quaternion();
 const _surfaceQuat = new Quaternion();
 const WORLD_UP = new Vector3(0, 1, 0);
 
+function IssHudBadge({
+  active,
+  onSelect,
+}: {
+  active: boolean;
+  onSelect: () => void;
+}) {
+  const telemetry = useIssTracker(true);
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`group flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 font-mono text-[10px] shadow-lg backdrop-blur-md transition ${
+        active
+          ? "border-sunlit bg-space-950/95 text-sunlit shadow-[0_0_20px_rgba(255,207,112,0.4)]"
+          : "border-loro/65 bg-space-950/90 text-regolith-bright hover:border-loro"
+      }`}
+      title="Click to inspect live International Space Station telemetry"
+    >
+      <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+      <span className="font-bold tracking-wider text-loro">ISS LIVE</span>
+      <span className="text-white/30">·</span>
+      <span>{formatLatLon(telemetry.lat, telemetry.lon)}</span>
+      <span className="hidden text-regolith/75 sm:inline">
+        ({Math.round(telemetry.altitudeKm)} km)
+      </span>
+    </button>
+  );
+}
+
 export default function IssOrbit() {
   const issGroupRef = useRef<Group>(null);
   const surfaceFootprintRef = useRef<Group>(null);
@@ -40,21 +79,21 @@ export default function IssOrbit() {
   const [hovered, setHovered] = useState(false);
 
   const issPanelOpen = useAppStore((s) => s.issPanelOpen);
-  const telemetry = useIssTracker(true);
 
-  const qLat = Math.round(telemetry.lat * 2) / 2;
-  const qLon = Math.round(telemetry.lon * 2) / 2;
-  const qHeading = Math.round(telemetry.headingDeg);
-
-  const orbitRingPoints = useMemo(() => {
-    return computeIssOrbitRingPoints(
-      qLat,
-      qLon,
-      qHeading,
-      ISS_ORBIT_RADIUS,
-      160,
-    );
-  }, [qLat, qLon, qHeading]);
+  // Compute the closed great-circle orbital plane once on mount; the ISS travels along this great circle
+  const { initialPos, orbitRingPoints } = useMemo(() => {
+    const snap = getLatestIssTelemetry();
+    return {
+      initialPos: latLonToVector3(snap.lat, snap.lon, ISS_ORBIT_RADIUS),
+      orbitRingPoints: computeIssOrbitRingPoints(
+        snap.lat,
+        snap.lon,
+        snap.headingDeg,
+        ISS_ORBIT_RADIUS,
+        160,
+      ),
+    };
+  }, []);
 
   const nadirBeamPoints = useMemo(
     () => [new Vector3(0, 0, 0), new Vector3(0, -(ISS_ORBIT_RADIUS - 1.0), 0)],
@@ -118,12 +157,6 @@ export default function IssOrbit() {
     void cameraBus.flyToLatLon(live.lat, live.lon, { altitude: 0.44 });
   };
 
-  const initialPos = useMemo(
-    () => latLonToVector3(telemetry.lat, telemetry.lon, ISS_ORBIT_RADIUS),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
-
   return (
     <group name="iss-real-orbit">
       {/* 51.64° Inclined Orbital Ground-Track Ring */}
@@ -133,6 +166,7 @@ export default function IssOrbit() {
         lineWidth={issPanelOpen || hovered ? 1.8 : 1.15}
         transparent
         opacity={issPanelOpen || hovered ? 0.55 : 0.28}
+        raycast={NOOP_RAYCAST}
       />
 
       {/* Nadir Telemetry Laser Drop-Line from ISS to Sub-Satellite Point on Earth */}
@@ -143,12 +177,13 @@ export default function IssOrbit() {
           lineWidth={1.2}
           transparent
           opacity={0.45}
+          raycast={NOOP_RAYCAST}
         />
       </group>
 
       {/* Sub-Satellite Ground Footprint Reticle on Earth Surface */}
       <group ref={surfaceFootprintRef}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} raycast={NOOP_RAYCAST}>
           <ringGeometry args={[0.016, 0.022, 32]} />
           <meshBasicMaterial
             color="#5ce1ff"
@@ -159,7 +194,7 @@ export default function IssOrbit() {
             toneMapped={false}
           />
         </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} raycast={NOOP_RAYCAST}>
           <circleGeometry args={[0.005, 16]} />
           <meshBasicMaterial
             color="#ffcf70"
@@ -176,6 +211,7 @@ export default function IssOrbit() {
       <group ref={issGroupRef} position={initialPos}>
         {/* Generous Invisible Hit Sphere for Clicking ISS in Orbit */}
         <mesh
+          material={ISS_HIT_SPHERE_MAT}
           onPointerOver={(e) => {
             e.stopPropagation();
             document.body.style.cursor = "pointer";
@@ -188,22 +224,25 @@ export default function IssOrbit() {
           onClick={handleSelectIss}
         >
           <sphereGeometry args={[0.055, 12, 12]} />
-          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
         </mesh>
 
         {/* Integrated Truss Structure (Port-to-Starboard Backbone along X) */}
-        <mesh>
+        <mesh raycast={NOOP_RAYCAST}>
           <boxGeometry args={[0.068, 0.0032, 0.0032]} />
           <meshStandardMaterial color="#d8dee9" metalness={0.65} roughness={0.35} />
         </mesh>
 
         {/* Pressurized Module Cluster (Destiny, Harmony, Zvezda, Zarya along Z) */}
-        <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]} raycast={NOOP_RAYCAST}>
           <cylinderGeometry args={[0.0042, 0.0042, 0.034, 12]} />
           <meshStandardMaterial color="#f1f5f9" metalness={0.45} roughness={0.38} />
         </mesh>
         {/* Cross Node Modules (Columbus & Kibo Labs) */}
-        <mesh position={[0, 0, 0.008]} rotation={[0, 0, Math.PI / 2]}>
+        <mesh
+          position={[0, 0, 0.008]}
+          rotation={[0, 0, Math.PI / 2]}
+          raycast={NOOP_RAYCAST}
+        >
           <cylinderGeometry args={[0.0032, 0.0032, 0.018, 10]} />
           <meshStandardMaterial color="#e2e8f0" metalness={0.45} roughness={0.4} />
         </mesh>
@@ -212,7 +251,11 @@ export default function IssOrbit() {
         {[-0.028, -0.02, 0.02, 0.028].map((xOffset) => (
           <group key={xOffset} position={[xOffset, 0, 0]}>
             {/* Forward Solar Wing */}
-            <mesh position={[0, 0, 0.017]} rotation={[0.25, 0, 0]}>
+            <mesh
+              position={[0, 0, 0.017]}
+              rotation={[0.25, 0, 0]}
+              raycast={NOOP_RAYCAST}
+            >
               <boxGeometry args={[0.0052, 0.0006, 0.026]} />
               <meshStandardMaterial
                 color="#e59838"
@@ -223,7 +266,11 @@ export default function IssOrbit() {
               />
             </mesh>
             {/* Aft Solar Wing */}
-            <mesh position={[0, 0, -0.017]} rotation={[0.25, 0, 0]}>
+            <mesh
+              position={[0, 0, -0.017]}
+              rotation={[0.25, 0, 0]}
+              raycast={NOOP_RAYCAST}
+            >
               <boxGeometry args={[0.0052, 0.0006, 0.026]} />
               <meshStandardMaterial
                 color="#e59838"
@@ -238,18 +285,22 @@ export default function IssOrbit() {
 
         {/* Thermal Rejection Radiators */}
         {[-0.009, 0.009].map((xRad) => (
-          <mesh key={xRad} position={[xRad, -0.002, -0.008]}>
+          <mesh
+            key={xRad}
+            position={[xRad, -0.002, -0.008]}
+            raycast={NOOP_RAYCAST}
+          >
             <boxGeometry args={[0.0038, 0.0004, 0.012]} />
             <meshBasicMaterial color="#f8fafc" />
           </mesh>
         ))}
 
         {/* Orbital Beacon Core & Cyan Halo */}
-        <mesh>
+        <mesh raycast={NOOP_RAYCAST}>
           <sphereGeometry args={[0.0055, 14, 14]} />
           <meshBasicMaterial color="#5ce1ff" toneMapped={false} />
         </mesh>
-        <mesh>
+        <mesh raycast={NOOP_RAYCAST}>
           <sphereGeometry args={[0.014, 16, 16]} />
           <meshBasicMaterial
             color={issPanelOpen || hovered ? "#ffcf70" : "#5ce1ff"}
@@ -268,24 +319,10 @@ export default function IssOrbit() {
           zIndexRange={[18, 0]}
           style={{ pointerEvents: "auto" }}
         >
-          <button
-            type="button"
-            onClick={() => handleSelectIss()}
-            className={`group flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 font-mono text-[10px] shadow-lg backdrop-blur-md transition ${
-              issPanelOpen || hovered
-                ? "border-sunlit bg-space-950/95 text-sunlit shadow-[0_0_20px_rgba(255,207,112,0.4)]"
-                : "border-loro/65 bg-space-950/90 text-regolith-bright hover:border-loro"
-            }`}
-            title="Click to inspect live International Space Station telemetry"
-          >
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-            <span className="font-bold tracking-wider text-loro">ISS LIVE</span>
-            <span className="text-white/30">·</span>
-            <span>{formatLatLon(telemetry.lat, telemetry.lon)}</span>
-            <span className="hidden text-regolith/75 sm:inline">
-              ({Math.round(telemetry.altitudeKm)} km)
-            </span>
-          </button>
+          <IssHudBadge
+            active={issPanelOpen || hovered}
+            onSelect={() => handleSelectIss()}
+          />
         </Html>
       </group>
     </group>

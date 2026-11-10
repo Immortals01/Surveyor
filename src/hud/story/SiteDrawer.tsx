@@ -15,12 +15,6 @@ import { cancelSpeech } from "@/audio/speech";
 import { getSiteBody, getSitesForBody, SITE_BY_ID } from "@/data";
 import type { StoryTab } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
-import LaserRetroreflector from "@/hud/interactions/LaserRetroreflector";
-import MarsHelicopterFlight from "@/hud/interactions/MarsHelicopterFlight";
-import Marsquake from "@/hud/interactions/Marsquake";
-import Moonquake from "@/hud/interactions/Moonquake";
-import MoxieOxygenGenerator from "@/hud/interactions/MoxieOxygenGenerator";
-import RoverLiftoffCam from "@/hud/interactions/RoverLiftoffCam";
 import { getCategoryMeta } from "@/lib/constants";
 import { formatLatLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
@@ -28,6 +22,20 @@ import MemoryLog from "./MemoryLog";
 import StatsGrid from "./StatsGrid";
 import ThenNowSlider from "./ThenNowSlider";
 
+const LaserRetroreflector = lazy(
+  () => import("@/hud/interactions/LaserRetroreflector"),
+);
+const MarsHelicopterFlight = lazy(
+  () => import("@/hud/interactions/MarsHelicopterFlight"),
+);
+const Marsquake = lazy(() => import("@/hud/interactions/Marsquake"));
+const Moonquake = lazy(() => import("@/hud/interactions/Moonquake"));
+const MoxieOxygenGenerator = lazy(
+  () => import("@/hud/interactions/MoxieOxygenGenerator"),
+);
+const RoverLiftoffCam = lazy(
+  () => import("@/hud/interactions/RoverLiftoffCam"),
+);
 const ModelSpotlight = lazy(() => import("./ModelSpotlight"));
 
 export default function SiteDrawer() {
@@ -388,18 +396,26 @@ export default function SiteDrawer() {
             )}
 
             {effectiveTab === "science" && (
-              <div className="space-y-4">
-                {site.widget === "laser-retroreflector" && (
-                  <LaserRetroreflector />
-                )}
-                {site.widget === "moonquake" && <Moonquake />}
-                {site.widget === "rover-liftoff-cam" && <RoverLiftoffCam />}
-                {site.widget === "mars-helicopter-flight" && (
-                  <MarsHelicopterFlight />
-                )}
-                {site.widget === "marsquake" && <Marsquake />}
-                {site.widget === "moxie-oxygen" && <MoxieOxygenGenerator />}
-              </div>
+              <Suspense
+                fallback={
+                  <div className="flex h-48 w-full items-center justify-center border border-white/15 bg-space-900 font-mono text-[11px] tracking-[0.14em] text-loro uppercase">
+                    INITIALIZING SCIENCE INSTRUMENT...
+                  </div>
+                }
+              >
+                <div className="space-y-4">
+                  {site.widget === "laser-retroreflector" && (
+                    <LaserRetroreflector />
+                  )}
+                  {site.widget === "moonquake" && <Moonquake />}
+                  {site.widget === "rover-liftoff-cam" && <RoverLiftoffCam />}
+                  {site.widget === "mars-helicopter-flight" && (
+                    <MarsHelicopterFlight />
+                  )}
+                  {site.widget === "marsquake" && <Marsquake />}
+                  {site.widget === "moxie-oxygen" && <MoxieOxygenGenerator />}
+                </div>
+              </Suspense>
             )}
 
             {effectiveTab === "model" && site.model3d && (

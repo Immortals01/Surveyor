@@ -114,6 +114,7 @@ export default function Moonquake() {
       ctx.strokeStyle = "#ffcf70";
       ctx.lineWidth = 1.9;
       ctx.beginPath();
+      let maxAbsY = 0;
       for (let x = 0; x < w; x++) {
         const t = elapsedSec - (w - x) * 0.015;
         let yOff = 0;
@@ -125,6 +126,8 @@ export default function Moonquake() {
             env *
             preset.amplitude *
             26;
+          const absY = Math.abs(yOff);
+          if (absY > maxAbsY) maxAbsY = absY;
         }
         const py = h * 0.75 + yOff;
         if (x === 0) ctx.moveTo(x, py);
@@ -132,7 +135,11 @@ export default function Moonquake() {
       }
       ctx.stroke();
 
-      rafId = requestAnimationFrame(render);
+      // Stop 60 FPS redraw loop once the entire visible trace has decayed to a flat line
+      const minWindowT = elapsedSec - w * 0.015;
+      if (minWindowT < 1.5 || maxAbsY > 0.08) {
+        rafId = requestAnimationFrame(render);
+      }
     };
 
     rafId = requestAnimationFrame(render);

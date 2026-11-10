@@ -24,7 +24,9 @@ export default function DialogueBox({
   const dialogue = useAppStore((s) => s.dialogue);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const mode = useAppStore((s) => s.mode);
-  const settings = useAppStore((s) => s.settings);
+  const captionsEnabled = useAppStore((s) => s.settings.captionsEnabled);
+  const reduceMotion = useAppStore((s) => s.settings.reduceMotion);
+  const muted = useAppStore((s) => s.settings.muted);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const patchDialogue = useAppStore((s) => s.patchDialogue);
 
@@ -58,33 +60,34 @@ export default function DialogueBox({
       : "SURVEYOR 3 (1967)");
 
   useEffect(() => {
-    if (!dialogue || !dialogue.isRevealing || settings.reduceMotion) {
+    if (!dialogue || !dialogue.isRevealing || reduceMotion) {
       return;
     }
 
     const activeLineId = dialogue.lineId;
     const targetLen = dialogue.text.length;
+    let count = 0;
+    setRevealState({ lineId: activeLineId, count: 0 });
+
     const interval = window.setInterval(() => {
-      setRevealState((prev) => {
-        const base = prev.lineId === activeLineId ? prev.count : 0;
-        const next = base + 2;
-        if (next >= targetLen) {
-          window.clearInterval(interval);
-          patchDialogue({ isRevealing: false });
-          return { lineId: activeLineId, count: targetLen };
-        }
-        return { lineId: activeLineId, count: next };
-      });
+      count += 2;
+      if (count >= targetLen) {
+        window.clearInterval(interval);
+        setRevealState({ lineId: activeLineId, count: targetLen });
+        patchDialogue({ isRevealing: false });
+      } else {
+        setRevealState({ lineId: activeLineId, count });
+      }
     }, 34);
 
     return () => window.clearInterval(interval);
-  }, [lineId, isRevealing, settings.reduceMotion]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [lineId, isRevealing, reduceMotion]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!settings.captionsEnabled) return null;
+  if (!captionsEnabled) return null;
 
   const charCount = revealState.lineId === lineId ? revealState.count : 0;
   const shownText =
-    isRevealing && !settings.reduceMotion
+    isRevealing && !reduceMotion
       ? fullText.slice(0, charCount)
       : fullText;
 
@@ -101,7 +104,7 @@ export default function DialogueBox({
   };
 
   const toggleMute = () => {
-    const nextMuted = !settings.muted;
+    const nextMuted = !muted;
     audioEngine.unlock(nextMuted);
     audioEngine.setMuted(nextMuted);
     updateSettings({ muted: nextMuted });
@@ -172,10 +175,10 @@ export default function DialogueBox({
               type="button"
               onClick={toggleMute}
               className="cursor-pointer border border-white/15 bg-white/5 p-1 text-regolith/80 transition hover:border-loro/50 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-              aria-label={settings.muted ? "Unmute audio" : "Mute audio"}
-              title={settings.muted ? "Unmute audio" : "Mute audio"}
+              aria-label={muted ? "Unmute audio" : "Mute audio"}
+              title={muted ? "Unmute audio" : "Mute audio"}
             >
-              {settings.muted ? (
+              {muted ? (
                 <VolumeX className="h-3.5 w-3.5 text-alert" />
               ) : (
                 <Volume2 className="h-3.5 w-3.5 text-loro" />

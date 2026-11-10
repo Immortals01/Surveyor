@@ -53,4 +53,32 @@ describe("heightSampler", () => {
     expect(sampleHeightKm(0, -180, "mars")).toBeCloseTo(21, 2);
     expect(surfaceRadius(0, -180, "mars")).toBeGreaterThan(1);
   });
+
+  it("vectorizes tile geometry DEM displacement accurately and omits tangents on Earth", async () => {
+    const { applyTileDisplacement, createTileGeometry } = await import(
+      "./createTileGeometry"
+    );
+
+    const earthGeo = createTileGeometry(1, 4, 8, "earth");
+    expect(earthGeo.getAttribute("tangent")).toBeUndefined();
+    expect(earthGeo.getAttribute("uv")).toBeDefined();
+
+    // Smooth Moon tile before DEM loads
+    const moonGeo = createTileGeometry(1, 4, 8, "moon");
+    expect(moonGeo.getAttribute("tangent")).toBeDefined();
+    expect(moonGeo.userData.displaced).toBe(false);
+
+    // Load synthetic +6 km lunar elevation grid (+12,000 half-meters -> 32,000)
+    const w = 36;
+    const h = 18;
+    const grid = new Uint16Array(w * h).fill(32000);
+    setHeightSamples(grid, w, h, "moon");
+
+    applyTileDisplacement(moonGeo, 1, 4, 8, "moon");
+    expect(moonGeo.userData.displaced).toBe(true);
+
+    const pos = moonGeo.getAttribute("position")!;
+    const r0 = Math.hypot(pos.getX(0), pos.getY(0), pos.getZ(0));
+    expect(r0).toBeCloseTo(surfaceRadius(45, 0, "moon"), 5);
+  });
 });

@@ -74,9 +74,6 @@ const EARTH_FRAGMENT = /* glsl */ `
     float clouds = uHasTextures > 0.5
       ? texture2D(uCloudsMap, vec2(vUv.x + uCloudOffset, vUv.y)).r
       : 0.0;
-    vec3 lightsSample = uHasTextures > 0.5
-      ? texture2D(uLightsMap, vUv).rgb
-      : vec3(0.0);
 
     // Enrich ocean sapphire hue (using water mask) while keeping warm continental tones
     vec3 baseAlbedo = pow(daySample, vec3(0.95)) * 1.12;
@@ -84,9 +81,12 @@ const EARTH_FRAGMENT = /* glsl */ `
     baseAlbedo = mix(baseAlbedo, oceanRich, specMask * 0.68);
 
     // Subtle solar glint on open water (masked by clouds & specMap)
-    vec3 H = normalize(L + V);
-    float spec = pow(max(0.0, dot(N, H)), 64.0) * specMask * (1.0 - clouds * 0.9) * dayFactor;
-    vec3 specColor = vec3(0.85, 0.93, 1.0) * spec * 0.22;
+    vec3 specColor = vec3(0.0);
+    if (dayFactor > 0.0 && specMask > 0.01) {
+      vec3 H = normalize(L + V);
+      float spec = pow(max(0.0, dot(N, H)), 64.0) * specMask * (1.0 - clouds * 0.9) * dayFactor;
+      specColor = vec3(0.85, 0.93, 1.0) * spec * 0.22;
+    }
 
     // Illuminated day surface + cloud layer
     float litIntensity = 0.14 + 0.86 * pow(diffuse, 0.75);
@@ -96,17 +96,23 @@ const EARTH_FRAGMENT = /* glsl */ `
     vec3 dayWithClouds = mix(daySurface, cloudColor * (0.2 + 0.88 * litIntensity), cloudAlpha);
 
     // Rayleigh blue atmospheric scattering toward the sunlit limb
-    float fresnel = pow(1.0 - ndotv, 3.0);
+    float oneMinusNdotV = 1.0 - ndotv;
+    float fresnel = oneMinusNdotV * oneMinusNdotV * oneMinusNdotV;
     vec3 atmosphereTint = mix(vec3(0.28, 0.64, 1.0), vec3(0.95, 0.58, 0.34), twilight * 0.45);
     float limbSun = smoothstep(-0.2, 0.4, sunDot);
     dayWithClouds = mix(dayWithClouds, atmosphereTint, fresnel * 0.55 * limbSun);
-    dayWithClouds += vec3(0.22, 0.54, 1.0) * pow(1.0 - ndotv, 4.5) * 0.5 * limbSun;
+    dayWithClouds += vec3(0.22, 0.54, 1.0) * pow(oneMinusNdotV, 4.5) * 0.5 * limbSun;
 
     // Night side: deep space dark surface + thresholded warm city lights (ignores purple JPEG background)
     vec3 nightBase = baseAlbedo * 0.018;
-    float cityBrightness = smoothstep(0.24, 0.82, max(lightsSample.r, lightsSample.g) - lightsSample.b * 0.65);
-    vec3 cityGlow = vec3(1.0, 0.78, 0.42) * cityBrightness * (1.0 - clouds * 0.75) * 0.85;
-    vec3 nightSide = nightBase + cityGlow * (1.0 - smoothstep(-0.08, 0.08, sunDot));
+    float nightMask = 1.0 - smoothstep(-0.08, 0.08, sunDot);
+    vec3 cityGlow = vec3(0.0);
+    if (nightMask > 0.0 && uHasTextures > 0.5) {
+      vec3 lightsSample = texture2D(uLightsMap, vUv).rgb;
+      float cityBrightness = smoothstep(0.24, 0.82, max(lightsSample.r, lightsSample.g) - lightsSample.b * 0.65);
+      cityGlow = vec3(1.0, 0.78, 0.42) * cityBrightness * (1.0 - clouds * 0.75) * 0.85;
+    }
+    vec3 nightSide = nightBase + cityGlow * nightMask;
 
     vec3 finalColor = mix(nightSide, dayWithClouds, dayFactor);
     gl_FragColor = vec4(finalColor, 1.0);
