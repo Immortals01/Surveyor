@@ -91,12 +91,12 @@ export default function IntroScreen() {
           )}
         </h1>
 
-        <p className="mt-3 max-w-xl text-[14.5px] leading-relaxed text-regolith/80">
+        <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-regolith/80">
           {isMars
-            ? "Across the rust-red plains and ancient lakebeds of Mars rest Viking landers, marathon rovers, seismic domes, sample depots, and the Ingenuity helicopter—29 robotic pioneers photographed from orbit by HiRISE."
+            ? "29 robotic pioneers—from Viking landers to Perseverance and Ingenuity—resting across the red plains of Mars."
             : isEarth
-              ? "Across Earth's coastlines, deserts, and steppes stand 24 historic spaceports, Mission Control centers, and giant radio dishes where thousands of space missions began—while the International Space Station orbits overhead with the Moon in the background."
-              : "Across the lunar plains rest three electric rovers, six gold descent stages, seismic stations, and quartz mirror arrays left behind since 1964—preserved in vacuum and still photographed from orbit today."}
+              ? "24 legendary spaceports, Mission Control hubs, and Deep Space Network dishes—plus the live ISS in orbit."
+              : "29 historic landers, rovers, and laser mirrors resting untouched across the lunar plains since 1964."}
         </p>
 
         {/* Compact Lunar Host Badge */}
