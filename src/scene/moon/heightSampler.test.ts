@@ -8,7 +8,8 @@ import {
 
 describe("heightSampler", () => {
   afterEach(() => {
-    setHeightSamples(null);
+    setHeightSamples(null, 1440, 720, "moon");
+    setHeightSamples(null, 1440, 720, "mars");
   });
 
   it("returns 0 km and unit sphere normal when no DEM is loaded", () => {
@@ -29,11 +30,27 @@ describe("heightSampler", () => {
       grid[y * w + 0] = 28000;
       grid[y * w + (w - 1)] = 28000;
     }
-    setHeightSamples(grid, w, h);
+    setHeightSamples(grid, w, h, "moon");
 
-    expect(sampleHeightKm(0, 0)).toBeCloseTo(0, 4);
-    expect(sampleHeightKm(0, -180)).toBeCloseTo(4, 2);
-    expect(sampleHeightKm(0, 180)).toBeCloseTo(4, 2);
-    expect(surfaceRadius(0, 180)).toBeGreaterThan(1);
+    expect(sampleHeightKm(0, 0, "moon")).toBeCloseTo(0, 4);
+    expect(sampleHeightKm(0, -180, "moon")).toBeCloseTo(4, 2);
+    expect(sampleHeightKm(0, 180, "moon")).toBeCloseTo(4, 2);
+    expect(surfaceRadius(0, 180, "moon")).toBeGreaterThan(1);
+  });
+
+  it("decodes MGS MOLA +10,000 meter offset for Mars elevations up to Olympus Mons (+21 km)", () => {
+    const w = 36;
+    const h = 18;
+    const grid = new Uint16Array(w * h).fill(10000); // 0 km baseline
+    // Raise +21 km (+21000 meters -> 31000) along seam
+    for (let y = 0; y < h; y++) {
+      grid[y * w + 0] = 31000;
+      grid[y * w + (w - 1)] = 31000;
+    }
+    setHeightSamples(grid, w, h, "mars");
+
+    expect(sampleHeightKm(0, 0, "mars")).toBeCloseTo(0, 4);
+    expect(sampleHeightKm(0, -180, "mars")).toBeCloseTo(21, 2);
+    expect(surfaceRadius(0, -180, "mars")).toBeGreaterThan(1);
   });
 });

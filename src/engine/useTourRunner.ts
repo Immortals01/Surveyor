@@ -11,8 +11,8 @@ import { getActiveBeat, tourReducer, type TourEvent } from "./tourEngine";
  * sun terminator shifts, story drawer tabs, and voice/caption playback.
  */
 export function useTourRunner() {
-  const activeBody = useAppStore((s) => s.activeBody);
   const mode = useAppStore((s) => s.mode);
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const chapterIndex = useAppStore((s) => s.tourChapterIndex);
   const beatIndex = useAppStore((s) => s.tourBeatIndex);
   const tourPaused = useAppStore((s) => s.tourPaused);
@@ -21,7 +21,7 @@ export function useTourRunner() {
 
   const dispatchTour = useCallback((event: TourEvent) => {
     const store = useAppStore.getState();
-    const chapters = getTourChaptersForBody(store.activeBody);
+    const chapters = getTourChaptersForBody(store.celestialBody);
     const next = tourReducer(
       {
         active: store.mode === "tour",
@@ -62,7 +62,7 @@ export function useTourRunner() {
       }, 2400);
       return () => window.clearTimeout(timer);
     }
-  }, [mode, chapterIndex, activeBody]);
+  }, [mode, chapterIndex, celestialBody]);
 
   // Execute active beat with strict AbortController cancellation
   useEffect(() => {
@@ -71,7 +71,7 @@ export function useTourRunner() {
       return;
     }
 
-    const chapters = getTourChaptersForBody(activeBody);
+    const chapters = getTourChaptersForBody(celestialBody);
     const beat = getActiveBeat(chapters, { chapterIndex, beatIndex });
     if (!beat) return;
 
@@ -86,7 +86,13 @@ export function useTourRunner() {
         speaker: line.speaker,
         speakerLabel:
           line.speakerLabel ??
-          (line.speaker === "loro" ? "SURVEYOR 3 (1967)" : "MEMORY LOG"),
+          (line.speaker === "loro"
+            ? store.celestialBody === "mars"
+              ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
+              : store.celestialBody === "earth"
+                ? "SURVEYOR 3 · EARTH TELEMETRY LINK"
+                : "SURVEYOR 3 (1967)"
+            : "MEMORY LOG"),
         text: line.text,
         sourceIds: line.sourceIds,
         isRevealing: !store.settings.reduceMotion,
@@ -187,7 +193,7 @@ export function useTourRunner() {
       controller.abort();
       cancelSpeech();
     };
-  }, [activeBody, mode, chapterIndex, beatIndex, tourPaused, dispatchTour]);
+  }, [mode, celestialBody, chapterIndex, beatIndex, tourPaused, dispatchTour]);
 
   return { dispatchTour };
 }

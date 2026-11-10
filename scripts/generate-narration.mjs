@@ -5,20 +5,27 @@ import { readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 
+import { homedir } from "node:os";
+
 const execFileAsync = promisify(execFile);
 const ROOT = path.resolve(import.meta.dirname, "..");
 const OUT_DIR = path.join(ROOT, "public/audio/narration");
 mkdirSync(OUT_DIR, { recursive: true });
 
+const LOCAL_EDGE_TTS = path.join(homedir(), ".local/bin/edge-tts");
 const EDGE_TTS_BIN = existsSync("/tmp/tts-venv/bin/edge-tts")
   ? "/tmp/tts-venv/bin/edge-tts"
-  : "edge-tts";
+  : existsSync(LOCAL_EDGE_TTS)
+    ? LOCAL_EDGE_TTS
+    : "edge-tts";
 
-// Extract all DialogueLine objects from heroSites.ts, tourChapters.ts, and Hud.tsx
+// Extract all DialogueLine objects from heroSites.ts, marsHeroSites.ts, tourChapters.ts, marsTourChapters.ts, and Hud.tsx
 async function collectDialogueLines() {
   const files = [
     path.join(ROOT, "src/data/heroSites.ts"),
+    path.join(ROOT, "src/data/marsHeroSites.ts"),
     path.join(ROOT, "src/data/tourChapters.ts"),
+    path.join(ROOT, "src/data/marsTourChapters.ts"),
     path.join(ROOT, "src/hud/Hud.tsx"),
   ];
 

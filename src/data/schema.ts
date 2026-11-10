@@ -19,10 +19,16 @@ export const LoRoMoodSchema = z.enum([
 ]);
 export type LoRoMood = z.infer<typeof LoRoMoodSchema>;
 
+export const CelestialBodySchema = z.enum(["moon", "earth", "mars"]);
+export type CelestialBody = z.infer<typeof CelestialBodySchema>;
+
 export const WidgetKindSchema = z.enum([
   "laser-retroreflector",
   "moonquake",
   "rover-liftoff-cam",
+  "mars-helicopter-flight",
+  "marsquake",
+  "moxie-oxygen",
 ]);
 export type WidgetKind = z.infer<typeof WidgetKindSchema>;
 
@@ -37,6 +43,8 @@ export type StoryTab = z.infer<typeof StoryTabSchema>;
 export const DatasetPortalSchema = z.enum([
   "SVS",
   "LROC",
+  "HIRISE",
+  "MOLA",
   "NSSDCA",
   "ALSEP",
   "NASA-3D",

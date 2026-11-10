@@ -16,15 +16,17 @@ const FILTER_ORDER: Category[] = [
 ];
 
 export default function FilterBar() {
-  const activeBody = useAppStore((s) => s.activeBody);
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const categoryFilter = useAppStore((s) => s.categoryFilter);
   const heroOnly = useAppStore((s) => s.heroOnly);
   const setCategoryFilter = useAppStore((s) => s.setCategoryFilter);
   const setHeroOnly = useAppStore((s) => s.setHeroOnly);
   const setSunDirection = useAppStore((s) => s.setSunDirection);
 
-  const sites = getSitesForBody(activeBody);
-  const categoryMeta = getCategoryMeta(activeBody);
+  const sites = getSitesForBody(celestialBody);
+  const categoryMeta = getCategoryMeta(celestialBody);
+  const isMars = celestialBody === "mars";
+  const isEarth = celestialBody === "earth";
 
   const visibleCount = sites.filter((site) => {
     if (heroOnly && site.tier !== "hero") return false;
@@ -98,7 +100,40 @@ export default function FilterBar() {
       <div className="hidden items-center gap-1 lg:flex">
         <span className="mx-1 h-4 w-px bg-white/15" />
         <Globe2 className="h-3.5 w-3.5 text-loro/80" />
-        {activeBody === "earth" ? (
+        {isMars ? (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(60, 10);
+                void cameraBus.flyOverview(18, 77, 2.75);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Jezero &amp; Syrtis
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(115, 6);
+                void cameraBus.flyOverview(-2, 136, 2.75);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Gale &amp; Elysium
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(-140, 12);
+                void cameraBus.flyOverview(18, -133, 2.65);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Olympus Mons
+            </button>
+          </>
+        ) : isEarth ? (
           <>
             <button
               type="button"

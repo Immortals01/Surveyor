@@ -10,6 +10,7 @@ import {
   EARTH_SECONDARY_SITES,
   EARTH_TOUR_CHAPTERS,
   HERO_SITES,
+  MARS_SITES,
   SECONDARY_SITES,
   SITE_BY_ID,
   SOURCES,
@@ -132,7 +133,7 @@ describe("NASA dataset integrity & citation ledger", () => {
   });
 
   it("verifies all referenced public image, texture, and 3D model files exist on disk", () => {
-    expect(ALL_SITES.length + ALL_EARTH_SITES.length).toBe(
+    expect(ALL_SITES.length + ALL_EARTH_SITES.length + MARS_SITES.length).toBe(
       ALL_COMBINED_SITES.length,
     );
     expect(

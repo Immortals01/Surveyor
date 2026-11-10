@@ -4,28 +4,31 @@ import { getCategoryMeta } from "@/lib/constants";
 import { useAppStore } from "@/store/useAppStore";
 
 export function Fallback2DMoonMap() {
-  const activeBody = useAppStore((s) => s.activeBody);
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const selectSite = useAppStore((s) => s.selectSite);
   const enterExplore = useAppStore((s) => s.enterExplore);
   const mode = useAppStore((s) => s.mode);
-
-  const sites = getSitesForBody(activeBody);
-  const categoryMeta = getCategoryMeta(activeBody);
+  const sites = getSitesForBody(celestialBody);
+  const categoryMeta = getCategoryMeta(celestialBody);
 
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-space-950 p-6">
       <div className="relative aspect-[2/1] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/15 bg-space-900 shadow-2xl">
         <img
           src={
-            activeBody === "earth"
+            celestialBody === "earth"
               ? "/textures/earth/earth_day_2k.webp"
-              : "/textures/moon/moon_day_2k.webp"
+              : celestialBody === "mars"
+                ? "/textures/mars/color/L0/0_0.webp"
+                : "/textures/moon/moon_day_2k.webp"
           }
           alt={
-            activeBody === "earth"
+            celestialBody === "earth"
               ? "NASA Blue Marble Global Earth Map"
-              : "NASA LRO WAC Global Lunar Map"
+              : celestialBody === "mars"
+                ? "NASA MGS MOLA & Viking Global Mars Map"
+                : "NASA LRO WAC Global Lunar Map"
           }
           className="h-full w-full object-cover opacity-80"
         />

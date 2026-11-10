@@ -5,6 +5,7 @@ import {
   Uint16BufferAttribute,
   Uint32BufferAttribute,
 } from "three";
+import type { CelestialBody } from "@/data/schema";
 import { DEG, latLonToVector3 } from "@/lib/geo";
 import { isHeightLoaded, surfaceRadius } from "./heightSampler";
 
@@ -23,6 +24,7 @@ function fillPositionsAndNormals(
   col: number,
   segments: number,
   hasDem: boolean,
+  body: CelestialBody = "moon",
 ): void {
   const vertsPerSide = segments + 1;
   const lonMin = -180 + col * 45;
@@ -103,18 +105,19 @@ function fillPositionsAndNormals(
       const uy = sinPhi;
       const uz = -cosPhi * sinLon;
 
-      const r = surfaceRadius(lat, lon);
+      const r = surfaceRadius(lat, lon, body);
       const p3 = vIdx * 3;
       positions[p3] = ux * r;
       positions[p3 + 1] = uy * r;
       positions[p3 + 2] = uz * r;
 
       const drdLon =
-        (surfaceRadius(clampedLat, lon + STEP_DEG) -
-          surfaceRadius(clampedLat, lon - STEP_DEG)) *
+        (surfaceRadius(clampedLat, lon + STEP_DEG, body) -
+          surfaceRadius(clampedLat, lon - STEP_DEG, body)) *
         invTwoDEast;
       const drdLat =
-        (surfaceRadius(latPlus, lon) - surfaceRadius(latMinus, lon)) *
+        (surfaceRadius(latPlus, lon, body) -
+          surfaceRadius(latMinus, lon, body)) *
         INV_TWO_D_NORTH;
 
       // Unit east = (-sinLon, 0, -cosLon); Unit north = (-sinCPhi*cosLon, cosCPhi, sinCPhi*sinLon)
@@ -153,6 +156,7 @@ export function createTileGeometry(
   row: number,
   col: number,
   segments: number,
+  body: CelestialBody = "moon",
 ): BufferGeometry {
   const vertsPerSide = segments + 1;
   const vertexCount = vertsPerSide * vertsPerSide;
@@ -162,7 +166,7 @@ export function createTileGeometry(
   const uvs = new Float32Array(vertexCount * 2);
   const tangents = new Float32Array(vertexCount * 4);
 
-  const hasDem = isHeightLoaded();
+  const hasDem = isHeightLoaded(body);
   fillPositionsAndNormals(
     positions,
     normals,
@@ -172,6 +176,7 @@ export function createTileGeometry(
     col,
     segments,
     hasDem,
+    body,
   );
 
   const indexCount = segments * segments * 6;
@@ -222,6 +227,7 @@ export function applyTileDisplacement(
   row: number,
   col: number,
   segments: number,
+  body: CelestialBody = "moon",
 ): void {
   if (geo.userData.displaced) return;
   const posAttr = geo.getAttribute("position");
@@ -240,6 +246,7 @@ export function applyTileDisplacement(
     col,
     segments,
     true,
+    body,
   );
 
   geo.userData.displaced = true;

@@ -1,6 +1,7 @@
 import { useAppStore } from "@/store/useAppStore";
 import CameraRig from "./CameraRig";
 import Earth from "./Earth";
+import LunarHorizonGlow from "./LunarHorizonGlow";
 import BackgroundMoon from "./earth/BackgroundMoon";
 import EarthGlobe from "./earth/EarthGlobe";
 import IssOrbit from "./earth/IssOrbit";
@@ -10,22 +11,23 @@ import Starfield from "./Starfield";
 import Sun from "./Sun";
 
 export default function Scene() {
-  const activeBody = useAppStore((s) => s.activeBody);
+  const celestialBody = useAppStore((s) => s.celestialBody);
 
   return (
     <>
       <Sun />
       <Starfield />
-      {activeBody === "moon" ? (
-        <>
-          <Earth />
-          <MoonGlobe />
-        </>
-      ) : (
+      {celestialBody === "earth" ? (
         <>
           <BackgroundMoon />
           <EarthGlobe />
           <IssOrbit />
+        </>
+      ) : (
+        <>
+          {celestialBody === "moon" && <Earth />}
+          <MoonGlobe />
+          <LunarHorizonGlow />
         </>
       )}
       <SiteMarkers />

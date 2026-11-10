@@ -7,19 +7,19 @@ import { formatLatLon, normalizeLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function SiteIndex() {
-  const activeBody = useAppStore((s) => s.activeBody);
   const open = useAppStore((s) => s.siteIndexOpen);
   const setOpen = useAppStore((s) => s.setSiteIndexOpen);
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const selectSite = useAppStore((s) => s.selectSite);
   const enterExplore = useAppStore((s) => s.enterExplore);
   const mode = useAppStore((s) => s.mode);
   const setSunDirection = useAppStore((s) => s.setSunDirection);
 
   const [query, setQuery] = useState("");
-
-  const isEarth = activeBody === "earth";
-  const sites = getSitesForBody(activeBody);
-  const categoryMeta = getCategoryMeta(activeBody);
+  const sites = getSitesForBody(celestialBody);
+  const categoryMeta = getCategoryMeta(celestialBody);
+  const isMars = celestialBody === "mars";
+  const isEarth = celestialBody === "earth";
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -33,7 +33,7 @@ export default function SiteIndex() {
         String(site.year).includes(q)
       );
     });
-  }, [query, sites]);
+  }, [sites, query]);
 
   if (!open) return null;
 
@@ -41,7 +41,9 @@ export default function SiteIndex() {
     if (mode !== "explore") {
       enterExplore(true);
     }
-    if (isEarth) {
+    if (isMars) {
+      setSunDirection(normalizeLon(site.lon - 18), 8);
+    } else if (isEarth) {
       setSunDirection(normalizeLon(site.lon - 18), 12);
     } else if (!isNearside(site.lon)) {
       setSunDirection(site.lon > 0 ? 140 : -140, 1.5);
@@ -57,9 +59,11 @@ export default function SiteIndex() {
       role="dialog"
       aria-modal="true"
       aria-label={
-        isEarth
-          ? "All Earth Spaceports & Mission Centers Directory"
-          : "All Lunar Hardware Directory"
+        isMars
+          ? "All Martian Hardware Directory"
+          : isEarth
+            ? "All Earth Spaceports & Mission Centers Directory"
+            : "All Lunar Hardware Directory"
       }
     >
       <div className="flex max-h-[82dvh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-loro/35 bg-space-950/95 shadow-2xl">
@@ -68,12 +72,12 @@ export default function SiteIndex() {
             <p className="font-mono text-[11px] tracking-wider text-loro uppercase">
               {isEarth
                 ? `Global Spaceport & Mission Directory (${sites.length} Verified Sites)`
-                : `Accessible Hardware Directory (${sites.length} Verified Sites)`}
+                : `Accessible Hardware Directory (${sites.length} Verified ${isMars ? "Mars" : "Lunar"} Sites)`}
             </p>
             <h2 className="font-display text-xl font-bold text-regolith-bright">
               {isEarth
                 ? "Jump to Any Earth Spaceport or Mission Hub"
-                : "Jump to Any Lunar Artifact"}
+                : `Jump to Any ${isMars ? "Martian" : "Lunar"} Artifact`}
             </h2>
           </div>
 
@@ -95,9 +99,11 @@ export default function SiteIndex() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={
-                isEarth
-                  ? "Search Kennedy, Baikonur, Houston, JPL, Kourou, Sriharikota, DSN..."
-                  : "Search Apollo 11, Surveyor, Rover, Tycho, Farside, 1972..."
+                isMars
+                  ? "Search Viking, Opportunity, Ingenuity, Perseverance, Jezero..."
+                  : isEarth
+                    ? "Search Kennedy, Baikonur, Houston, JPL, Kourou, Sriharikota, DSN..."
+                    : "Search Apollo 11, Surveyor, Rover, Tycho, Farside, 1972..."
               }
               className="w-full rounded-xl border border-white/15 bg-space-900/90 py-2.5 pr-4 pl-10 text-sm text-regolith-bright placeholder:text-regolith/45 focus:border-loro focus:outline-none"
               autoFocus
@@ -129,7 +135,7 @@ export default function SiteIndex() {
                         <Sparkles className="h-2.5 w-2.5" /> Hero
                       </span>
                     )}
-                    {!isEarth && !isNearside(site.lon) && (
+                    {!isMars && !isEarth && !isNearside(site.lon) && (
                       <span className="rounded-full bg-purple-400/15 px-2 py-0.5 font-mono text-[10px] text-purple-300">
                         Farside
                       </span>
@@ -153,8 +159,13 @@ export default function SiteIndex() {
 
           {filtered.length === 0 && (
             <p className="py-8 text-center text-sm text-regolith/60">
-              No {isEarth ? "Earth space sites" : "lunar artifacts"} matched &ldquo;
-              {query}&rdquo;.
+              No{" "}
+              {isMars
+                ? "Martian artifacts"
+                : isEarth
+                  ? "Earth space sites"
+                  : "lunar artifacts"}{" "}
+              matched &ldquo;{query}&rdquo;.
             </p>
           )}
         </div>

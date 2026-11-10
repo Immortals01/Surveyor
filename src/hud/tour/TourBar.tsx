@@ -15,19 +15,23 @@ interface TourBarProps {
 }
 
 export default function TourBar({ dispatchTour }: TourBarProps) {
-  const activeBody = useAppStore((s) => s.activeBody);
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const chapterIndex = useAppStore((s) => s.tourChapterIndex);
   const beatIndex = useAppStore((s) => s.tourBeatIndex);
   const tourPaused = useAppStore((s) => s.tourPaused);
   const startTour = useAppStore((s) => s.startTour);
 
-  const chapters = getTourChaptersForBody(activeBody);
+  const chapters = getTourChaptersForBody(celestialBody);
   const activeChapter = chapters[chapterIndex];
 
   return (
     <div className="pointer-events-auto flex flex-wrap items-center gap-2 border border-white/15 bg-space-950/88 px-3 py-1.5 backdrop-blur-md">
       {/* 5 Chapter Selector Pills */}
-      <div className="flex items-center gap-1" role="tablist" aria-label="Story Tour Chapters">
+      <div
+        className="flex items-center gap-1"
+        role="tablist"
+        aria-label="Story Tour Chapters"
+      >
         {chapters.map((ch, idx) => {
           const isCurrent = idx === chapterIndex;
           const isDone = idx < chapterIndex;
@@ -90,7 +94,9 @@ export default function TourBar({ dispatchTour }: TourBarProps) {
           ) : (
             <span className="inline-flex items-center gap-1">
               <Pause className="h-3 w-3" />{" "}
-              {activeChapter ? `${beatIndex + 1}/${activeChapter.beats.length}` : "PAUSE"}
+              {activeChapter
+                ? `${beatIndex + 1}/${activeChapter.beats.length}`
+                : "PAUSE"}
             </span>
           )}
         </button>
