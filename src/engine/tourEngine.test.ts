@@ -61,14 +61,13 @@ describe("tourReducer state machine", () => {
     expect(s1.beatIndex).toBe(0);
   });
 
-  it("advances across beats and chapters on BEAT_AUTO_COMPLETED and NEXT_BEAT", () => {
+  it("advances across beats and chapters on NEXT_BEAT", () => {
     let s = tourReducer(
       createInitialTourState(),
       { type: "START_CHAPTER", chapterIndex: 0 },
       MOCK_CHAPTERS,
     );
-    // Beat 0 (flySite) auto-completes -> moves to Beat 1
-    s = tourReducer(s, { type: "BEAT_AUTO_COMPLETED" }, MOCK_CHAPTERS);
+    s = tourReducer(s, { type: "NEXT_BEAT" }, MOCK_CHAPTERS);
     expect(s.beatIndex).toBe(1);
 
     // Explicit NEXT_BEAT advances into Chapter 2 Beat 0

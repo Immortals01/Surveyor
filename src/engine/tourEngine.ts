@@ -12,7 +12,6 @@ export type TourEvent =
   | { type: "START_CHAPTER"; chapterIndex: number }
   | { type: "NEXT_BEAT" }
   | { type: "PREV_BEAT" }
-  | { type: "BEAT_AUTO_COMPLETED" }
   | { type: "PAUSE" }
   | { type: "RESUME" }
   | { type: "EXIT_TO_EXPLORE" };
@@ -68,11 +67,6 @@ export function tourReducer(
 
     case "EXIT_TO_EXPLORE":
       return { ...state, active: false, paused: true };
-
-    case "BEAT_AUTO_COMPLETED": {
-      if (!state.active || state.paused) return state;
-      return stepForward(state, chapters);
-    }
 
     case "NEXT_BEAT": {
       if (!state.active) return state;

@@ -199,16 +199,8 @@ export default function DialogueBox({
           )}
         </p>
 
-        <div className="mt-3 flex flex-col gap-2 border-t border-white/10 pt-2.5 font-mono text-[9.5px] text-regolith/65">
-          <span>
-            {isRevealing
-              ? "CLICK TO REVEAL ALL"
-              : mode === "tour"
-                ? "AUTO-ADVANCING · OR CLICK CONTINUE"
-                : "SURVEYOR 3 LIVE TELEMETRY LINK"}
-          </span>
-
-          {(isRevealing || mode === "tour") && (
+        {(isRevealing || mode === "tour") && (
+          <div className="mt-3 border-t border-white/10 pt-2.5">
             <button
               type="button"
               onClick={handlePrimaryClick}
@@ -216,8 +208,8 @@ export default function DialogueBox({
             >
               {isRevealing ? <span>Reveal</span> : <span>Continue →</span>}
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ================================================================== */}

@@ -64,7 +64,7 @@ export function useTourRunner() {
     }
   }, [mode, chapterIndex, celestialBody]);
 
-  // Execute active beat with strict AbortController cancellation
+  // Execute active beat with strict AbortController cancellation (manual progression only)
   useEffect(() => {
     if (mode !== "tour" || tourPaused) {
       cancelSpeech();
@@ -113,24 +113,18 @@ export function useTourRunner() {
         store.setLoRoMood("scanning");
         store.selectSite(site.id);
 
-        let spokeCompletely = true;
         if (beat.announce) {
           activateLine(beat.announce);
-          const [, completed] = await Promise.all([
+          await Promise.all([
             cameraBus.flyToLatLon(site.lat, site.lon),
             speakLine(beat.announce, signal),
           ]);
-          spokeCompletely = completed;
         } else {
           await cameraBus.flyToLatLon(site.lat, site.lon);
         }
 
-        if (signal.aborted || !spokeCompletely) return;
+        if (signal.aborted) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });
-        await pauseGap(650, signal);
-        if (!signal.aborted) {
-          dispatchTour({ type: "BEAT_AUTO_COMPLETED" });
-        }
         return;
       }
 
@@ -139,23 +133,17 @@ export function useTourRunner() {
           store.setSunDirection(beat.sunLon);
         }
         store.setLoRoMood("scanning");
-        let spokeCompletely = true;
         if (beat.announce) {
           activateLine(beat.announce);
-          const [, completed] = await Promise.all([
+          await Promise.all([
             cameraBus.flyOverview(beat.lat, beat.lon, beat.distance),
             speakLine(beat.announce, signal),
           ]);
-          spokeCompletely = completed;
         } else {
           await cameraBus.flyOverview(beat.lat, beat.lon, beat.distance);
         }
-        if (signal.aborted || !spokeCompletely) return;
+        if (signal.aborted) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });
-        await pauseGap(500, signal);
-        if (!signal.aborted) {
-          dispatchTour({ type: "BEAT_AUTO_COMPLETED" });
-        }
         return;
       }
 
@@ -164,13 +152,9 @@ export function useTourRunner() {
           store.selectSite(beat.siteId);
         }
         activateLine(beat.line);
-        const spokeCompletely = await speakLine(beat.line, signal);
-        if (signal.aborted || !spokeCompletely) return;
+        await speakLine(beat.line, signal);
+        if (signal.aborted) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });
-        await pauseGap(750, signal);
-        if (!signal.aborted) {
-          dispatchTour({ type: "BEAT_AUTO_COMPLETED" });
-        }
         return;
       }
     };
@@ -181,21 +165,7 @@ export function useTourRunner() {
       controller.abort();
       cancelSpeech();
     };
-  }, [mode, celestialBody, chapterIndex, beatIndex, tourPaused, dispatchTour]);
+  }, [mode, celestialBody, chapterIndex, beatIndex, tourPaused]);
 
   return { dispatchTour };
-}
-
-function pauseGap(ms: number, signal: AbortSignal): Promise<void> {
-  return new Promise((resolve) => {
-    const id = window.setTimeout(resolve, ms);
-    signal.addEventListener(
-      "abort",
-      () => {
-        window.clearTimeout(id);
-        resolve();
-      },
-      { once: true },
-    );
-  });
 }
