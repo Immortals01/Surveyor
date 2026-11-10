@@ -6,7 +6,7 @@ import {
   Play,
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
-import { TOUR_CHAPTERS } from "@/data";
+import { getTourChaptersForBody } from "@/data";
 import type { TourEvent } from "@/engine/tourEngine";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -15,18 +15,20 @@ interface TourBarProps {
 }
 
 export default function TourBar({ dispatchTour }: TourBarProps) {
+  const activeBody = useAppStore((s) => s.activeBody);
   const chapterIndex = useAppStore((s) => s.tourChapterIndex);
   const beatIndex = useAppStore((s) => s.tourBeatIndex);
   const tourPaused = useAppStore((s) => s.tourPaused);
   const startTour = useAppStore((s) => s.startTour);
 
-  const activeChapter = TOUR_CHAPTERS[chapterIndex];
+  const chapters = getTourChaptersForBody(activeBody);
+  const activeChapter = chapters[chapterIndex];
 
   return (
     <div className="pointer-events-auto flex flex-wrap items-center gap-2 border border-white/15 bg-space-950/88 px-3 py-1.5 backdrop-blur-md">
       {/* 5 Chapter Selector Pills */}
       <div className="flex items-center gap-1" role="tablist" aria-label="Story Tour Chapters">
-        {TOUR_CHAPTERS.map((ch, idx) => {
+        {chapters.map((ch, idx) => {
           const isCurrent = idx === chapterIndex;
           const isDone = idx < chapterIndex;
           return (

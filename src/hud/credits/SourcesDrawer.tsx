@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
 import { BookOpen, ExternalLink, MapPin, ShieldCheck, X } from "lucide-react";
-import { ALL_SITES, SOURCES } from "@/data";
+import { ALL_COMBINED_SITES, EARTH_SITE_BY_ID, SOURCES } from "@/data";
 import type { DatasetPortal, SourceEntry } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { useAppStore } from "@/store/useAppStore";
 
 const PORTAL_LABELS: Record<DatasetPortal, string> = {
-  SVS: "NASA Scientific Visualization Studio (CGI Moon Kit & LOLA)",
+  SVS: "NASA Scientific Visualization Studio (CGI Moon Kit & Blue Marble)",
   LROC: "Lunar Reconnaissance Orbiter Camera (LROC / ASU)",
-  NSSDCA: "NASA Space Science Data Coordinated Archive (NSSDCA)",
+  NSSDCA: "NASA Space Science Data Coordinated Archive & Spaceports",
   ALSEP: "Apollo Lunar Surface Experiments & Seismic Archive",
   "NASA-3D": "NASA 3D Resources Official Spacecraft Models",
   "NASA-IVL": "NASA Image and Video Library",
@@ -31,6 +31,7 @@ export default function SourcesDrawer() {
   const closeSources = useAppStore((s) => s.closeSources);
   const selectSite = useAppStore((s) => s.selectSite);
   const enterExplore = useAppStore((s) => s.enterExplore);
+  const setActiveBody = useAppStore((s) => s.setActiveBody);
   const mode = useAppStore((s) => s.mode);
 
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -46,7 +47,7 @@ export default function SourcesDrawer() {
 
   const sitesBySourceId = useMemo(() => {
     const map = new Map<string, Array<{ id: string; name: string; lat: number; lon: number }>>();
-    for (const site of ALL_SITES) {
+    for (const site of ALL_COMBINED_SITES) {
       for (const sid of site.sourceIds) {
         const list = map.get(sid) ?? [];
         list.push({ id: site.id, name: site.name, lat: site.lat, lon: site.lon });
@@ -188,6 +189,10 @@ export default function SourcesDrawer() {
                                 key={s.id}
                                 type="button"
                                 onClick={() => {
+                                  const targetBody = EARTH_SITE_BY_ID.has(s.id)
+                                    ? "earth"
+                                    : "moon";
+                                  setActiveBody(targetBody);
                                   if (mode !== "explore") enterExplore(true);
                                   selectSite(s.id, "story");
                                   closeSources();

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { cancelSpeech, speakLine } from "@/audio/speech";
-import { SITE_BY_ID, TOUR_CHAPTERS } from "@/data";
+import { getTourChaptersForBody, SITE_BY_ID } from "@/data";
 import type { DialogueLine } from "@/data/schema";
 import { useAppStore } from "@/store/useAppStore";
 import { cameraBus } from "./camera";
@@ -11,6 +11,7 @@ import { getActiveBeat, tourReducer, type TourEvent } from "./tourEngine";
  * sun terminator shifts, story drawer tabs, and voice/caption playback.
  */
 export function useTourRunner() {
+  const activeBody = useAppStore((s) => s.activeBody);
   const mode = useAppStore((s) => s.mode);
   const chapterIndex = useAppStore((s) => s.tourChapterIndex);
   const beatIndex = useAppStore((s) => s.tourBeatIndex);
@@ -20,6 +21,7 @@ export function useTourRunner() {
 
   const dispatchTour = useCallback((event: TourEvent) => {
     const store = useAppStore.getState();
+    const chapters = getTourChaptersForBody(store.activeBody);
     const next = tourReducer(
       {
         active: store.mode === "tour",
@@ -29,7 +31,7 @@ export function useTourRunner() {
         completed: false,
       },
       event,
-      TOUR_CHAPTERS,
+      chapters,
     );
 
     if (!next.active) {
@@ -60,7 +62,7 @@ export function useTourRunner() {
       }, 2400);
       return () => window.clearTimeout(timer);
     }
-  }, [mode, chapterIndex]);
+  }, [mode, chapterIndex, activeBody]);
 
   // Execute active beat with strict AbortController cancellation
   useEffect(() => {
@@ -69,7 +71,8 @@ export function useTourRunner() {
       return;
     }
 
-    const beat = getActiveBeat(TOUR_CHAPTERS, { chapterIndex, beatIndex });
+    const chapters = getTourChaptersForBody(activeBody);
+    const beat = getActiveBeat(chapters, { chapterIndex, beatIndex });
     if (!beat) return;
 
     const controller = new AbortController();
@@ -184,7 +187,7 @@ export function useTourRunner() {
       controller.abort();
       cancelSpeech();
     };
-  }, [mode, chapterIndex, beatIndex, tourPaused, dispatchTour]);
+  }, [activeBody, mode, chapterIndex, beatIndex, tourPaused, dispatchTour]);
 
   return { dispatchTour };
 }
