@@ -1,13 +1,13 @@
 import { Suspense, lazy, useMemo } from "react";
 import {
+  ArrowUpRight,
   Box,
   BookOpen,
   ExternalLink,
   FlaskConical,
   History,
   Layers,
-  Rocket,
-  Wrench,
+  MapPin,
   X,
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
@@ -21,6 +21,8 @@ import Marsquake from "@/hud/interactions/Marsquake";
 import Moonquake from "@/hud/interactions/Moonquake";
 import MoxieOxygenGenerator from "@/hud/interactions/MoxieOxygenGenerator";
 import RoverLiftoffCam from "@/hud/interactions/RoverLiftoffCam";
+import { getCategoryMeta } from "@/lib/constants";
+import { formatLatLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 import MemoryLog from "./MemoryLog";
 import StatsGrid from "./StatsGrid";
@@ -53,6 +55,9 @@ export default function SiteDrawer() {
   const siteBody = getSiteBody(site.id);
   const isMars = siteBody === "mars";
   const isEarth = siteBody === "earth";
+  const categoryMeta = getCategoryMeta(siteBody);
+  const cat = categoryMeta[site.primaryCategory];
+
   const parentHero =
     site.tier === "secondary" && site.parentHeroId
       ? SITE_BY_ID.get(site.parentHeroId)
@@ -81,156 +86,238 @@ export default function SiteDrawer() {
     void cameraBus.goHome();
   };
 
+  const tabs: Array<{
+    id: StoryTab;
+    num: string;
+    label: string;
+    icon: typeof BookOpen;
+  }> = [
+    { id: "story", num: "01", label: "Dossier", icon: BookOpen },
+    { id: "then-now", num: "02", label: "Then / Now", icon: Layers },
+    ...(hasWidget
+      ? ([
+          {
+            id: "science",
+            num: "03",
+            label: "Instrument",
+            icon: FlaskConical,
+          },
+        ] as const)
+      : []),
+    ...(hasModel
+      ? ([
+          {
+            id: "model",
+            num: hasWidget ? "04" : "03",
+            label: "3D CAD",
+            icon: Box,
+          },
+        ] as const)
+      : []),
+  ];
+
+  const bodyCornerColor = isMars
+    ? "border-orange-400"
+    : isEarth
+      ? "border-loro"
+      : "border-sunlit";
+
   return (
     <aside
       aria-label={`${isMars ? "Martian artifact" : isEarth ? "Earth space site" : "Lunar artifact"} dossier: ${site.name}`}
-      className="pointer-events-auto fixed right-0 bottom-0 left-0 z-30 flex max-h-[62dvh] flex-col overflow-hidden rounded-t-3xl border-t border-loro/35 bg-space-950/92 shadow-[0_-18px_60px_rgba(0,0,0,0.85)] backdrop-blur-xl lg:top-20 lg:right-5 lg:bottom-5 lg:left-auto lg:max-h-[calc(100dvh-6.25rem)] lg:w-[440px] lg:rounded-3xl lg:border"
+      className="animate-hud-fade-up pointer-events-auto fixed right-0 bottom-0 left-0 z-30 flex max-h-[65dvh] flex-col overflow-hidden border-t border-white/20 bg-space-950/95 shadow-[0_-24px_70px_rgba(0,0,0,0.92)] backdrop-blur-xl lg:top-20 lg:right-5 lg:bottom-5 lg:left-auto lg:max-h-[calc(100dvh-6.25rem)] lg:w-[452px] lg:border"
     >
-      {/* Mobile Drag Handle Indicator */}
-      <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-white/20 lg:hidden" />
+      {/* Architectural Corner Telemetry Brackets */}
+      <span
+        className={`pointer-events-none absolute -top-px -left-px z-20 h-3 w-3 border-t-2 border-l-2 ${bodyCornerColor}`}
+      />
+      <span
+        className={`pointer-events-none absolute -top-px -right-px z-20 h-3 w-3 border-t-2 border-r-2 ${bodyCornerColor}`}
+      />
+      <span
+        className={`pointer-events-none absolute -bottom-px -left-px z-20 h-3 w-3 border-b-2 border-l-2 ${bodyCornerColor}`}
+      />
+      <span
+        className={`pointer-events-none absolute -right-px -bottom-px z-20 h-3 w-3 border-r-2 border-b-2 ${bodyCornerColor}`}
+      />
 
-      {/* Sticky Header */}
-      <div className="shrink-0 border-b border-white/10 px-5 pt-3 pb-3.5 lg:pt-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h2 className="font-display text-xl leading-snug font-bold text-regolith-bright">
-              {site.name}
-            </h2>
-            <p className="mt-0.5 text-xs text-regolith/80">{site.subtitle}</p>
+      {/* Mobile Drag Handle Indicator */}
+      <div className="mx-auto mt-2 h-0.5 w-10 shrink-0 bg-white/25 lg:hidden" />
+
+      {/* Sticky Editorial & Telemetry Header */}
+      <div className="shrink-0 border-b border-white/15 bg-space-950/90 px-5 pt-3.5 pb-0 lg:pt-4">
+        {/* Top Archival Classification & Close Row */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2 font-mono text-[10px] tracking-[0.15em] text-regolith/70 uppercase">
+            <span
+              className="h-2 w-2 shrink-0"
+              style={{ backgroundColor: cat.color }}
+            />
+            <span className="truncate font-bold text-regolith-bright">
+              {cat.shortLabel}
+            </span>
+            <span className="text-white/25">/</span>
+            <span className="truncate">{site.nssdcaId}</span>
+            <span className="text-white/25">/</span>
+            <span className="text-sunlit">{site.year}</span>
           </div>
 
           <button
             type="button"
             onClick={handleClose}
-            className="shrink-0 cursor-pointer rounded-full border border-white/15 bg-white/5 p-1.5 text-regolith transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 border border-white/15 bg-white/[0.04] px-2 py-1 font-mono text-[9.5px] tracking-[0.14em] text-regolith uppercase transition hover:border-regolith-bright hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
             aria-label="Close site story panel"
+            title="Close Dossier (Esc)"
           >
-            <X className="h-4 w-4" />
+            <span className="hidden sm:inline">ESC</span>
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        {/* Hero Multi-Tab Bar (Story / Then vs Now / Interactive Lab / 3D Model) */}
+        {/* Editorial Headline & Subtitle */}
+        <div className="mt-2.5 pb-3">
+          <h2 className="font-display text-[21px] leading-[1.15] font-bold tracking-tight text-regolith-bright">
+            {site.name}
+          </h2>
+          <p className="mt-1 text-xs leading-relaxed text-regolith/75">
+            {site.subtitle}
+          </p>
+
+          {/* Selenographic / Areographic / Geographic Coordinate Strip */}
+          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2 font-mono text-[10px] tracking-wider text-regolith/65">
+            <span className="truncate uppercase">{site.region}</span>
+            <span className="inline-flex shrink-0 items-center gap-1 text-loro">
+              <MapPin className="h-2.5 w-2.5" />
+              {formatLatLon(site.lat, site.lon)}
+            </span>
+          </div>
+        </div>
+
+        {/* Hero Multi-Tab Architectural Ledger Bar */}
         {site.tier === "hero" && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => {
-                audioEngine.playUiTick();
-                setActiveStoryTab("story");
-              }}
-              className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[10.5px] font-semibold uppercase transition ${
-                effectiveTab === "story"
-                  ? "border-loro bg-loro/20 text-white"
-                  : "border-white/10 bg-white/5 text-regolith/75 hover:border-white/30 hover:text-white"
-              }`}
-            >
-              <BookOpen className="h-3 w-3 text-loro" />
-              <span>Story</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                audioEngine.playUiTick();
-                setActiveStoryTab("then-now");
-              }}
-              className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[10.5px] font-semibold uppercase transition ${
-                effectiveTab === "then-now"
-                  ? "border-loro bg-loro/20 text-white"
-                  : "border-white/10 bg-white/5 text-regolith/75 hover:border-white/30 hover:text-white"
-              }`}
-            >
-              <Layers className="h-3 w-3 text-sunlit" />
-              <span>Then vs Now</span>
-            </button>
-
-            {hasWidget && (
-              <button
-                type="button"
-                onClick={() => {
-                  audioEngine.playUiTick();
-                  setActiveStoryTab("science");
-                }}
-                className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[10.5px] font-semibold uppercase transition ${
-                  effectiveTab === "science"
-                    ? "border-emerald-400 bg-emerald-400/20 text-emerald-200"
-                    : "border-emerald-400/30 bg-emerald-400/10 text-emerald-300 hover:border-emerald-400"
-                }`}
-              >
-                <FlaskConical className="h-3 w-3" />
-                <span>Interactive Lab</span>
-              </button>
-            )}
-
-            {hasModel && (
-              <button
-                type="button"
-                onClick={() => {
-                  audioEngine.playUiTick();
-                  setActiveStoryTab("model");
-                }}
-                className={`inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[10.5px] font-semibold uppercase transition ${
-                  effectiveTab === "model"
-                    ? "border-sunlit bg-sunlit/20 text-sunlit"
-                    : "border-white/10 bg-white/5 text-regolith/75 hover:border-white/30 hover:text-white"
-                }`}
-              >
-                <Box className="h-3 w-3 text-sunlit" />
-                <span>3D Model</span>
-              </button>
-            )}
+          <div
+            role="tablist"
+            aria-label="Artifact dossier views"
+            className="-mx-5 grid border-t border-white/15 bg-space-900/50"
+            style={{
+              gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
+            }}
+          >
+            {tabs.map((t) => {
+              const Icon = t.icon;
+              const isActive = effectiveTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => {
+                    audioEngine.playUiTick();
+                    setActiveStoryTab(t.id);
+                  }}
+                  className={`relative flex cursor-pointer items-center justify-center gap-1.5 border-r border-white/10 px-2 py-2.5 font-mono text-[10px] tracking-[0.12em] uppercase transition last:border-r-0 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                    isActive
+                      ? "bg-regolith-bright font-bold text-space-950"
+                      : "text-regolith/70 hover:bg-white/[0.06] hover:text-white"
+                  }`}
+                >
+                  <span
+                    className={`hidden sm:inline ${
+                      isActive ? "text-space-950/60" : "text-regolith/40"
+                    }`}
+                  >
+                    {t.num}
+                  </span>
+                  <Icon className="h-3 w-3 shrink-0" />
+                  <span className="truncate">{t.label}</span>
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* Scrollable Body */}
-      <div className="hud-scroll flex-1 space-y-4 overflow-y-auto p-5">
+      {/* Scrollable Editorial Body */}
+      <div className="hud-scroll flex-1 space-y-5 overflow-y-auto p-5">
         {site.tier === "hero" ? (
           <>
             {effectiveTab === "story" && (
               <>
-                {/* Historical "Then" Surface Archive Image at Top of Story */}
-                <div className="overflow-hidden rounded-2xl border border-white/15 bg-space-900/75">
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-space-900">
+                {/* Archival Photographic Plate */}
+                <figure className="border border-white/15 bg-space-950 p-1.5">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden border border-white/10 bg-space-900">
                     <img
                       src={site.thenNow.thenImage}
                       alt={site.thenNow.thenCaption}
                       decoding="async"
                       className="h-full w-full object-cover"
                     />
-                    <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full border border-sunlit/40 bg-space-950/85 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-sunlit backdrop-blur-md">
-                      {site.thenNow.thenYear}
+                    <span className="pointer-events-none absolute top-2 left-2 border border-sunlit/50 bg-space-950/90 px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.14em] text-sunlit uppercase backdrop-blur-md">
+                      ARCHIVE PLATE · {site.thenNow.thenYear}
                     </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        audioEngine.playUiTick();
+                        setActiveStoryTab("then-now");
+                      }}
+                      className="pointer-events-auto absolute right-2 bottom-2 inline-flex cursor-pointer items-center gap-1 border border-white/25 bg-space-950/90 px-2.5 py-1 font-mono text-[9.5px] font-semibold tracking-[0.12em] text-regolith-bright uppercase backdrop-blur-md transition hover:border-loro hover:text-loro"
+                    >
+                      <Layers className="h-2.5 w-2.5 text-loro" />
+                      <span>Compare Orbital View</span>
+                    </button>
                   </div>
-                </div>
+                  <figcaption className="mt-1.5 px-1.5 py-1 font-mono text-[10px] leading-relaxed text-regolith/65">
+                    {site.thenNow.thenCaption}
+                  </figcaption>
+                </figure>
 
                 {/* First-Person Equipment Memory Log */}
                 <MemoryLog memoryLog={site.memoryLog} />
 
                 {/* Narrative Summary */}
-                <p className="text-[14.5px] leading-relaxed text-regolith/95">
-                  {site.summary}
-                </p>
+                <div className="space-y-1.5">
+                  <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">
+                    01 // MISSION OVERVIEW
+                  </div>
+                  <p className="font-body text-[14.5px] leading-[1.68] text-regolith-bright/95">
+                    {site.summary}
+                  </p>
+                </div>
 
-                {/* Verified Stats Grid */}
-                <StatsGrid stats={site.stats} />
+                {/* Verified Telemetry Specs Ledger */}
+                <div className="space-y-2">
+                  <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">
+                    02 // VERIFIED TELEMETRY &amp; METRICS
+                  </div>
+                  <StatsGrid stats={site.stats} />
+                </div>
 
                 {/* Hardware Left Behind / Launch Infrastructure Inventory */}
-                <div className="rounded-2xl border border-white/10 bg-space-900/65 p-3.5">
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-sunlit uppercase">
-                    <Wrench className="h-3.5 w-3.5" />
+                <div className="border border-white/15 bg-space-900/40">
+                  <div className="flex items-center justify-between border-b border-white/15 bg-white/[0.02] px-3.5 py-2 font-mono text-[10px] font-bold tracking-[0.16em] text-sunlit uppercase">
                     <span>
+                      03 //{" "}
                       {isEarth
-                        ? "Key Launch & Mission Infrastructure"
+                        ? "KEY LAUNCH & MISSION INFRASTRUCTURE"
                         : isMars
-                          ? "Hardware Left on Mars"
-                          : "Hardware Left on the Moon"}
+                          ? "HARDWARE REMAINING ON MARS"
+                          : "HARDWARE REMAINING ON THE MOON"}
+                    </span>
+                    <span className="text-regolith/50">
+                      [{site.hardwareLeftBehind.length}]
                     </span>
                   </div>
-                  <ul className="mt-2 space-y-1.5 text-xs text-regolith-bright">
-                    {site.hardwareLeftBehind.map((item) => (
-                      <li key={item} className="flex items-start gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sunlit" />
+                  <ul className="divide-y divide-white/10 text-xs text-regolith-bright">
+                    {site.hardwareLeftBehind.map((item, idx) => (
+                      <li
+                        key={item}
+                        className="flex items-baseline gap-3 px-3.5 py-2.5 leading-relaxed"
+                      >
+                        <span className="shrink-0 font-mono text-[10px] text-sunlit/80">
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
                         <span>{item}</span>
                       </li>
                     ))}
@@ -238,39 +325,42 @@ export default function SiteDrawer() {
                 </div>
 
                 {/* Science Discovery & Path to Artemis / Mars */}
-                <div className="space-y-2.5 rounded-2xl border border-loro/25 bg-loro/5 p-3.5 text-xs leading-relaxed">
-                  <div>
-                    <span className="inline-flex items-center gap-1 font-mono text-[10.5px] font-bold text-loro uppercase">
-                      <FlaskConical className="h-3 w-3" /> Why It Matters for Science
-                    </span>
-                    <p className="mt-0.5 text-regolith-bright">
+                <div className="divide-y divide-white/15 border border-white/15 bg-space-900/35 text-xs leading-relaxed">
+                  <div className="p-3.5">
+                    <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-loro uppercase">
+                      04 // SCIENTIFIC LEGACY
+                    </div>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-regolith-bright">
                       {site.scienceImpact}
                     </p>
                   </div>
-                  <div className="border-t border-white/10 pt-2">
-                    <span className="inline-flex items-center gap-1 font-mono text-[10.5px] font-bold text-sunlit uppercase">
-                      <Rocket className="h-3 w-3" />{" "}
+                  <div className="p-3.5">
+                    <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-sunlit uppercase">
+                      05 //{" "}
                       {isMars
-                        ? "Path to Human Mars Exploration"
+                        ? "PATH TO HUMAN MARS EXPLORATION"
                         : isEarth
-                          ? "Path to Artemis & Deep Space"
-                          : "Path to Artemis"}
-                    </span>
-                    <p className="mt-0.5 text-regolith/90">{site.artemisLink}</p>
+                          ? "PATH TO ARTEMIS & DEEP SPACE"
+                          : "PATH TO ARTEMIS"}
+                    </div>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-regolith/90">
+                      {site.artemisLink}
+                    </p>
                   </div>
                 </div>
 
                 {/* Related Secondary Artifacts in this Cluster */}
                 {relatedSecondary.length > 0 && (
-                  <div className="rounded-2xl border border-white/10 bg-space-900/50 p-3.5">
-                    <p className="font-mono text-[10.5px] font-semibold tracking-wider text-regolith/70 uppercase">
+                  <div className="border border-white/15 bg-space-900/30 p-3.5">
+                    <p className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/60 uppercase">
+                      06 //{" "}
                       {isEarth
-                        ? `Related Space Facilities (${relatedSecondary.length})`
+                        ? `ASSOCIATED SPACE FACILITIES (${relatedSecondary.length})`
                         : isMars
-                          ? `Related Martian Hardware (${relatedSecondary.length})`
-                          : `Related Lunar Hardware (${relatedSecondary.length})`}
+                          ? `ASSOCIATED MARTIAN HARDWARE (${relatedSecondary.length})`
+                          : `ASSOCIATED LUNAR HARDWARE (${relatedSecondary.length})`}
                     </p>
-                    <div className="mt-2 flex flex-wrap gap-1.5">
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
                       {relatedSecondary.map((rel) => (
                         <button
                           key={rel.id}
@@ -279,9 +369,12 @@ export default function SiteDrawer() {
                             selectSite(rel.id, "story");
                             void cameraBus.flyToLatLon(rel.lat, rel.lon);
                           }}
-                          className="cursor-pointer rounded-full border border-white/15 bg-space-950/80 px-2.5 py-1 font-mono text-[10.5px] text-regolith-bright transition hover:border-loro hover:text-loro"
+                          className="group inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/90 px-2.5 py-1.5 font-mono text-[10px] text-regolith-bright transition hover:border-loro hover:bg-loro/10 hover:text-loro"
                         >
-                          {rel.name} ({rel.year})
+                          <span>
+                            {rel.name} ({rel.year})
+                          </span>
+                          <ArrowUpRight className="h-3 w-3 text-regolith/40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-loro" />
                         </button>
                       ))}
                     </div>
@@ -312,8 +405,8 @@ export default function SiteDrawer() {
             {effectiveTab === "model" && site.model3d && (
               <Suspense
                 fallback={
-                  <div className="flex aspect-[4/3] w-full items-center justify-center rounded-2xl border border-white/10 bg-space-900 font-mono text-xs text-loro">
-                    Loading 3D spacecraft model...
+                  <div className="flex aspect-[4/3] w-full items-center justify-center border border-white/15 bg-space-900 font-mono text-[11px] tracking-[0.14em] text-loro uppercase">
+                    INITIALIZING 3D SPACECRAFT MODEL...
                   </div>
                 }
               >
@@ -325,35 +418,59 @@ export default function SiteDrawer() {
             )}
           </>
         ) : (
-          /* Secondary Site Single-Scroll Dossier */
+          /* Secondary Site Single-Scroll Archival Dossier */
           <>
-            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-white/15 bg-space-900">
-              <img
-                src={site.thumbnailImage}
-                alt={site.name}
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-              <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full border border-sunlit/40 bg-space-950/85 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-sunlit backdrop-blur-md">
-                {site.year}
-              </span>
+            <figure className="border border-white/15 bg-space-950 p-1.5">
+              <div className="relative aspect-[16/10] w-full overflow-hidden border border-white/10 bg-space-900">
+                <img
+                  src={site.thumbnailImage}
+                  alt={site.name}
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
+                <span className="pointer-events-none absolute top-2 left-2 border border-sunlit/50 bg-space-950/90 px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.14em] text-sunlit uppercase backdrop-blur-md">
+                  VERIFIED SITE · {site.year}
+                </span>
+              </div>
+            </figure>
+
+            <div className="space-y-1.5">
+              <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">
+                01 // ARCHIVAL SUMMARY
+              </div>
+              <p className="font-body text-[14.5px] leading-[1.68] text-regolith-bright/95">
+                {site.summary}
+              </p>
             </div>
 
-            <p className="text-[14.5px] leading-relaxed text-regolith/95">
-              {site.summary}
-            </p>
-
-            <StatsGrid stats={site.stats} />
-
-            <div className="rounded-2xl border border-white/10 bg-space-900/65 p-3.5">
-              <div className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-sunlit uppercase">
-                <Wrench className="h-3.5 w-3.5" />
-                <span>Hardware Left Behind</span>
+            <div className="space-y-2">
+              <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">
+                02 // VERIFIED TELEMETRY &amp; METRICS
               </div>
-              <ul className="mt-2 space-y-1.5 text-xs text-regolith-bright">
-                {site.hardwareLeftBehind.map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-sunlit" />
+              <StatsGrid stats={site.stats} />
+            </div>
+
+            <div className="border border-white/15 bg-space-900/40">
+              <div className="flex items-center justify-between border-b border-white/15 bg-white/[0.02] px-3.5 py-2 font-mono text-[10px] font-bold tracking-[0.16em] text-sunlit uppercase">
+                <span>
+                  03 //{" "}
+                  {isEarth
+                    ? "FACILITY & MISSION INFRASTRUCTURE"
+                    : "HARDWARE REMAINING AT SITE"}
+                </span>
+                <span className="text-regolith/50">
+                  [{site.hardwareLeftBehind.length}]
+                </span>
+              </div>
+              <ul className="divide-y divide-white/10 text-xs text-regolith-bright">
+                {site.hardwareLeftBehind.map((item, idx) => (
+                  <li
+                    key={item}
+                    className="flex items-baseline gap-3 px-3.5 py-2.5 leading-relaxed"
+                  >
+                    <span className="shrink-0 font-mono text-[10px] text-sunlit/80">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -367,19 +484,26 @@ export default function SiteDrawer() {
                   selectSite(parentHero.id, "story");
                   void cameraBus.flyToLatLon(parentHero.lat, parentHero.lon);
                 }}
-                className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-sunlit/40 bg-sunlit/10 px-4 py-2.5 font-mono text-xs font-semibold text-sunlit transition hover:bg-sunlit/20"
+                className="group flex w-full cursor-pointer items-center justify-between gap-3 border border-regolith-bright bg-regolith-bright px-4 py-3 text-left text-space-950 transition hover:bg-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
               >
-                <History className="h-4 w-4" />
-                <span>Explore Featured Hero Story: {parentHero.name}</span>
+                <div>
+                  <div className="font-mono text-[9.5px] tracking-[0.16em] text-space-950/65 uppercase">
+                    PRIMARY EXPEDITION CLUSTER
+                  </div>
+                  <div className="mt-0.5 font-display text-xs font-bold">
+                    Open Featured Dossier: {parentHero.name}
+                  </div>
+                </div>
+                <History className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
               </button>
             )}
           </>
         )}
 
         {/* NASA Archive Citation Chips Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3">
-          <span className="font-mono text-[10px] text-regolith/60 uppercase">
-            Verified NASA Open Data Sources
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-3.5">
+          <span className="font-mono text-[9.5px] tracking-[0.14em] text-regolith/55 uppercase">
+            NASA ARCHIVE CITATIONS
           </span>
           <div className="flex flex-wrap gap-1.5">
             {site.sourceIds.map((sid) => (
@@ -387,7 +511,7 @@ export default function SiteDrawer() {
                 key={sid}
                 type="button"
                 onClick={() => openSources(sid)}
-                className="inline-flex cursor-pointer items-center gap-1 rounded border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-loro transition hover:border-loro hover:bg-loro/15"
+                className="inline-flex cursor-pointer items-center gap-1 border border-white/15 bg-white/[0.03] px-2 py-0.5 font-mono text-[9.5px] tracking-wider text-loro transition hover:border-loro hover:bg-loro/15 hover:text-white"
               >
                 <span>{sid}</span>
                 <ExternalLink className="h-2.5 w-2.5" />
