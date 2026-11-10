@@ -123,17 +123,16 @@ export function surfaceNormal(
 
   // Unit east (+lambda) and unit north (+phi) in our scene coordinate system:
   // pos = (cosPhi*cosLambda, sinPhi, -cosPhi*sinLambda)
-  _east.set(-Math.sin(lambda), 0, -Math.cos(lambda)).normalize();
-  _north
-    .set(
-      -Math.sin(phi) * Math.cos(lambda),
-      Math.cos(phi),
-      Math.sin(phi) * Math.sin(lambda),
-    )
-    .normalize();
+  const sinLambda = Math.sin(lambda);
+  const cosLambda = Math.cos(lambda);
+  const sinPhi = Math.sin(phi);
+  const cosPhi = Math.cos(phi);
+
+  _east.set(-sinLambda, 0, -cosLambda);
+  _north.set(-sinPhi * cosLambda, cosPhi, sinPhi * sinLambda);
 
   const stepDeg = 0.25; // matches 4 px/deg LOLA grid
-  const dEastRad = stepDeg * DEG * Math.max(Math.cos(phi), 0.02);
+  const dEastRad = stepDeg * DEG * Math.max(cosPhi, 0.02);
   const dNorthRad = stepDeg * DEG;
 
   const drdLon =

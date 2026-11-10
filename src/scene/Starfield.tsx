@@ -12,13 +12,14 @@ import {
   ShaderMaterial,
   SRGBColorSpace,
   Texture,
-  TextureLoader,
 } from "three";
 import { detectDefaultQualityTier } from "@/lib/quality";
+import { disposeTexture, loadTextureAsync } from "@/lib/textureLoader";
 import { useAppStore } from "@/store/useAppStore";
 
 const DOME_ROTATION: [number, number, number] = [0.41, 0.25, -0.18];
 const STAR_COUNT = 14000;
+const NOOP_RAYCAST = () => {};
 
 const CELESTIAL_DOME_VERTEX = /* glsl */ `
   varying vec2 vUv;
@@ -115,8 +116,6 @@ const STAR_POINTS_FRAGMENT = /* glsl */ `
     float r2 = dot(uv, uv);
     if (r2 > 1.0) discard;
 
-    float r = sqrt(r2);
-
     // Razor-sharp Airy disc core + soft optical halo
     float core = exp(-r2 * 18.0);
     float halo = exp(-r2 * 4.2) * (0.22 + 0.36 * vProminence);
@@ -136,12 +135,12 @@ const STAR_POINTS_FRAGMENT = /* glsl */ `
 
 // Spectral blackbody colors (O/B blue-white, A white, F/G ivory, K orange, M red-orange)
 const SPECTRAL_PALETTE: [number, number, number, number][] = [
-  [0.62, 0.76, 1.0, 0.10],  // O/B blue-white
-  [0.78, 0.86, 1.0, 0.22],  // B/A blue-tinted white
-  [0.95, 0.97, 1.0, 0.34],  // A pure white
-  [1.0, 0.97, 0.90, 0.18],  // F/G solar ivory
-  [1.0, 0.87, 0.72, 0.11],  // K warm orange
-  [1.0, 0.74, 0.52, 0.05],  // M deep amber
+  [0.62, 0.76, 1.0, 0.1], // O/B blue-white
+  [0.78, 0.86, 1.0, 0.22], // B/A blue-tinted white
+  [0.95, 0.97, 1.0, 0.34], // A pure white
+  [1.0, 0.97, 0.9, 0.18], // F/G solar ivory
+  [1.0, 0.87, 0.72, 0.11], // K warm orange
+  [1.0, 0.74, 0.52, 0.05], // M deep amber
 ];
 
 function createStarCatalogGeometry(count: number): BufferGeometry {
@@ -298,91 +297,82 @@ export default function Starfield() {
   }, [gl]);
 
   useEffect(() => {
-    const loader = new TextureLoader();
-    const maxAniso = Math.min(16, gl.capabilities.getMaxAnisotropy());
+    const controller = new AbortController();
+    const maxAniso = Math.min(8, gl.capabilities.getMaxAnisotropy());
     const canUse8K =
-      gl.capabilities.maxTextureSize >= 8192 && effectiveTier !== "low";
+      gl.capabilities.maxTextureSize >= 8192 && effectiveTier === "high";
 
-    let cancelled = false;
     let activeStarsTex: Texture | null = null;
     let activeMilkyWayTex: Texture | null = null;
+    let upgradeTimerId = 0;
 
-    const configureSkyTexture = (tex: Texture) => {
-      tex.colorSpace = SRGBColorSpace;
-      tex.anisotropy = maxAniso;
-      tex.minFilter = LinearMipmapLinearFilter;
-      tex.magFilter = LinearFilter;
-      tex.wrapS = RepeatWrapping;
-      tex.wrapT = ClampToEdgeWrapping;
-      tex.generateMipmaps = true;
-      tex.needsUpdate = true;
-    };
+    const skyOpts = {
+      colorSpace: SRGBColorSpace,
+      anisotropy: maxAniso,
+      minFilter: LinearMipmapLinearFilter,
+      magFilter: LinearFilter,
+      wrapS: RepeatWrapping,
+      wrapT: ClampToEdgeWrapping,
+      generateMipmaps: true,
+      signal: controller.signal,
+    } as const;
 
-    // Load 4K baseline immediately for fast initial paint
-    loader.load(
-      "/textures/sky/stars_4k.webp",
-      (tex4k) => {
-        if (cancelled) {
-          tex4k.dispose();
+    // Load 4K baseline off-main-thread immediately for fast initial paint
+    void loadTextureAsync("/textures/sky/stars_4k.webp", skyOpts)
+      .then((tex4k) => {
+        if (controller.signal.aborted) {
+          disposeTexture(tex4k);
           return;
         }
-        configureSkyTexture(tex4k);
-        // Only apply 4K if 8K hasn't already finished first
         if (!activeStarsTex) {
           activeStarsTex = tex4k;
           domeMaterial.uniforms.uStarsMap!.value = tex4k;
           domeMaterial.uniforms.uHasStars!.value = 1;
         } else {
-          tex4k.dispose();
+          disposeTexture(tex4k);
         }
-      },
-      undefined,
-      () => {},
-    );
 
-    // Upgrade to razor-sharp 8K (8192x4096) NASA SVS celestial map on capable GPUs
-    if (canUse8K) {
-      loader.load(
-        "/textures/sky/stars_8k.webp",
-        (tex8k) => {
-          if (cancelled) {
-            tex8k.dispose();
-            return;
-          }
-          configureSkyTexture(tex8k);
-          const prev = activeStarsTex;
-          activeStarsTex = tex8k;
-          domeMaterial.uniforms.uStarsMap!.value = tex8k;
-          domeMaterial.uniforms.uHasStars!.value = 1;
-          if (prev && prev !== tex8k) {
-            prev.dispose();
-          }
-        },
-        undefined,
-        () => {},
-      );
-    }
+        // Defer optional 8K celestial map upgrade until after initial boot completes
+        // so it never competes with Moon L0/L1 tiles or stalls initial frame rate.
+        if (canUse8K && !controller.signal.aborted) {
+          upgradeTimerId = window.setTimeout(() => {
+            void loadTextureAsync("/textures/sky/stars_8k.webp", skyOpts)
+              .then((tex8k) => {
+                if (controller.signal.aborted) {
+                  disposeTexture(tex8k);
+                  return;
+                }
+                const prev = activeStarsTex;
+                activeStarsTex = tex8k;
+                domeMaterial.uniforms.uStarsMap!.value = tex8k;
+                domeMaterial.uniforms.uHasStars!.value = 1;
+                if (prev && prev !== tex8k) {
+                  disposeTexture(prev);
+                }
+              })
+              .catch(() => {});
+          }, 2600);
+        }
+      })
+      .catch(() => {});
 
-    loader.load(
-      "/textures/sky/milkyway_4k.webp",
-      (mwTex) => {
-        if (cancelled) {
-          mwTex.dispose();
+    void loadTextureAsync("/textures/sky/milkyway_4k.webp", skyOpts)
+      .then((mwTex) => {
+        if (controller.signal.aborted) {
+          disposeTexture(mwTex);
           return;
         }
-        configureSkyTexture(mwTex);
         activeMilkyWayTex = mwTex;
         domeMaterial.uniforms.uMilkyWayMap!.value = mwTex;
         domeMaterial.uniforms.uHasMilkyWay!.value = 1;
-      },
-      undefined,
-      () => {},
-    );
+      })
+      .catch(() => {});
 
     return () => {
-      cancelled = true;
-      activeStarsTex?.dispose();
-      activeMilkyWayTex?.dispose();
+      controller.abort();
+      if (upgradeTimerId) window.clearTimeout(upgradeTimerId);
+      disposeTexture(activeStarsTex);
+      disposeTexture(activeMilkyWayTex);
     };
   }, [gl, domeMaterial, effectiveTier]);
 
@@ -395,10 +385,10 @@ export default function Starfield() {
   }, [domeMaterial, starGeometry, starPointsMaterial]);
 
   useFrame(({ clock, gl: renderer }) => {
-    starPointsMaterial.uniforms.uPixelRatio!.value = Math.min(
-      renderer.getPixelRatio(),
-      2,
-    );
+    const dpr = Math.min(renderer.getPixelRatio(), 2);
+    if (starPointsMaterial.uniforms.uPixelRatio!.value !== dpr) {
+      starPointsMaterial.uniforms.uPixelRatio!.value = dpr;
+    }
     if (!reduceMotion) {
       starPointsMaterial.uniforms.uTime!.value = clock.getElapsedTime();
     }
@@ -406,9 +396,13 @@ export default function Starfield() {
 
   return (
     <group name="starfield">
-      {/* 8K NASA SVS Celestial Sphere + aligned Galactic Milky Way dust continuum */}
-      <mesh rotation={DOME_ROTATION} material={domeMaterial}>
-        <sphereGeometry args={[94, 128, 64]} />
+      {/* NASA SVS Celestial Sphere + aligned Galactic Milky Way dust continuum */}
+      <mesh
+        rotation={DOME_ROTATION}
+        material={domeMaterial}
+        raycast={NOOP_RAYCAST}
+      >
+        <sphereGeometry args={[94, 64, 32]} />
       </mesh>
 
       {/* 14,000 sub-pixel procedural Hipparcos/Galactic stars with Airy discs & spectral colors */}
@@ -416,6 +410,7 @@ export default function Starfield() {
         rotation={DOME_ROTATION}
         geometry={starGeometry}
         material={starPointsMaterial}
+        raycast={NOOP_RAYCAST}
       />
     </group>
   );

@@ -44,33 +44,11 @@ async function collectDialogueLines() {
   return Array.from(lines.values());
 }
 
-// Assign natural, expressive neural voices
-function pickVoice(line) {
-  if (line.speaker === "loro") {
-    return {
-      voice: "en-US-EmmaMultilingualNeural",
-      rate: "+2%",
-      pitch: "+0Hz",
-    };
-  }
-  // Distinct warm voices for different lunar spacecraft memories
-  if (line.id.includes("surveyor") || line.id.includes("artemis")) {
-    return {
-      voice: "en-US-AriaNeural",
-      rate: "-2%",
-      pitch: "+0Hz",
-    };
-  }
-  if (line.id.includes("apollo15") || line.id.includes("apollo17")) {
-    return {
-      voice: "en-US-BrianMultilingualNeural",
-      rate: "-2%",
-      pitch: "+0Hz",
-    };
-  }
+// Assign a single consistent voice (Emma — Tranquility Base voice) across all lines
+function pickVoice(_line) {
   return {
-    voice: "en-US-AndrewMultilingualNeural",
-    rate: "-3%",
+    voice: "en-US-EmmaMultilingualNeural",
+    rate: "+2%",
     pitch: "+0Hz",
   };
 }
@@ -104,13 +82,9 @@ async function synthesizeLine(line) {
     }
   }
 
-  // Gentle broadcast mastering via ffmpeg:
-  // - Lo-Ro: warm, crisp full-range voice with gentle loudness normalization
-  // - Equipment memory: warm vintage NASA documentary voice (band-limited 160Hz-4800Hz, never harsh)
+  // Gentle broadcast mastering via ffmpeg (warm, crisp full-range voice with gentle loudness normalization)
   const afFilter =
-    line.speaker === "equipment"
-      ? "highpass=f=160,lowpass=f=4800,acompressor=threshold=-18dB:ratio=2.2:attack=15:release=180,volume=0.92"
-      : "highpass=f=90,acompressor=threshold=-18dB:ratio=2:attack=15:release=180,volume=0.95";
+    "highpass=f=90,acompressor=threshold=-18dB:ratio=2:attack=15:release=180,volume=0.95";
 
   await execFileAsync("ffmpeg", [
     "-y",

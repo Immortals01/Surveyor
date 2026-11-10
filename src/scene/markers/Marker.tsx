@@ -2,11 +2,15 @@ import { useMemo, useRef } from "react";
 import { Html } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import {
+  CircleGeometry,
+  CylinderGeometry,
   DoubleSide,
   Group,
   Mesh,
   MeshBasicMaterial,
   Quaternion,
+  RingGeometry,
+  SphereGeometry,
   Vector3,
 } from "three";
 import type { LunarSite } from "@/data/schema";
@@ -23,6 +27,15 @@ interface MarkerProps {
 
 const UP = new Vector3(0, 1, 0);
 const _toCam = new Vector3();
+const NOOP_RAYCAST = () => {};
+
+// Shared singleton geometries reused across all 29 markers (6 geometries instead of ~100)
+const HIT_SPHERE_GEO = new SphereGeometry(1.15, 10, 10);
+const HERO_CORE_GEO = new CircleGeometry(0.42, 24);
+const SECONDARY_CORE_GEO = new CircleGeometry(0.42, 6);
+const STEM_GEO = new CylinderGeometry(0.04, 0.04, 0.7, 8);
+const PULSE_RING_GEO = new RingGeometry(0.52, 0.66, 32);
+const RETICLE_GEO = new RingGeometry(0.82, 0.96, 24);
 
 export default function Marker({ site, heightReady }: MarkerProps) {
   const groupRef = useRef<Group>(null);
@@ -30,13 +43,12 @@ export default function Marker({ site, heightReady }: MarkerProps) {
   const reticleRef = useRef<Mesh>(null);
   const downPosRef = useRef<{ x: number; y: number } | null>(null);
 
-  const selectedSiteId = useAppStore((s) => s.selectedSiteId);
-  const hoveredSiteId = useAppStore((s) => s.hoveredSiteId);
+  // Granular boolean selectors so only the affected 1-2 markers re-render on hover/select
+  const isSelected = useAppStore((s) => s.selectedSiteId === site.id);
+  const isHovered = useAppStore((s) => s.hoveredSiteId === site.id);
   const categoryFilter = useAppStore((s) => s.categoryFilter);
   const heroOnly = useAppStore((s) => s.heroOnly);
 
-  const isSelected = selectedSiteId === site.id;
-  const isHovered = hoveredSiteId === site.id;
   const isHero = site.tier === "hero";
 
   const matchesFilter = useMemo(() => {
@@ -164,18 +176,21 @@ export default function Marker({ site, heightReady }: MarkerProps) {
     <group ref={groupRef} position={position} quaternion={quaternion}>
       {/* Generous invisible hit sphere for effortless mouse/touch picking */}
       <mesh
+        geometry={HIT_SPHERE_GEO}
         onPointerOver={handlePointerOver}
         onPointerOut={handlePointerOut}
         onPointerDown={handlePointerDown}
         onClick={handleClick}
       >
-        <sphereGeometry args={[1.15, 12, 12]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
       {/* Surface disc core */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.42, isHero ? 24 : 6]} />
+      <mesh
+        geometry={isHero ? HERO_CORE_GEO : SECONDARY_CORE_GEO}
+        rotation={[-Math.PI / 2, 0, 0]}
+        raycast={NOOP_RAYCAST}
+      >
         <meshBasicMaterial
           ref={coreMatRef}
           color={colorHex}
@@ -187,8 +202,11 @@ export default function Marker({ site, heightReady }: MarkerProps) {
 
       {/* Vertical beacon pin stem for hero sites */}
       {isHero && (
-        <mesh position={[0, 0.35, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 0.7, 8]} />
+        <mesh
+          geometry={STEM_GEO}
+          position={[0, 0.35, 0]}
+          raycast={NOOP_RAYCAST}
+        >
           <meshBasicMaterial
             ref={stemMatRef}
             color={colorHex}
@@ -202,10 +220,11 @@ export default function Marker({ site, heightReady }: MarkerProps) {
       {/* Subtle static perimeter ring */}
       <mesh
         ref={pulseRingRef}
+        geometry={PULSE_RING_GEO}
         position={[0, 0.02, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
+        raycast={NOOP_RAYCAST}
       >
-        <ringGeometry args={[0.52, 0.66, 32]} />
         <meshBasicMaterial
           ref={ringMatRef}
           color={colorHex}
@@ -221,10 +240,11 @@ export default function Marker({ site, heightReady }: MarkerProps) {
       {isSelected && (
         <mesh
           ref={reticleRef}
+          geometry={RETICLE_GEO}
           position={[0, 0.04, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
+          raycast={NOOP_RAYCAST}
         >
-          <ringGeometry args={[0.82, 0.96, 24]} />
           <meshBasicMaterial
             ref={reticleMatRef}
             color="#5ce1ff"

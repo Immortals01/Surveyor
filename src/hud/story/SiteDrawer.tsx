@@ -1,19 +1,16 @@
+import { useMemo } from "react";
 import {
   ExternalLink,
   FlaskConical,
   History,
   Rocket,
-  Volume2,
   Wrench,
   X,
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
-import { cancelSpeech, speakLine } from "@/audio/speech";
+import { cancelSpeech } from "@/audio/speech";
 import { ALL_SITES, SITE_BY_ID } from "@/data";
-import type { HeroSite } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
-import { CATEGORY_META } from "@/lib/constants";
-import { formatLatLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 import MemoryLog from "./MemoryLog";
 import StatsGrid from "./StatsGrid";
@@ -22,16 +19,20 @@ export default function SiteDrawer() {
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const selectSite = useAppStore((s) => s.selectSite);
   const openSources = useAppStore((s) => s.openSources);
-  const settings = useAppStore((s) => s.settings);
 
-  if (!selectedSiteId) return null;
-  const site = SITE_BY_ID.get(selectedSiteId);
+  const site = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
+  const relatedSecondary = useMemo(
+    () =>
+      site
+        ? ALL_SITES.filter(
+            (s) => s.tier === "secondary" && s.parentHeroId === site.id,
+          )
+        : [],
+    [site],
+  );
+
   if (!site) return null;
 
-  const catMeta = CATEGORY_META[site.primaryCategory];
-  const relatedSecondary = ALL_SITES.filter(
-    (s) => s.tier === "secondary" && s.parentHeroId === site.id,
-  );
   const parentHero =
     site.tier === "secondary" && site.parentHeroId
       ? SITE_BY_ID.get(site.parentHeroId)
@@ -50,26 +51,6 @@ export default function SiteDrawer() {
     void cameraBus.goHome();
   };
 
-  const handleSpeakLoRoIntro = (hero: HeroSite) => {
-    audioEngine.unlock(settings.muted);
-    const store = useAppStore.getState();
-    store.setLoRoMood(hero.loroIntro.mood);
-    store.setDialogue({
-      lineId: hero.loroIntro.id,
-      speaker: "loro",
-      speakerLabel: "SURVEYOR 3 (1967)",
-      text: hero.loroIntro.text,
-      sourceIds: hero.loroIntro.sourceIds,
-      isRevealing: !settings.reduceMotion,
-      isSpeaking: true,
-    });
-    void speakLine(hero.loroIntro).finally(() => {
-      useAppStore
-        .getState()
-        .patchDialogue({ isSpeaking: false, isRevealing: false });
-    });
-  };
-
   return (
     <aside
       aria-label={`Lunar artifact dossier: ${site.name}`}
@@ -80,61 +61,22 @@ export default function SiteDrawer() {
 
       {/* Sticky Header */}
       <div className="shrink-0 border-b border-white/10 px-5 pt-3 pb-3.5 lg:pt-4">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wider text-space-950 uppercase"
-              style={{ backgroundColor: catMeta.color }}
-            >
-              {catMeta.shortLabel}
-            </span>
-            <span className="font-mono text-[11px] font-semibold text-regolith-bright">
-              {site.mission} · {site.year}
-            </span>
-            <button
-              type="button"
-              onClick={() => openSources(site.sourceIds[0])}
-              className="cursor-pointer rounded border border-white/15 bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-loro hover:border-loro"
-              title="Open NASA NSSDCA / LROC Source Entry"
-            >
-              NSSDCA {site.nssdcaId}
-            </button>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h2 className="font-display text-xl leading-snug font-bold text-regolith-bright">
+              {site.name}
+            </h2>
+            <p className="mt-0.5 text-xs text-regolith/80">{site.subtitle}</p>
           </div>
 
           <button
             type="button"
             onClick={handleClose}
-            className="cursor-pointer rounded-full border border-white/15 bg-white/5 p-1.5 text-regolith transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            className="shrink-0 cursor-pointer rounded-full border border-white/15 bg-white/5 p-1.5 text-regolith transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
             aria-label="Close site story panel"
           >
             <X className="h-4 w-4" />
           </button>
-        </div>
-
-        <h2 className="mt-1.5 font-display text-xl leading-snug font-bold text-regolith-bright">
-          {site.name}
-        </h2>
-        <p className="mt-0.5 text-xs text-regolith/80">{site.subtitle}</p>
-
-        {/* Coordinates + Quick Actions */}
-        <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
-          <span className="font-mono text-[11px] text-loro/90">
-            {site.region} · {formatLatLon(site.lat, site.lon)}
-          </span>
-
-          {site.tier === "hero" && (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => handleSpeakLoRoIntro(site)}
-                className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-loro/35 bg-loro/10 px-2.5 py-1 font-mono text-[10.5px] font-medium text-loro transition hover:bg-loro/20"
-                title="Hear Surveyor 3's host commentary"
-              >
-                <Volume2 className="h-3 w-3" />
-                <span>Surveyor 3 Intro</span>
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -148,15 +90,13 @@ export default function SiteDrawer() {
                 <img
                   src={site.thenNow.thenImage}
                   alt={site.thenNow.thenCaption}
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
                 <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full border border-sunlit/40 bg-space-950/85 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-sunlit backdrop-blur-md">
-                  THEN · {site.thenNow.thenYear}
+                  {site.thenNow.thenYear}
                 </span>
               </div>
-              <p className="border-t border-white/10 px-3.5 py-2 text-xs leading-relaxed text-regolith/80">
-                {site.thenNow.thenCaption}
-              </p>
             </div>
 
             {/* First-Person Equipment Memory Log */}
@@ -235,10 +175,11 @@ export default function SiteDrawer() {
               <img
                 src={site.thumbnailImage}
                 alt={site.name}
+                decoding="async"
                 className="h-full w-full object-cover"
               />
-              <span className="absolute bottom-2 left-2 rounded-full bg-space-950/85 px-2.5 py-0.5 font-mono text-[10px] text-regolith/85 backdrop-blur-md">
-                Archival / Orbital Telemetry Preview
+              <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full border border-sunlit/40 bg-space-950/85 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-sunlit backdrop-blur-md">
+                {site.year}
               </span>
             </div>
 

@@ -1,5 +1,4 @@
 import { ArrowRight, Compass, Volume2 } from "lucide-react";
-import { motion } from "motion/react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { speakLine } from "@/audio/speech";
 import { cameraBus } from "@/engine/camera";
@@ -15,18 +14,18 @@ const INTRO_VOICE_LINE = {
 };
 
 export default function IntroScreen() {
-  const settings = useAppStore((s) => s.settings);
+  const muted = useAppStore((s) => s.settings.muted);
   const startTour = useAppStore((s) => s.startTour);
   const enterExplore = useAppStore((s) => s.enterExplore);
 
   const handleStartTour = () => {
-    audioEngine.unlock(settings.muted);
+    audioEngine.unlock(muted);
     audioEngine.playUiTick();
     startTour(0);
   };
 
   const handleFreeExplore = () => {
-    audioEngine.unlock(settings.muted);
+    audioEngine.unlock(muted);
     audioEngine.playUiTick();
     enterExplore(false);
     void cameraBus.flyOverview(8, 12, 2.55);
@@ -40,12 +39,7 @@ export default function IntroScreen() {
 
   return (
     <div className="pointer-events-none absolute inset-0 z-20 flex flex-col justify-end bg-gradient-to-t from-space-950/95 via-space-950/40 to-transparent p-5 sm:p-10 lg:justify-center lg:bg-gradient-to-r lg:from-space-950/95 lg:via-space-950/65 lg:to-transparent lg:pl-14">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: "easeOut" }}
-        className="pointer-events-auto w-full max-w-lg"
-      >
+      <div className="animate-hud-fade-up pointer-events-auto w-full max-w-lg">
         {/* Technical Telemetry Index Eyebrow */}
         <div className="flex items-center gap-3 font-mono text-[11px] tracking-[0.18em] text-regolith/70 uppercase">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-sunlit" />
@@ -151,7 +145,7 @@ export default function IntroScreen() {
             <div>VERIFIED TELEMETRY</div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

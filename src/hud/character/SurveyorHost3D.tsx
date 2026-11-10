@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { ContactShadows, Environment, Lightformer, RoundedBox, Sparkles } from "@react-three/drei";
+import { RoundedBox, Sparkles } from "@react-three/drei";
 import {
   CanvasTexture,
   Color,
   DoubleSide,
+  EquirectangularReflectionMapping,
   MathUtils,
   RepeatWrapping,
   SRGBColorSpace,
@@ -36,161 +37,213 @@ const DARK_METAL = "#1a2232";
 const VISOR_BLACK = "#050913";
 const GOLD_FOIL = "#e6b43c";
 
-/** Procedural textures for the LED dot-matrix eyes, NASA meatball emblem, 3x5 solar grid, and crinkled gold foil. */
-function useMascotTextures() {
-  return useMemo(() => {
-    // 1. Digital LED pixel-matrix texture for the glowing cyan eyes
-    const ledCanvas = document.createElement("canvas");
-    ledCanvas.width = 128;
-    ledCanvas.height = 160;
-    const lctx = ledCanvas.getContext("2d")!;
-    lctx.clearRect(0, 0, 128, 160);
-    const cols = 13;
-    const rows = 17;
-    const cx = 64;
-    const cy = 80;
-    const rx = 56;
-    const ry = 72;
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        const px = 12 + (c / (cols - 1)) * 104;
-        const py = 12 + (r / (rows - 1)) * 136;
-        const norm = Math.hypot((px - cx) / rx, (py - cy) / ry);
-        if (norm <= 1.0) {
-          const edgeFade = MathUtils.smoothstep(1.0 - norm, 0, 0.28);
-          lctx.fillStyle = `rgba(255, 255, 255, ${(0.55 + 0.45 * edgeFade).toFixed(3)})`;
-          lctx.beginPath();
-          lctx.arc(px, py, 3.3, 0, Math.PI * 2);
-          lctx.fill();
-        }
+interface MascotTextures {
+  ledTex: CanvasTexture;
+  nasaTex: CanvasTexture;
+  solarTex: CanvasTexture;
+  foilBump: CanvasTexture;
+  envTex: CanvasTexture;
+  shadowTex: CanvasTexture;
+}
+
+let cachedMascotTextures: MascotTextures | null = null;
+
+/** Procedural textures for the LED dot-matrix eyes, NASA meatball emblem, 3x5 solar grid, crinkled gold foil, studio reflections, and floor shadow. */
+function getMascotTextures(): MascotTextures {
+  if (cachedMascotTextures) return cachedMascotTextures;
+
+  // 1. Digital LED pixel-matrix texture for the glowing cyan eyes
+  const ledCanvas = document.createElement("canvas");
+  ledCanvas.width = 128;
+  ledCanvas.height = 160;
+  const lctx = ledCanvas.getContext("2d")!;
+  lctx.clearRect(0, 0, 128, 160);
+  const cols = 13;
+  const rows = 17;
+  const cx = 64;
+  const cy = 80;
+  const rx = 56;
+  const ry = 72;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const px = 12 + (c / (cols - 1)) * 104;
+      const py = 12 + (r / (rows - 1)) * 136;
+      const norm = Math.hypot((px - cx) / rx, (py - cy) / ry);
+      if (norm <= 1.0) {
+        const edgeFade = MathUtils.smoothstep(1.0 - norm, 0, 0.28);
+        lctx.fillStyle = `rgba(255, 255, 255, ${(0.55 + 0.45 * edgeFade).toFixed(3)})`;
+        lctx.beginPath();
+        lctx.arc(px, py, 3.3, 0, Math.PI * 2);
+        lctx.fill();
       }
     }
-    const ledTex = new CanvasTexture(ledCanvas);
-    ledTex.colorSpace = SRGBColorSpace;
+  }
+  const ledTex = new CanvasTexture(ledCanvas);
+  ledTex.colorSpace = SRGBColorSpace;
 
-    // 2. Iconic NASA Meatball Insignia texture for the center chest badge
-    const nasaCanvas = document.createElement("canvas");
-    nasaCanvas.width = 256;
-    nasaCanvas.height = 256;
-    const nctx = nasaCanvas.getContext("2d")!;
-    nctx.clearRect(0, 0, 256, 256);
-    // Blue circle
-    nctx.fillStyle = "#0b3d91";
+  // 2. Iconic NASA Meatball Insignia texture for the center chest badge
+  const nasaCanvas = document.createElement("canvas");
+  nasaCanvas.width = 256;
+  nasaCanvas.height = 256;
+  const nctx = nasaCanvas.getContext("2d")!;
+  nctx.clearRect(0, 0, 256, 256);
+  nctx.fillStyle = "#0b3d91";
+  nctx.beginPath();
+  nctx.arc(128, 128, 116, 0, Math.PI * 2);
+  nctx.fill();
+  nctx.strokeStyle = "#1e56b8";
+  nctx.lineWidth = 4;
+  nctx.stroke();
+  nctx.fillStyle = "#ffffff";
+  const stars: [number, number, number][] = [
+    [62, 68, 2.5],
+    [88, 52, 2],
+    [172, 64, 2.8],
+    [194, 86, 2],
+    [74, 178, 2.5],
+    [104, 194, 2],
+    [168, 182, 2.5],
+    [145, 75, 1.8],
+    [54, 146, 2],
+  ];
+  for (const [sx, sy, sr] of stars) {
     nctx.beginPath();
-    nctx.arc(128, 128, 116, 0, Math.PI * 2);
+    nctx.arc(sx, sy, sr, 0, Math.PI * 2);
     nctx.fill();
-    // Subtle rim
-    nctx.strokeStyle = "#1e56b8";
-    nctx.lineWidth = 4;
-    nctx.stroke();
-    // White stars
-    nctx.fillStyle = "#ffffff";
-    const stars: [number, number, number][] = [
-      [62, 68, 2.5],
-      [88, 52, 2],
-      [172, 64, 2.8],
-      [194, 86, 2],
-      [74, 178, 2.5],
-      [104, 194, 2],
-      [168, 182, 2.5],
-      [145, 75, 1.8],
-      [54, 146, 2],
-    ];
-    for (const [sx, sy, sr] of stars) {
-      nctx.beginPath();
-      nctx.arc(sx, sy, sr, 0, Math.PI * 2);
-      nctx.fill();
-    }
-    // White orbital ellipse
-    nctx.save();
-    nctx.translate(128, 128);
-    nctx.rotate(-0.42);
-    nctx.strokeStyle = "#ffffff";
-    nctx.lineWidth = 5;
-    nctx.beginPath();
-    nctx.ellipse(0, 0, 96, 36, 0, 0, Math.PI * 2);
-    nctx.stroke();
-    nctx.restore();
-    // Red chevron vector wing
-    nctx.strokeStyle = "#fc3d21";
-    nctx.lineWidth = 14;
-    nctx.lineCap = "round";
-    nctx.lineJoin = "round";
-    nctx.beginPath();
-    nctx.moveTo(46, 172);
-    nctx.lineTo(132, 66);
-    nctx.lineTo(208, 152);
-    nctx.stroke();
-    // Bold white "NASA" serif/sans wordmark across center
-    nctx.fillStyle = "#ffffff";
-    nctx.font = "900 54px system-ui, -apple-system, sans-serif";
-    nctx.textAlign = "center";
-    nctx.textBaseline = "middle";
-    nctx.fillText("NASA", 128, 132);
-    const nasaTex = new CanvasTexture(nasaCanvas);
-    nasaTex.colorSpace = SRGBColorSpace;
+  }
+  nctx.save();
+  nctx.translate(128, 128);
+  nctx.rotate(-0.42);
+  nctx.strokeStyle = "#ffffff";
+  nctx.lineWidth = 5;
+  nctx.beginPath();
+  nctx.ellipse(0, 0, 96, 36, 0, 0, Math.PI * 2);
+  nctx.stroke();
+  nctx.restore();
+  nctx.strokeStyle = "#fc3d21";
+  nctx.lineWidth = 14;
+  nctx.lineCap = "round";
+  nctx.lineJoin = "round";
+  nctx.beginPath();
+  nctx.moveTo(46, 172);
+  nctx.lineTo(132, 66);
+  nctx.lineTo(208, 152);
+  nctx.stroke();
+  nctx.fillStyle = "#ffffff";
+  nctx.font = "900 54px system-ui, -apple-system, sans-serif";
+  nctx.textAlign = "center";
+  nctx.textBaseline = "middle";
+  nctx.fillText("NASA", 128, 132);
+  const nasaTex = new CanvasTexture(nasaCanvas);
+  nasaTex.colorSpace = SRGBColorSpace;
 
-    // 3. Blue 3x5 Photovoltaic Solar Cell Grid texture
-    const solarCanvas = document.createElement("canvas");
-    solarCanvas.width = 256;
-    solarCanvas.height = 160;
-    const sctx = solarCanvas.getContext("2d")!;
-    const grad = sctx.createLinearGradient(0, 0, 256, 160);
-    grad.addColorStop(0, "#2563eb");
-    grad.addColorStop(0.5, "#1d4ed8");
-    grad.addColorStop(1, "#1e3a8a");
-    sctx.fillStyle = grad;
-    sctx.fillRect(0, 0, 256, 160);
-    sctx.strokeStyle = "#bfdbfe";
-    sctx.lineWidth = 4;
-    sctx.strokeRect(4, 4, 248, 152);
-    sctx.lineWidth = 2.5;
-    for (let c = 1; c < 5; c++) {
-      const x = (c * 256) / 5;
-      sctx.beginPath();
-      sctx.moveTo(x, 4);
-      sctx.lineTo(x, 156);
-      sctx.stroke();
-    }
-    for (let r = 1; r < 3; r++) {
-      const y = (r * 160) / 3;
-      sctx.beginPath();
-      sctx.moveTo(4, y);
-      sctx.lineTo(252, y);
-      sctx.stroke();
-    }
-    const solarTex = new CanvasTexture(solarCanvas);
-    solarTex.colorSpace = SRGBColorSpace;
+  // 3. Blue 3x5 Photovoltaic Solar Cell Grid texture
+  const solarCanvas = document.createElement("canvas");
+  solarCanvas.width = 256;
+  solarCanvas.height = 160;
+  const sctx = solarCanvas.getContext("2d")!;
+  const grad = sctx.createLinearGradient(0, 0, 256, 160);
+  grad.addColorStop(0, "#2563eb");
+  grad.addColorStop(0.5, "#1d4ed8");
+  grad.addColorStop(1, "#1e3a8a");
+  sctx.fillStyle = grad;
+  sctx.fillRect(0, 0, 256, 160);
+  sctx.strokeStyle = "#bfdbfe";
+  sctx.lineWidth = 4;
+  sctx.strokeRect(4, 4, 248, 152);
+  sctx.lineWidth = 2.5;
+  for (let c = 1; c < 5; c++) {
+    const x = (c * 256) / 5;
+    sctx.beginPath();
+    sctx.moveTo(x, 4);
+    sctx.lineTo(x, 156);
+    sctx.stroke();
+  }
+  for (let r = 1; r < 3; r++) {
+    const y = (r * 160) / 3;
+    sctx.beginPath();
+    sctx.moveTo(4, y);
+    sctx.lineTo(252, y);
+    sctx.stroke();
+  }
+  const solarTex = new CanvasTexture(solarCanvas);
+  solarTex.colorSpace = SRGBColorSpace;
 
-    // 4. Crinkled metallic bump map for the gold foil chest panels
-    const foilCanvas = document.createElement("canvas");
-    foilCanvas.width = 128;
-    foilCanvas.height = 128;
-    const fctx = foilCanvas.getContext("2d")!;
-    fctx.fillStyle = "#808080";
-    fctx.fillRect(0, 0, 128, 128);
-    for (let i = 0; i < 90; i++) {
-      const x = (Math.sin(i * 12.9898) * 0.5 + 0.5) * 128;
-      const y = (Math.cos(i * 78.233) * 0.5 + 0.5) * 128;
-      const r = 8 + (i % 14);
-      const g = fctx.createLinearGradient(x - r, y - r, x + r, y + r);
-      g.addColorStop(0, i % 2 === 0 ? "#e5e5e5" : "#303030");
-      g.addColorStop(1, i % 2 === 0 ? "#252525" : "#d8d8d8");
-      fctx.fillStyle = g;
-      fctx.beginPath();
-      fctx.moveTo(x, y - r);
-      fctx.lineTo(x + r, y);
-      fctx.lineTo(x, y + r * 0.8);
-      fctx.lineTo(x - r * 0.9, y + r * 0.2);
-      fctx.closePath();
-      fctx.fill();
-    }
-    const foilBump = new CanvasTexture(foilCanvas);
-    foilBump.wrapS = RepeatWrapping;
-    foilBump.wrapT = RepeatWrapping;
+  // 4. Crinkled metallic bump map for the gold foil chest panels
+  const foilCanvas = document.createElement("canvas");
+  foilCanvas.width = 128;
+  foilCanvas.height = 128;
+  const fctx = foilCanvas.getContext("2d")!;
+  fctx.fillStyle = "#808080";
+  fctx.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 90; i++) {
+    const x = (Math.sin(i * 12.9898) * 0.5 + 0.5) * 128;
+    const y = (Math.cos(i * 78.233) * 0.5 + 0.5) * 128;
+    const r = 8 + (i % 14);
+    const g = fctx.createLinearGradient(x - r, y - r, x + r, y + r);
+    g.addColorStop(0, i % 2 === 0 ? "#e5e5e5" : "#303030");
+    g.addColorStop(1, i % 2 === 0 ? "#252525" : "#d8d8d8");
+    fctx.fillStyle = g;
+    fctx.beginPath();
+    fctx.moveTo(x, y - r);
+    fctx.lineTo(x + r, y);
+    fctx.lineTo(x, y + r * 0.8);
+    fctx.lineTo(x - r * 0.9, y + r * 0.2);
+    fctx.closePath();
+    fctx.fill();
+  }
+  const foilBump = new CanvasTexture(foilCanvas);
+  foilBump.wrapS = RepeatWrapping;
+  foilBump.wrapT = RepeatWrapping;
 
-    return { ledTex, nasaTex, solarTex, foilBump };
-  }, []);
+  // 5. Equirectangular studio reflection map (replaces runtime CubeCamera Environment)
+  const envCanvas = document.createElement("canvas");
+  envCanvas.width = 128;
+  envCanvas.height = 64;
+  const ectx = envCanvas.getContext("2d")!;
+  const envBg = ectx.createLinearGradient(0, 0, 0, 64);
+  envBg.addColorStop(0, "#1e293b");
+  envBg.addColorStop(0.5, "#0f172a");
+  envBg.addColorStop(1, "#05070d");
+  ectx.fillStyle = envBg;
+  ectx.fillRect(0, 0, 128, 64);
+  // Top softbox key lightformer
+  ectx.fillStyle = "#ffffff";
+  ectx.fillRect(36, 6, 56, 12);
+  // Left cyan rim lightformer
+  ectx.fillStyle = "#5ce1ff";
+  ectx.fillRect(8, 18, 22, 18);
+  // Right warm amber lightformer
+  ectx.fillStyle = "#ffcf70";
+  ectx.beginPath();
+  ectx.arc(104, 24, 10, 0, Math.PI * 2);
+  ectx.fill();
+  const envTex = new CanvasTexture(envCanvas);
+  envTex.mapping = EquirectangularReflectionMapping;
+  envTex.colorSpace = SRGBColorSpace;
+
+  // 6. Soft radial contact shadow texture (replaces 5-pass per-frame ContactShadows FBO)
+  const shadowCanvas = document.createElement("canvas");
+  shadowCanvas.width = 128;
+  shadowCanvas.height = 128;
+  const shctx = shadowCanvas.getContext("2d")!;
+  const shGrad = shctx.createRadialGradient(64, 64, 6, 64, 64, 58);
+  shGrad.addColorStop(0, "rgba(0, 0, 0, 0.72)");
+  shGrad.addColorStop(0.45, "rgba(0, 0, 0, 0.36)");
+  shGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+  shctx.fillStyle = shGrad;
+  shctx.fillRect(0, 0, 128, 128);
+  const shadowTex = new CanvasTexture(shadowCanvas);
+
+  cachedMascotTextures = {
+    ledTex,
+    nasaTex,
+    solarTex,
+    foilBump,
+    envTex,
+    shadowTex,
+  };
+  return cachedMascotTextures;
 }
 
 /** Articulated tripod leg with mechanical joint rings and a chunky rounded Astro-Bot style foot-pod. */
@@ -420,8 +473,17 @@ export default function SurveyorHost3D({
   reduceMotion,
 }: SurveyorHostProps) {
   const spec = LORO_MOODS[mood];
-  const { gl } = useThree();
-  const { ledTex, nasaTex, solarTex, foilBump } = useMascotTextures();
+  const { gl, scene } = useThree();
+  const { ledTex, nasaTex, solarTex, foilBump, envTex, shadowTex } =
+    getMascotTextures();
+
+  useEffect(() => {
+    const prevEnv = scene.environment;
+    scene.environment = envTex;
+    return () => {
+      scene.environment = prevEnv;
+    };
+  }, [scene, envTex]);
 
   const root = useRef<Group>(null);
   const head = useRef<Group>(null);
@@ -441,26 +503,36 @@ export default function SurveyorHost3D({
   const blink = useRef({ next: 1.8, t: -1 });
   const targetColor = useMemo(() => new Color(), []);
 
-  // Track cursor across the viewport so the mascot looks toward the user's pointer
+  // Track cursor across the viewport without triggering synchronous layout reflows on every move
   useEffect(() => {
-    const updatePointer = (clientX: number, clientY: number) => {
-      const r = gl.domElement.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height * 0.44;
-      const dx = clientX - cx;
-      const dy = cy - clientY;
-      const zDepth = Math.min(window.innerWidth, window.innerHeight) * 0.22;
+    let cachedRect = gl.domElement.getBoundingClientRect();
+    let winW = window.innerWidth;
+    let winH = window.innerHeight;
+
+    const refreshBounds = () => {
+      cachedRect = gl.domElement.getBoundingClientRect();
+      winW = window.innerWidth;
+      winH = window.innerHeight;
+    };
+
+    const onMove = (e: PointerEvent) => {
+      if (cachedRect.width === 0) refreshBounds();
+      const cx = cachedRect.left + cachedRect.width / 2;
+      const cy = cachedRect.top + cachedRect.height * 0.44;
+      const dx = e.clientX - cx;
+      const dy = cy - e.clientY;
+      const zDepth = Math.min(winW, winH) * 0.22;
       const len = Math.hypot(dx, dy, zDepth) || 1;
       pointer.current.x = MathUtils.clamp(dx / len, -1, 1);
       pointer.current.y = MathUtils.clamp(dy / len, -1, 1);
       pointer.current.active = true;
     };
-    const onMove = (e: MouseEvent | PointerEvent) => updatePointer(e.clientX, e.clientY);
+
     window.addEventListener("pointermove", onMove, { passive: true });
-    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("resize", refreshBounds, { passive: true });
     return () => {
       window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("resize", refreshBounds);
     };
   }, [gl]);
 
@@ -628,15 +700,9 @@ export default function SurveyorHost3D({
   return (
     <>
       <hemisphereLight args={["#e8f1ff", "#1a2436", 1.05]} />
-      <directionalLight position={[3.5, 5.5, 4.5]} intensity={2.4} color="#ffffff" castShadow />
+      <directionalLight position={[3.5, 5.5, 4.5]} intensity={2.4} color="#ffffff" />
       <directionalLight position={[-4, 2.5, -2]} intensity={1.35} color={activeColorHex} />
       <pointLight position={[0, 0.5, 2.4]} intensity={1.4} distance={5} color="#a5f3fc" />
-
-      <Environment resolution={64} frames={1}>
-        <Lightformer form="rect" intensity={3.2} position={[0, 4, 3]} scale={[6, 2, 1]} />
-        <Lightformer form="rect" intensity={1.8} color="#5ce1ff" position={[-4, 1.5, -2]} scale={[3, 3, 1]} />
-        <Lightformer form="ring" intensity={2.2} color="#ffcf70" position={[4, 2, 1]} scale={2} />
-      </Environment>
 
       {/* Subtle ambient star-dust sparkles behind the mascot (matching Option 3) */}
       {!reduceMotion && (
@@ -963,15 +1029,15 @@ export default function SurveyorHost3D({
         />
       </group>
 
-      <ContactShadows
-        position={[0, -1.08, 0]}
-        opacity={0.6}
-        scale={3.2}
-        blur={2.2}
-        far={1.6}
-        resolution={256}
-        color="#000000"
-      />
+      <mesh position={[0, -1.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3.2, 3.2]} />
+        <meshBasicMaterial
+          map={shadowTex}
+          transparent
+          opacity={0.6}
+          depthWrite={false}
+        />
+      </mesh>
     </>
   );
 }

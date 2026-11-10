@@ -7,14 +7,15 @@ import {
   Matrix4,
   NoColorSpace,
   PerspectiveCamera,
+  Quaternion,
   Sphere,
   SRGBColorSpace,
   Texture,
-  TextureLoader,
   Vector3,
 } from "three";
 import { DEG, latLonToVector3, normalizeLon } from "@/lib/geo";
 import type { QualitySpec } from "@/lib/quality";
+import { disposeTexture, loadTextureAsync } from "@/lib/textureLoader";
 import { getTileCenterSphere, TILE_COLS, TILE_ROWS } from "./createTileGeometry";
 
 export interface MoonManifest {
@@ -84,11 +85,16 @@ export class MoonTileManager {
   private tiles = new Map<string, TileRecord>();
   private manifest: MoonManifest = DEFAULT_MANIFEST;
   private manifestLoaded = false;
-  private loader = new TextureLoader();
+  private initPromise: Promise<MoonManifest> | null = null;
   private maxAnisotropy = 8;
   private activeLoads = 0;
-  private readonly maxConcurrent = 8;
+  private readonly maxConcurrent = 10;
   private queue: LoadJob[] = [];
+
+  private lastCamPos = new Vector3(Infinity, Infinity, Infinity);
+  private lastCamQuat = new Quaternion();
+  private lastViewportHeight = -1;
+  private lastQualityTier = "";
 
   constructor() {
     for (let row = 0; row < TILE_ROWS; row++) {
@@ -119,36 +125,51 @@ export class MoonTileManager {
     this.maxAnisotropy = Math.max(1, Math.min(16, aniso));
   }
 
-  async init(): Promise<MoonManifest> {
-    if (!this.manifestLoaded) {
-      try {
-        const res = await fetch("/textures/moon/manifest.json");
-        if (res.ok) {
-          this.manifest = (await res.json()) as MoonManifest;
-        }
-      } catch {
-        // Use default manifest fallback
-      }
-      this.manifestLoaded = true;
-    }
+  init(): Promise<MoonManifest> {
+    if (this.initPromise) return this.initPromise;
 
-    // Immediately queue L0 everywhere for instant boot, followed by L1 baseline
+    // Immediately queue L0 & L1 before waiting on manifest.json network round-trip.
+    // Prioritize nearside tiles (+X, facing the initial camera) so visible terrain resolves first.
     for (const tile of this.tiles.values()) {
-      this.enqueue(tile, "color", 0, 1000);
-      this.enqueue(tile, "normal", 0, 950);
-      if (this.hasLevel("color", 1)) {
-        this.enqueue(tile, "color", 1, 300);
-      }
-      if (this.hasLevel("normal", 1)) {
-        this.enqueue(tile, "normal", 1, 250);
-      }
+      const nearsideBias = tile.centerDir.x * 45;
+      this.enqueue(tile, "color", 0, 1100 + nearsideBias);
+      this.enqueue(tile, "normal", 0, 1000 + nearsideBias);
+      this.enqueue(tile, "color", 1, 350 + nearsideBias);
+      this.enqueue(tile, "normal", 1, 260 + nearsideBias);
     }
     this.pumpQueue();
-    return this.manifest;
+
+    this.initPromise = (async () => {
+      if (!this.manifestLoaded) {
+        try {
+          const res = await fetch("/textures/moon/manifest.json");
+          if (res.ok) {
+            this.manifest = (await res.json()) as MoonManifest;
+          }
+        } catch {
+          // Use default manifest fallback
+        }
+        this.manifestLoaded = true;
+      }
+      this.pumpQueue();
+      return this.manifest;
+    })();
+
+    return this.initPromise;
   }
 
   getManifest(): MoonManifest {
     return this.manifest;
+  }
+
+  getBootStats(): { l0Loaded: number; l1Loaded: number; totalTiles: number } {
+    let l0Loaded = 0;
+    let l1Loaded = 0;
+    for (const tile of this.tiles.values()) {
+      if (tile.colorByLevel.has(0)) l0Loaded++;
+      if (tile.colorByLevel.has(1)) l1Loaded++;
+    }
+    return { l0Loaded, l1Loaded, totalTiles: this.tiles.size };
   }
 
   /**
@@ -200,10 +221,18 @@ export class MoonTileManager {
       if (this.hasLevel("normal", targetNormal)) {
         this.enqueue(tile, "normal", targetNormal, prio - 15);
       }
-      if (targetColor > 2 && !tile.colorByLevel.has(targetColor) && this.hasLevel("color", 2)) {
+      if (
+        targetColor > 2 &&
+        !tile.colorByLevel.has(targetColor) &&
+        this.hasLevel("color", 2)
+      ) {
         this.enqueue(tile, "color", 2, prio - 40);
       }
-      if (targetNormal > 2 && !tile.normalByLevel.has(targetNormal) && this.hasLevel("normal", 2)) {
+      if (
+        targetNormal > 2 &&
+        !tile.normalByLevel.has(targetNormal) &&
+        this.hasLevel("normal", 2)
+      ) {
         this.enqueue(tile, "normal", 2, prio - 50);
       }
       this.notify(tile);
@@ -227,9 +256,31 @@ export class MoonTileManager {
     viewportHeightPx: number,
     quality: QualitySpec,
   ): void {
-    if (!this.manifestLoaded) return;
-
     const now = performance.now();
+
+    // Fast path: skip frustum & LOD math if camera/viewport/quality are stationary and no tile timers are active
+    const camStationary =
+      this.lastViewportHeight === viewportHeightPx &&
+      this.lastQualityTier === quality.tier &&
+      this.lastCamPos.distanceToSquared(camera.position) < 1e-7 &&
+      1 - Math.abs(this.lastCamQuat.dot(camera.quaternion)) < 1e-7;
+
+    if (camStationary && this.queue.length === 0) {
+      let hasActiveTimers = false;
+      for (const tile of this.tiles.values()) {
+        if (now < tile.pinnedUntil || tile.overResolvedSince !== null) {
+          hasActiveTimers = true;
+          break;
+        }
+      }
+      if (!hasActiveTimers) return;
+    }
+
+    this.lastCamPos.copy(camera.position);
+    this.lastCamQuat.copy(camera.quaternion);
+    this.lastViewportHeight = viewportHeightPx;
+    this.lastQualityTier = quality.tier;
+
     camera.updateMatrixWorld();
     _projScreenMatrix.multiplyMatrices(
       camera.projectionMatrix,
@@ -238,8 +289,7 @@ export class MoonTileManager {
     _frustum.setFromProjectionMatrix(_projScreenMatrix);
     _camDir.copy(camera.position).normalize();
 
-    const fovDeg =
-      camera instanceof PerspectiveCamera ? camera.fov : 40;
+    const fovDeg = camera instanceof PerspectiveCamera ? camera.fov : 40;
     const tanHalfFov = Math.tan((fovDeg * DEG) / 2);
 
     const maxAvailableColor = Math.min(
@@ -330,8 +380,8 @@ export class MoonTileManager {
   disposeAll(): void {
     this.queue = [];
     for (const tile of this.tiles.values()) {
-      for (const tex of tile.colorByLevel.values()) tex.dispose();
-      for (const tex of tile.normalByLevel.values()) tex.dispose();
+      for (const tex of tile.colorByLevel.values()) disposeTexture(tex);
+      for (const tex of tile.normalByLevel.values()) disposeTexture(tex);
       tile.colorByLevel.clear();
       tile.normalByLevel.clear();
     }
@@ -420,12 +470,12 @@ export class MoonTileManager {
       if (tile.desiredColorLevel >= level && maxTiles > 0) continue;
       const cTex = tile.colorByLevel.get(level);
       if (cTex) {
-        cTex.dispose();
+        disposeTexture(cTex);
         tile.colorByLevel.delete(level);
       }
       const nTex = tile.normalByLevel.get(level);
       if (nTex) {
-        nTex.dispose();
+        disposeTexture(nTex);
         tile.normalByLevel.delete(level);
       }
       this.notify(tile);
@@ -458,6 +508,7 @@ export class MoonTileManager {
     }
     this.queue.sort((a, b) => b.priority - a.priority);
 
+    const now = performance.now();
     while (this.activeLoads < this.maxConcurrent && this.queue.length > 0) {
       const job = this.queue.shift()!;
       const map =
@@ -467,35 +518,39 @@ export class MoonTileManager {
 
       if (map.has(job.level) || loading.has(job.level)) continue;
 
+      // Drop stale L2/L3 jobs if the camera has already moved away from this tile
+      if (
+        job.level > 1 &&
+        now >= job.tile.pinnedUntil &&
+        job.level > Math.max(1, job.tile.desiredColorLevel)
+      ) {
+        continue;
+      }
+
       loading.add(job.level);
       this.activeLoads++;
 
       const url = `/textures/moon/${job.kind}/L${job.level}/${job.tile.row}_${job.tile.col}.webp`;
-      this.loader.load(
-        url,
-        (tex) => {
-          tex.colorSpace =
-            job.kind === "color" ? SRGBColorSpace : NoColorSpace;
-          tex.wrapS = ClampToEdgeWrapping;
-          tex.wrapT = ClampToEdgeWrapping;
-          tex.minFilter = LinearMipmapLinearFilter;
-          tex.magFilter = LinearFilter;
-          tex.anisotropy = this.maxAnisotropy;
-          tex.needsUpdate = true;
-
+      void loadTextureAsync(url, {
+        colorSpace: job.kind === "color" ? SRGBColorSpace : NoColorSpace,
+        wrapS: ClampToEdgeWrapping,
+        wrapT: ClampToEdgeWrapping,
+        minFilter: LinearMipmapLinearFilter,
+        magFilter: LinearFilter,
+        anisotropy: this.maxAnisotropy,
+      })
+        .then((tex) => {
           loading.delete(job.level);
           map.set(job.level, tex);
           this.activeLoads--;
           this.notify(job.tile);
           this.pumpQueue();
-        },
-        undefined,
-        () => {
+        })
+        .catch(() => {
           loading.delete(job.level);
           this.activeLoads--;
           this.pumpQueue();
-        },
-      );
+        });
     }
   }
 }

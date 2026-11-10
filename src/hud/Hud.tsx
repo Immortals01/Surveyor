@@ -17,46 +17,32 @@ import { cameraBus } from "@/engine/camera";
 import { useTourRunner } from "@/engine/useTourRunner";
 import DialogueBox from "@/hud/character/DialogueBox";
 import LoRo from "@/hud/character/LoRo";
-import SiteIndex from "@/hud/explore/SiteIndex";
 import IntroScreen from "@/hud/intro/IntroScreen";
-import SiteDrawer from "@/hud/story/SiteDrawer";
 import ChapterCard from "@/hud/tour/ChapterCard";
 import TourBar from "@/hud/tour/TourBar";
 import { useAppStore } from "@/store/useAppStore";
 
+const SiteDrawer = lazy(() => import("@/hud/story/SiteDrawer"));
+const SiteIndex = lazy(() => import("@/hud/explore/SiteIndex"));
 const SourcesDrawer = lazy(() => import("@/hud/credits/SourcesDrawer"));
 
-const EXPLORE_TIPS: DialogueLine[] = [
-  {
-    id: "loro-tip-1",
-    speaker: "loro",
-    mood: "waving",
-    text: "Click any glowing marker on the Moon—or open 'All 29 Sites' above—to swoop down and hear what our left-behind spacecraft remember!",
-    sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
-  },
-  {
-    id: "loro-tip-2",
-    speaker: "loro",
-    mood: "scanning",
-    text: "Long lunar shadows across Oceanus Procellarum are how LRO's camera overhead spots our three-legged frames and astronauts' bootprint trails.",
-    sourceIds: ["S-LROC-FEATURED"],
-  },
-  {
-    id: "loro-tip-3",
-    speaker: "loro",
-    mood: "excited",
-    text: "Spin around to the lunar farside or South Pole! Ranger 8's twin cousins, Lunar Orbiter crash sites, and the future Artemis III zone are waiting.",
-    sourceIds: ["S-ARTEMIS-III", "S-WAGNER-2017"],
-  },
-];
+const DEFAULT_EXPLORE_TIP: DialogueLine = {
+  id: "loro-tip-1",
+  speaker: "loro",
+  mood: "waving",
+  text: "Click any glowing marker on the Moon—or open 'All 29 Sites' above—to swoop down and hear what our left-behind spacecraft remember!",
+  sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
+};
 
 export default function Hud() {
   const { dispatchTour } = useTourRunner();
 
   const mode = useAppStore((s) => s.mode);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
-  const dialogue = useAppStore((s) => s.dialogue);
-  const settings = useAppStore((s) => s.settings);
+  const siteIndexOpen = useAppStore((s) => s.siteIndexOpen);
+  const sourcesDrawerOpen = useAppStore((s) => s.sourcesDrawerOpen);
+  const muted = useAppStore((s) => s.settings.muted);
+  const reduceMotion = useAppStore((s) => s.settings.reduceMotion);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const startTour = useAppStore((s) => s.startTour);
   const returnToIntro = useAppStore((s) => s.returnToIntro);
@@ -107,14 +93,14 @@ export default function Hud() {
   }, []);
 
   const toggleMute = () => {
-    const nextMuted = !settings.muted;
+    const nextMuted = !muted;
     audioEngine.unlock(nextMuted);
     audioEngine.setMuted(nextMuted);
     updateSettings({ muted: nextMuted });
   };
 
   const handleLoRoClick = () => {
-    audioEngine.unlock(settings.muted);
+    audioEngine.unlock(muted);
     audioEngine.playUiTick();
     const state = useAppStore.getState();
     const selected = state.selectedSiteId
@@ -124,7 +110,7 @@ export default function Hud() {
     const line =
       selected && selected.tier === "hero"
         ? selected.loroIntro
-        : EXPLORE_TIPS[Math.floor(Math.random() * EXPLORE_TIPS.length)]!;
+        : DEFAULT_EXPLORE_TIP;
 
     state.setLoRoMood(line.mood);
     state.setDialogue({
@@ -133,7 +119,7 @@ export default function Hud() {
       speakerLabel: "SURVEYOR 3 (1967)",
       text: line.text,
       sourceIds: line.sourceIds,
-      isRevealing: !settings.reduceMotion,
+      isRevealing: !reduceMotion,
       isSpeaking: true,
     });
     void speakLine(line).finally(() => {
@@ -184,7 +170,7 @@ export default function Hud() {
               <button
                 type="button"
                 onClick={() => {
-                  audioEngine.unlock(settings.muted);
+                  audioEngine.unlock(muted);
                   audioEngine.playUiTick();
                   startTour(0);
                 }}
@@ -276,10 +262,10 @@ export default function Hud() {
             type="button"
             onClick={toggleMute}
             className="cursor-pointer border border-white/15 bg-space-950/85 p-2 text-regolith backdrop-blur-md transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            aria-label={settings.muted ? "Unmute audio" : "Mute audio"}
-            title={settings.muted ? "Unmute audio" : "Mute audio"}
+            aria-label={muted ? "Unmute audio" : "Mute audio"}
+            title={muted ? "Unmute audio" : "Mute audio"}
           >
-            {settings.muted ? (
+            {muted ? (
               <VolumeX className="h-4 w-4 text-alert" />
             ) : (
               <Volume2 className="h-4 w-4 text-loro" />
@@ -305,7 +291,6 @@ export default function Hud() {
         >
           <DialogueBox
             onAdvanceTour={() => dispatchTour({ type: "NEXT_BEAT" })}
-            onRequestTip={handleLoRoClick}
           />
 
           <button
@@ -322,12 +307,9 @@ export default function Hud() {
 
             <LoRo size="lg" />
 
-            <div className="mt-1.5 flex items-center justify-between border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
+            <div className="mt-1.5 flex items-center justify-center border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
               <span className="text-regolith-bright font-semibold">
-                HOST · SURVEYOR 3
-              </span>
-              <span className="text-loro group-hover:underline">
-                {dialogue?.isSpeaking ? "TRANSMITTING ●" : "SPEAK ▶"}
+                SURVEYOR 3 - HOST
               </span>
             </div>
           </button>
@@ -335,15 +317,25 @@ export default function Hud() {
       )}
 
       {/* Selected Site Exhibit Drawer */}
-      <SiteDrawer />
+      {selectedSiteId && (
+        <Suspense fallback={null}>
+          <SiteDrawer />
+        </Suspense>
+      )}
 
       {/* Accessible All-Sites Directory Modal */}
-      <SiteIndex />
+      {siteIndexOpen && (
+        <Suspense fallback={null}>
+          <SiteIndex />
+        </Suspense>
+      )}
 
       {/* NASA Open Data Bibliography Modal */}
-      <Suspense fallback={null}>
-        <SourcesDrawer />
-      </Suspense>
+      {sourcesDrawerOpen && (
+        <Suspense fallback={null}>
+          <SourcesDrawer />
+        </Suspense>
+      )}
     </div>
   );
 }

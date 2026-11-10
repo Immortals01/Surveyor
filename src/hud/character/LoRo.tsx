@@ -1,15 +1,19 @@
-import { Component, type ReactNode } from "react";
+import { Component, lazy, type ReactNode, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { useAppStore } from "@/store/useAppStore";
 import { LORO_MOODS } from "./moods";
-import SurveyorHost3D from "./SurveyorHost3D";
+
+const SurveyorHost3D = lazy(() => import("./SurveyorHost3D"));
 
 interface LoRoProps {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
 /** If WebGL is unavailable for the mini-canvas, fall back to the Option 3 Surveyor 3 mascot portrait. */
-class HostErrorBoundary extends Component<{ children: ReactNode; fallback: ReactNode }, { failed: boolean }> {
+class HostErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { failed: boolean }
+> {
   state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
@@ -52,7 +56,9 @@ export default function LoRo({ size = "lg" }: LoRoProps) {
       {/* Ambient telemetry glow behind the host */}
       <div
         className="pointer-events-none absolute inset-5 rounded-full opacity-30 blur-2xl transition-colors duration-500"
-        style={{ background: `radial-gradient(circle, ${accentHex} 0%, transparent 70%)` }}
+        style={{
+          background: `radial-gradient(circle, ${accentHex} 0%, transparent 70%)`,
+        }}
       />
 
       <HostErrorBoundary
@@ -67,23 +73,20 @@ export default function LoRo({ size = "lg" }: LoRoProps) {
         <Canvas
           className="pointer-events-none! absolute! inset-0"
           camera={{ position: [0, 0.14, 4.65], fov: 32 }}
-          dpr={[1, 2]}
+          dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
           onCreated={({ camera }) => camera.lookAt(0, 0.06, 0)}
         >
-          <SurveyorHost3D
-            mood={mood}
-            isSpeaking={isSpeaking}
-            accent={accentHex}
-            reduceMotion={reduceMotion}
-          />
+          <Suspense fallback={null}>
+            <SurveyorHost3D
+              mood={mood}
+              isSpeaking={isSpeaking}
+              accent={accentHex}
+              reduceMotion={reduceMotion}
+            />
+          </Suspense>
         </Canvas>
       </HostErrorBoundary>
-
-      <div className="pointer-events-none absolute right-1 bottom-0.5 left-1 flex justify-between font-mono text-[8px] tracking-[0.14em] uppercase">
-        <span className="text-white/45">SC-3 · 1967</span>
-        <span style={{ color: accentHex }}>{spec.label}</span>
-      </div>
     </div>
   );
 }

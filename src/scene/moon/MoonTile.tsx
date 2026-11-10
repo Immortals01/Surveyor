@@ -80,8 +80,7 @@ uniform float uNormalRes;
 vec4 sampleBicubic(sampler2D tex, vec2 uv, float res) {
   vec2 p = uv * res - 0.5;
   vec2 fw = fwidth(p);
-  float mag = clamp(1.0 - max(fw.x, fw.y) * 1.15, 0.0, 1.0);
-  if (mag <= 0.01) {
+  if (max(fw.x, fw.y) >= 0.87) {
     return texture2D(tex, uv);
   }
   vec2 i = floor(p);
@@ -95,15 +94,14 @@ vec4 sampleBicubic(sampler2D tex, vec2 uv, float res) {
   vec2 w3 = f3 / 6.0;
   vec2 g0 = w0 + w1;
   vec2 g1 = w2 + w3;
-  vec2 h0 = (i - 0.5 + w1 / g0) / res;
-  vec2 h1 = (i + 1.5 + w3 / g1) / res;
+  vec2 invRes = vec2(1.0 / res);
+  vec2 h0 = (i - 0.5 + w1 / g0) * invRes;
+  vec2 h1 = (i + 1.5 + w3 / g1) * invRes;
   vec4 t00 = texture2D(tex, vec2(h0.x, h0.y));
   vec4 t10 = texture2D(tex, vec2(h1.x, h0.y));
   vec4 t01 = texture2D(tex, vec2(h0.x, h1.y));
   vec4 t11 = texture2D(tex, vec2(h1.x, h1.y));
-  vec4 bicubic = mix(mix(t11, t01, g0.x), mix(t10, t00, g0.x), g0.y);
-  if (mag >= 0.99) return bicubic;
-  return mix(texture2D(tex, uv), bicubic, mag);
+  return mix(mix(t11, t01, g0.x), mix(t10, t00, g0.x), g0.y);
 }
 
 float regolithHash(vec3 p) {
@@ -133,20 +131,24 @@ float regolithNoise(vec3 p) {
 
 float regolithFbm(vec3 p) {
   float v = 0.0;
-  v += 0.50 * regolithNoise(p);
-  v += 0.28 * regolithNoise(p * 2.35 + vec3(17.1, 31.7, 11.3));
-  v += 0.14 * regolithNoise(p * 5.60 + vec3(43.2, 13.9, 29.4));
-  v += 0.08 * regolithNoise(p * 13.2 + vec3(7.4, 53.1, 37.8));
+  v += 0.54 * regolithNoise(p);
+  v += 0.30 * regolithNoise(p * 2.35 + vec3(17.1, 31.7, 11.3));
+  v += 0.16 * regolithNoise(p * 5.60 + vec3(43.2, 13.9, 29.4));
   return v - 0.5;
+}
+
+float regolithMicroNoise(vec3 p) {
+  return 0.65 * regolithNoise(p) + 0.35 * regolithNoise(p * 2.35 + vec3(17.1, 31.7, 11.3));
 }`,
         )
         .replace(
           "#include <map_fragment>",
-          `#ifdef USE_MAP
+          `float closeDetail = smoothstep(1.05, 0.20, length(vViewPosition));
+vec3 regolithSamplePos = vSpherePos * 260.0;
+#ifdef USE_MAP
   vec4 sampledDiffuseColor = sampleBicubic(map, vMapUv, uColorRes);
-  float closeDetail = smoothstep(1.05, 0.20, length(vViewPosition));
   if (closeDetail > 0.005) {
-    float grain = regolithFbm(vSpherePos * 260.0);
+    float grain = regolithFbm(regolithSamplePos);
     sampledDiffuseColor.rgb *= 1.0 + grain * 0.065 * closeDetail;
   }
   diffuseColor *= sampledDiffuseColor;
@@ -165,15 +167,13 @@ float regolithFbm(vec3 p) {
   normal = normalize( normalMatrix * normal );
 #elif defined( USE_NORMALMAP_TANGENTSPACE )
   vec3 mapN = sampleBicubic(normalMap, vNormalMapUv, uNormalRes).xyz * 2.0 - 1.0;
-  float closeNrm = smoothstep(1.05, 0.20, length(vViewPosition));
-  mapN.xy *= normalScale * mix(1.0, 0.78, closeNrm);
-  if (closeNrm > 0.005) {
-    vec3 sp = vSpherePos * 260.0;
+  mapN.xy *= normalScale * mix(1.0, 0.78, closeDetail);
+  if (closeDetail > 0.005) {
     float eps = 0.08;
-    float h0 = regolithFbm(sp);
-    float hx = regolithFbm(sp + vec3(eps, 0.0, 0.0)) - h0;
-    float hy = regolithFbm(sp + vec3(0.0, eps, 0.0)) - h0;
-    mapN.xy += vec2(hx, hy) * (1.35 * closeNrm);
+    float h0 = regolithMicroNoise(regolithSamplePos);
+    float hx = regolithMicroNoise(regolithSamplePos + vec3(eps, 0.0, 0.0)) - h0;
+    float hy = regolithMicroNoise(regolithSamplePos + vec3(0.0, eps, 0.0)) - h0;
+    mapN.xy += vec2(hx, hy) * (1.35 * closeDetail);
   }
   normal = normalize( tbn * mapN );
 #elif defined( USE_BUMPMAP )
@@ -181,7 +181,7 @@ float regolithFbm(vec3 p) {
 #endif`,
         );
     };
-    mat.customProgramCacheKey = () => "moon-tile-bicubic-regolith-v1";
+    mat.customProgramCacheKey = () => "moon-tile-bicubic-regolith-v2";
     return mat;
   }, []);
 
@@ -200,10 +200,14 @@ float regolithFbm(vec3 p) {
     };
   }, [material]);
 
-  // Staggered vertex displacement once LOLA height buffer arrives
+  // Staggered vertex displacement once LOLA height buffer arrives (nearside tiles first)
   useEffect(() => {
-    if (!heightReady) return;
-    const delayMs = (row * 8 + col) * 6;
+    if (!heightReady || geometry.userData.displaced) return;
+    const isNearside = col >= 2 && col <= 5;
+    const order = isNearside
+      ? row * 4 + (col - 2)
+      : 16 + row * 4 + (col < 2 ? col : col - 4);
+    const delayMs = order * 4;
     const timer = window.setTimeout(() => {
       applyTileDisplacement(geometry, row, col, segments);
     }, delayMs);

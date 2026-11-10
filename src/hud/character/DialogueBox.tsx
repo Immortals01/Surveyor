@@ -1,21 +1,18 @@
 import { useEffect, useState } from "react";
-import { Radio, RefreshCw, Satellite, Volume2, VolumeX } from "lucide-react";
+import { Radio, Satellite, Volume2, VolumeX } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
-import { cancelSpeech } from "@/audio/speech";
 import { SITE_BY_ID } from "@/data";
 import { useAppStore } from "@/store/useAppStore";
 
 interface DialogueBoxProps {
   onAdvanceTour?: () => void;
-  onRequestTip?: () => void;
 }
 
 const DEFAULT_HOST_MESSAGE =
-  "I touched down in Oceanus Procellarum in April 1967. Click any glowing landing site on the Moon—or click my frame—to hear what our left-behind spacecraft remember!";
+  "Click any glowing marker on the Moon—or open 'All 29 Sites' above—to swoop down and hear what our left-behind spacecraft remember!";
 
 export default function DialogueBox({
   onAdvanceTour,
-  onRequestTip,
 }: DialogueBoxProps) {
   const dialogue = useAppStore((s) => s.dialogue);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
@@ -87,11 +84,6 @@ export default function DialogueBox({
     }
     if (mode === "tour" && onAdvanceTour) {
       onAdvanceTour();
-    } else if (mode === "explore") {
-      cancelSpeech();
-      if (onRequestTip) {
-        onRequestTip();
-      }
     }
   };
 
@@ -202,26 +194,19 @@ export default function DialogueBox({
                   : "SURVEYOR 3 LIVE TELEMETRY LINK"}
           </span>
 
-          <button
-            type="button"
-            onClick={handlePrimaryClick}
-            className={`inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
-              dialogue?.holdForInteraction
-                ? "bg-regolith-bright text-space-950 hover:bg-white"
-                : "border border-loro/40 bg-loro/10 text-regolith-bright hover:border-loro hover:bg-loro/20 hover:text-white"
-            }`}
-          >
-            {isRevealing ? (
-              <span>Reveal</span>
-            ) : mode === "tour" ? (
-              <span>Continue →</span>
-            ) : (
-              <>
-                <RefreshCw className="h-3 w-3 text-loro" />
-                <span>Next Transmission</span>
-              </>
-            )}
-          </button>
+          {(isRevealing || mode === "tour") && (
+            <button
+              type="button"
+              onClick={handlePrimaryClick}
+              className={`inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                dialogue?.holdForInteraction
+                  ? "bg-regolith-bright text-space-950 hover:bg-white"
+                  : "border border-loro/40 bg-loro/10 text-regolith-bright hover:border-loro hover:bg-loro/20 hover:text-white"
+              }`}
+            >
+              {isRevealing ? <span>Reveal</span> : <span>Continue →</span>}
+            </button>
+          )}
         </div>
       </div>
 

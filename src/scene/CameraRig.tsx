@@ -158,8 +158,8 @@ export default function CameraRig() {
       c.getTarget(startTarget, false);
       c.getFocalOffset(startOffset, false);
 
-      const startRadius = Math.max(1.01, startPos.length());
-      const endRadius = Math.max(1.01, endPos.length());
+      const startRadius = Math.max(CAMERA.minDistance, startPos.length());
+      const endRadius = Math.max(CAMERA.minDistance, endPos.length());
       const startDir =
         startPos.lengthSq() > 1e-6
           ? startPos.clone().normalize()
@@ -178,7 +178,8 @@ export default function CameraRig() {
         0.95,
         Math.sin(centralAngle * 0.5) * 0.9 + centralAngle * 0.12,
       );
-      const minClearance = 1.12 + Math.sin(centralAngle * 0.5) * 0.85;
+      const minClearance =
+        CAMERA.minDistance + Math.sin(centralAngle * 0.5) * 0.85;
       const peakRadius = Math.max(midLinear + hopBoost, minClearance);
 
       const posDelta = startPos.distanceTo(endPos);
@@ -240,11 +241,11 @@ export default function CameraRig() {
       ensureOriginTarget(c, !instant);
 
       const r = getLocalSurfaceRadius(c);
-      const minDist = r + 0.018;
+      const minDist = Math.max(CAMERA.minDistance, r + CAMERA.minAltitude);
       c.minDistance = minDist;
 
       const curEndRadius = Math.max(minDist, getEndRadius(c));
-      const curAltitude = Math.max(0.015, curEndRadius - r);
+      const curAltitude = Math.max(CAMERA.minAltitude, curEndRadius - r);
       const factor = direction === "in" ? -0.24 : 0.3;
       const nextRadius = Math.max(
         minDist,
@@ -276,13 +277,16 @@ export default function CameraRig() {
     const unregister = cameraBus.register({
       flyToLatLon: async (lat, lon, opts) => {
         const instant = Boolean(opts?.instant);
-        const altitude = opts?.altitude ?? CAMERA.siteAltitude;
+        const altitude = Math.max(
+          CAMERA.minAltitude,
+          opts?.altitude ?? CAMERA.siteAltitude,
+        );
 
         // Pre-warm highest-res color & normal tiles for the target site before arrival
         moonTileManager.preloadSite(lat, lon);
 
         const r = surfaceRadius(lat, lon);
-        const minDist = r + 0.018;
+        const minDist = Math.max(CAMERA.minDistance, r + CAMERA.minAltitude);
         const targetDist = Math.max(minDist, r + altitude);
         const camDest = latLonToVector3(lat, lon, targetDist);
 
@@ -449,7 +453,7 @@ export default function CameraRig() {
         c.getPosition(_camPos);
         const { lat, lon } = vector3ToLatLon(_camPos);
         const r = surfaceRadius(lat, lon);
-        const altitude = Math.max(0.015, _camPos.length() - r);
+        const altitude = Math.max(CAMERA.minAltitude, _camPos.length() - r);
         const stepRad = Math.max(0.008, Math.min(0.16, altitude * 0.12));
 
         if (action === "left") {
@@ -597,10 +601,13 @@ export default function CameraRig() {
     c.getPosition(_camPos);
     const { lat, lon } = vector3ToLatLon(_camPos);
     const localR = surfaceRadius(lat, lon);
-    const minDist = localR + 0.018;
+    const minDist = Math.max(CAMERA.minDistance, localR + CAMERA.minAltitude);
     c.minDistance = minDist;
+    if (getEndRadius(c) < minDist - 1e-4) {
+      void c.dollyTo(minDist, false);
+    }
 
-    const altitude = Math.max(0.012, _camPos.length() - localR);
+    const altitude = Math.max(CAMERA.minAltitude, _camPos.length() - localR);
     const speed = Math.max(0.035, Math.min(1.0, altitude * 0.85));
     c.azimuthRotateSpeed = speed;
     c.polarRotateSpeed = speed;
@@ -625,7 +632,7 @@ export default function CameraRig() {
 
       if (actions.has("zoomIn") || actions.has("zoomOut")) {
         const curEndRadius = Math.max(minDist, getEndRadius(c));
-        const curAlt = Math.max(0.012, curEndRadius - localR);
+        const curAlt = Math.max(CAMERA.minAltitude, curEndRadius - localR);
         const zoomRate = actions.has("zoomIn") ? -1.35 : 1.55;
         const nextRadius = Math.max(
           minDist,
@@ -649,6 +656,7 @@ export default function CameraRig() {
     <CameraControls
       ref={controlsRef}
       makeDefault
+      minDistance={CAMERA.minDistance}
       maxDistance={CAMERA.maxDistance}
       dollyToCursor={false}
       smoothTime={0.18}

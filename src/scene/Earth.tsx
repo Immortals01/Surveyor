@@ -3,22 +3,25 @@ import { useFrame, useThree } from "@react-three/fiber";
 import {
   AdditiveBlending,
   BackSide,
+  ClampToEdgeWrapping,
   Group,
   LinearFilter,
   LinearMipmapLinearFilter,
+  NoColorSpace,
   RepeatWrapping,
   ShaderMaterial,
   SRGBColorSpace,
   Texture,
-  TextureLoader,
   Vector3,
 } from "three";
 import { latLonToVector3 } from "@/lib/geo";
+import { disposeTexture, loadTextureAsync } from "@/lib/textureLoader";
 import { useAppStore } from "@/store/useAppStore";
 
 const EARTH_DISTANCE = 15.5;
 const EARTH_RADIUS = 0.86;
 const AXIAL_TILT_RAD = (23.44 * Math.PI) / 180;
+const NOOP_RAYCAST = () => {};
 
 // Positioned beyond the Moon's eastern limb so Earth hangs naturally in deep space
 // during the Intro and nearside views, and rises over the lunar horizon on Earthrise.
@@ -197,9 +200,8 @@ export default function Earth() {
   }, [earthMaterial, haloMaterial, sunDir]);
 
   useEffect(() => {
-    const loader = new TextureLoader();
-    const maxAniso = gl.capabilities.getMaxAnisotropy();
-    let cancelled = false;
+    const controller = new AbortController();
+    const maxAniso = Math.min(8, gl.capabilities.getMaxAnisotropy());
     const loaded: Texture[] = [];
     let readyCount = 0;
 
@@ -208,29 +210,28 @@ export default function Earth() {
       srgb: boolean,
       onDone: (t: Texture) => void,
     ) => {
-      loader.load(
-        url,
-        (tex) => {
-          if (cancelled) {
-            tex.dispose();
+      void loadTextureAsync(url, {
+        colorSpace: srgb ? SRGBColorSpace : NoColorSpace,
+        anisotropy: maxAniso,
+        minFilter: LinearMipmapLinearFilter,
+        magFilter: LinearFilter,
+        wrapS: RepeatWrapping,
+        wrapT: ClampToEdgeWrapping,
+        signal: controller.signal,
+      })
+        .then((tex) => {
+          if (controller.signal.aborted) {
+            disposeTexture(tex);
             return;
           }
-          if (srgb) tex.colorSpace = SRGBColorSpace;
-          tex.anisotropy = Math.min(8, maxAniso);
-          tex.minFilter = LinearMipmapLinearFilter;
-          tex.magFilter = LinearFilter;
-          tex.wrapS = RepeatWrapping;
-          tex.needsUpdate = true;
           loaded.push(tex);
           onDone(tex);
           readyCount += 1;
           if (readyCount === 4) {
             earthMaterial.uniforms.uHasTextures!.value = 1;
           }
-        },
-        undefined,
-        () => {},
-      );
+        })
+        .catch(() => {});
     };
 
     loadTex("/textures/earth/earth_day_2k.webp", true, (day) => {
@@ -247,8 +248,8 @@ export default function Earth() {
     });
 
     return () => {
-      cancelled = true;
-      for (const t of loaded) t.dispose();
+      controller.abort();
+      for (const t of loaded) disposeTexture(t);
     };
   }, [gl, earthMaterial]);
 
@@ -276,14 +277,14 @@ export default function Earth() {
       rotation={[0.24, 0, -AXIAL_TILT_RAD * 0.65]}
     >
       <group ref={spinGroupRef} rotation={[0, 2.55, 0]}>
-        <mesh material={earthMaterial}>
-          <sphereGeometry args={[EARTH_RADIUS, 64, 64]} />
+        <mesh material={earthMaterial} raycast={NOOP_RAYCAST}>
+          <sphereGeometry args={[EARTH_RADIUS, 48, 32]} />
         </mesh>
       </group>
 
       {/* Soft Rayleigh atmospheric limb halo with zero outer-edge cutoff */}
-      <mesh material={haloMaterial}>
-        <sphereGeometry args={[EARTH_RADIUS * 1.038, 64, 64]} />
+      <mesh material={haloMaterial} raycast={NOOP_RAYCAST}>
+        <sphereGeometry args={[EARTH_RADIUS * 1.038, 48, 32]} />
       </mesh>
     </group>
   );

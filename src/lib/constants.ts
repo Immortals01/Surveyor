@@ -3,9 +3,10 @@ export const HEIGHT_EXAGGERATION = 3;
 
 export const CAMERA = {
   homeDistance: 3.15,
-  minDistance: 1.03,
+  minAltitude: 0.28,
+  minDistance: 1.28,
   maxDistance: 7.5,
-  siteAltitude: 0.28,
+  siteAltitude: 0.34,
   flyDurationMs: 2600,
 } as const;
 
