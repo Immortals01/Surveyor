@@ -328,10 +328,243 @@ async function tryFetchValidGlb(url, outPath) {
   return false;
 }
 
+async function buildMarsRoverGlb(outPath) {
+  const doc = new Document();
+  const buf = doc.createBuffer();
+  const scene = doc.createScene("MarsSixWheelRover");
+
+  const whiteDeck = doc
+    .createMaterial("WarmElementBox")
+    .setBaseColorFactor([0.93, 0.92, 0.89, 1])
+    .setMetallicFactor(0.28)
+    .setRoughnessFactor(0.38);
+
+  const blackWheel = doc
+    .createMaterial("CleatedAluminumWheel")
+    .setBaseColorFactor([0.16, 0.17, 0.2, 1])
+    .setMetallicFactor(0.72)
+    .setRoughnessFactor(0.45);
+
+  const titaniumStrut = doc
+    .createMaterial("RockerBogieSuspension")
+    .setBaseColorFactor([0.62, 0.66, 0.72, 1])
+    .setMetallicFactor(0.78)
+    .setRoughnessFactor(0.32);
+
+  const goldAccent = doc
+    .createMaterial("GoldThermalBlanket")
+    .setBaseColorFactor([0.88, 0.66, 0.2, 1])
+    .setMetallicFactor(0.85)
+    .setRoughnessFactor(0.28);
+
+  const laserLens = doc
+    .createMaterial("ChemCamEye")
+    .setBaseColorFactor([0.12, 0.16, 0.24, 1])
+    .setMetallicFactor(0.9)
+    .setRoughnessFactor(0.15);
+
+  // Main Warm Electronics Box (WEB) chassis
+  addThreePart(doc, buf, scene, new BoxGeometry(1.38, 0.42, 0.96), whiteDeck, {
+    translation: [0, 0.56, 0],
+  });
+
+  // Top equipment deck & gold MOXIE/avionics bay accent
+  addThreePart(doc, buf, scene, new BoxGeometry(1.18, 0.08, 0.84), goldAccent, {
+    translation: [0.04, 0.79, 0],
+  });
+
+  // Angled Rear MMRTG Nuclear Power Generator with cooling fins
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.19, 0.21, 0.58, 16), whiteDeck, {
+    translation: [-0.82, 0.72, 0],
+    rotation: quatFromAxisAngle(0, 0, 1, 0.95),
+  });
+
+  // Remote Sensing Mast (RSM) + SuperCam/ChemCam cyclops head
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.045, 0.055, 0.76, 12), whiteDeck, {
+    translation: [0.46, 1.16, 0.24],
+  });
+  addThreePart(doc, buf, scene, new BoxGeometry(0.28, 0.22, 0.34), whiteDeck, {
+    translation: [0.48, 1.56, 0.24],
+  });
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.075, 0.075, 0.08, 20), laserLens, {
+    translation: [0.61, 1.57, 0.24],
+    rotation: quatFromAxisAngle(0, 0, 1, Math.PI / 2),
+  });
+
+  // Front 5-DOF Robotic Coring Drill Arm + Turret
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.035, 0.035, 0.62, 10), titaniumStrut, {
+    translation: [0.85, 0.58, -0.18],
+    rotation: quatFromAxisAngle(0, 0, 1, -0.85),
+  });
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.16, 0.16, 0.18, 16), goldAccent, {
+    translation: [1.14, 0.38, -0.18],
+  });
+
+  // 6 Rocker-Bogie Wheels + Suspension Struts
+  const wheelX = [0.76, 0.0, -0.76];
+  for (const zSide of [-0.66, 0.66]) {
+    // Rocker-bogie side tube
+    addThreePart(doc, buf, scene, new BoxGeometry(1.48, 0.055, 0.055), titaniumStrut, {
+      translation: [0, 0.44, zSide * 0.86],
+    });
+    for (const wx of wheelX) {
+      addThreePart(doc, buf, scene, new CylinderGeometry(0.24, 0.24, 0.2, 24), blackWheel, {
+        translation: [wx, 0.24, zSide],
+        rotation: quatFromAxisAngle(1, 0, 0, Math.PI / 2),
+      });
+      addThreePart(doc, buf, scene, new CylinderGeometry(0.11, 0.11, 0.22, 14), titaniumStrut, {
+        translation: [wx, 0.24, zSide],
+        rotation: quatFromAxisAngle(1, 0, 0, Math.PI / 2),
+      });
+    }
+  }
+
+  const io = new NodeIO();
+  const glb = await io.writeBinary(doc);
+  await writeFile(outPath, Buffer.from(glb));
+}
+
+async function buildIngenuityGlb(outPath) {
+  const doc = new Document();
+  const buf = doc.createBuffer();
+  const scene = doc.createScene("IngenuityMarsHelicopter");
+
+  const goldFoil = doc
+    .createMaterial("KaptonAvionicsCube")
+    .setBaseColorFactor([0.88, 0.67, 0.2, 1])
+    .setMetallicFactor(0.84)
+    .setRoughnessFactor(0.26);
+
+  const carbonFiber = doc
+    .createMaterial("CarbonFiberBlade")
+    .setBaseColorFactor([0.14, 0.15, 0.18, 1])
+    .setMetallicFactor(0.65)
+    .setRoughnessFactor(0.35);
+
+  const solarMat = doc
+    .createMaterial("TopSolarArray")
+    .setBaseColorFactor([0.12, 0.26, 0.54, 1])
+    .setMetallicFactor(0.6)
+    .setRoughnessFactor(0.25);
+
+  // Tissue-box-sized insulated gold fuselage cube
+  addThreePart(doc, buf, scene, new BoxGeometry(0.42, 0.36, 0.42), goldFoil, {
+    translation: [0, 0.54, 0],
+  });
+
+  // Central coaxial rotor mast
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.038, 0.045, 0.72, 16), carbonFiber, {
+    translation: [0, 0.96, 0],
+  });
+
+  // Counter-rotating Carbon-Fiber Rotor Blades #1 & #2 (1.2m span)
+  addThreePart(doc, buf, scene, new BoxGeometry(1.75, 0.018, 0.16), carbonFiber, {
+    translation: [0, 0.96, 0],
+    rotation: quatFromAxisAngle(0, 1, 0, 0.22),
+  });
+  addThreePart(doc, buf, scene, new BoxGeometry(1.75, 0.018, 0.16), carbonFiber, {
+    translation: [0, 1.14, 0],
+    rotation: quatFromAxisAngle(0, 1, 0, -0.58),
+  });
+
+  // Rectangular top solar panel above the coaxial rotors
+  addThreePart(doc, buf, scene, new BoxGeometry(0.58, 0.025, 0.26), solarMat, {
+    translation: [0, 1.32, 0],
+  });
+
+  // 4 Ultra-lightweight Carbon-Fiber Landing Legs
+  for (let i = 0; i < 4; i++) {
+    const a = (i * Math.PI) / 2 + Math.PI / 4;
+    const ca = Math.cos(a);
+    const sa = Math.sin(a);
+    addThreePart(doc, buf, scene, new CylinderGeometry(0.014, 0.014, 0.86, 10), carbonFiber, {
+      translation: [ca * 0.44, 0.28, sa * 0.44],
+      rotation: quatFromAxisAngle(-sa, 0, ca, -0.68),
+    });
+    addThreePart(doc, buf, scene, new SphereGeometry(0.035, 12, 12), goldFoil, {
+      translation: [ca * 0.72, 0.03, sa * 0.72],
+    });
+  }
+
+  const io = new NodeIO();
+  const glb = await io.writeBinary(doc);
+  await writeFile(outPath, Buffer.from(glb));
+}
+
+async function buildMarsLanderGlb(outPath) {
+  const doc = new Document();
+  const buf = doc.createBuffer();
+  const scene = doc.createScene("MarsTripodScienceLander");
+
+  const whiteHull = doc
+    .createMaterial("MarsLanderDeck")
+    .setBaseColorFactor([0.88, 0.87, 0.84, 1])
+    .setMetallicFactor(0.32)
+    .setRoughnessFactor(0.42);
+
+  const copperShield = doc
+    .createMaterial("CopperSeisDome")
+    .setBaseColorFactor([0.84, 0.54, 0.22, 1])
+    .setMetallicFactor(0.78)
+    .setRoughnessFactor(0.28);
+
+  const solarFan = doc
+    .createMaterial("DecagonalSolarFan")
+    .setBaseColorFactor([0.14, 0.24, 0.44, 1])
+    .setMetallicFactor(0.55)
+    .setRoughnessFactor(0.3);
+
+  // Hexagonal science deck
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.78, 0.72, 0.34, 6), whiteHull, {
+    translation: [0, 0.52, 0],
+  });
+
+  // Twin circular decagonal solar fan arrays (Phoenix / InSight style)
+  for (const xSide of [-1.28, 1.28]) {
+    addThreePart(doc, buf, scene, new CylinderGeometry(0.54, 0.54, 0.03, 10), solarFan, {
+      translation: [xSide, 0.62, 0],
+    });
+  }
+
+  // S-band dish antenna & meteorology mast
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.32, 0.08, 0.14, 18), whiteHull, {
+    translation: [-0.22, 0.92, -0.18],
+  });
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.03, 0.04, 0.62, 12), copperShield, {
+    translation: [0.28, 0.88, -0.15],
+  });
+
+  // Deployed SEIS Copper-and-Gold Seismometer Dome on ground in front of lander
+  addThreePart(doc, buf, scene, new CylinderGeometry(0.24, 0.28, 0.18, 20), copperShield, {
+    translation: [0, 0.09, 1.05],
+  });
+
+  // 3 Tripod Landing Legs & Footpads
+  for (let i = 0; i < 3; i++) {
+    const a = (i * Math.PI * 2) / 3 + Math.PI / 6;
+    const ca = Math.cos(a);
+    const sa = Math.sin(a);
+    addThreePart(doc, buf, scene, new CylinderGeometry(0.038, 0.038, 0.82, 10), whiteHull, {
+      translation: [ca * 0.76, 0.28, sa * 0.76],
+      rotation: quatFromAxisAngle(-sa, 0, ca, -0.52),
+    });
+    addThreePart(doc, buf, scene, new CylinderGeometry(0.2, 0.16, 0.06, 16), copperShield, {
+      translation: [ca * 0.98, 0.03, sa * 0.98],
+    });
+  }
+
+  const io = new NodeIO();
+  const glb = await io.writeBinary(doc);
+  await writeFile(outPath, Buffer.from(glb));
+}
+
 const builders = {
   "apollo-lm.glb": buildApolloLmGlb,
   "apollo-lrv.glb": buildApolloLrvGlb,
   "surveyor.glb": buildSurveyorGlb,
+  "mars-rover.glb": buildMarsRoverGlb,
+  "ingenuity.glb": buildIngenuityGlb,
+  "mars-lander.glb": buildMarsLanderGlb,
 };
 
 for (const [name, builder] of Object.entries(builders)) {
@@ -340,7 +573,10 @@ for (const [name, builder] of Object.entries(builders)) {
     console.log(`[models] Exists: ${name}`);
     continue;
   }
-  const fetched = await tryFetchValidGlb(NASA_GLB_CANDIDATES[name], outPath);
+  const candidateUrl = NASA_GLB_CANDIDATES[name];
+  const fetched = candidateUrl
+    ? await tryFetchValidGlb(candidateUrl, outPath)
+    : false;
   if (fetched) {
     console.log(`[models] Downloaded NASA 3D GLB: ${name}`);
   } else {

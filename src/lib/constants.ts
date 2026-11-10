@@ -1,6 +1,9 @@
 export const MOON_RADIUS_KM = 1737.4;
 export const HEIGHT_EXAGGERATION = 3;
 
+export const MARS_RADIUS_KM = 3396.2;
+export const MARS_HEIGHT_EXAGGERATION = 2.6;
+
 export const CAMERA = {
   homeDistance: 3.15,
   minAltitude: 0.28,

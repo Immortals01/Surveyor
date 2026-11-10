@@ -49,6 +49,8 @@ export default function Marker({ site, heightReady }: MarkerProps) {
   const categoryFilter = useAppStore((s) => s.categoryFilter);
   const heroOnly = useAppStore((s) => s.heroOnly);
 
+  const celestialBody = useAppStore((s) => s.celestialBody);
+
   const isHero = site.tier === "hero";
 
   const matchesFilter = useMemo(() => {
@@ -59,12 +61,12 @@ export default function Marker({ site, heightReady }: MarkerProps) {
 
   const { position, quaternion, normal } = useMemo(() => {
     void heightReady;
-    const r = surfaceRadius(site.lat, site.lon) + 0.0026;
+    const r = surfaceRadius(site.lat, site.lon, celestialBody) + 0.0026;
     const pos = latLonToVector3(site.lat, site.lon, r);
-    const nrm = surfaceNormal(site.lat, site.lon);
+    const nrm = surfaceNormal(site.lat, site.lon, undefined, celestialBody);
     const quat = new Quaternion().setFromUnitVectors(UP, nrm);
     return { position: pos, quaternion: quat, normal: nrm };
-  }, [site.lat, site.lon, heightReady]);
+  }, [site.lat, site.lon, heightReady, celestialBody]);
 
   const colorHex = CATEGORY_META[site.primaryCategory].color;
 

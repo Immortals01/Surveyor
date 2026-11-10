@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import { BookOpen, ExternalLink, MapPin, ShieldCheck, X } from "lucide-react";
-import { ALL_SITES, SOURCES } from "@/data";
+import { EVERY_PLANETARY_SITE, getSiteBody, SOURCES } from "@/data";
 import type { DatasetPortal, SourceEntry } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { useAppStore } from "@/store/useAppStore";
@@ -8,6 +8,8 @@ import { useAppStore } from "@/store/useAppStore";
 const PORTAL_LABELS: Record<DatasetPortal, string> = {
   SVS: "NASA Scientific Visualization Studio (CGI Moon Kit & LOLA)",
   LROC: "Lunar Reconnaissance Orbiter Camera (LROC / ASU)",
+  MOLA: "Mars Global Surveyor MOLA Altimetry & Viking MDIM 2.1 (USGS / PDS)",
+  HIRISE: "Mars Reconnaissance Orbiter HiRISE Camera (JPL / UArizona)",
   NSSDCA: "NASA Space Science Data Coordinated Archive (NSSDCA)",
   ALSEP: "Apollo Lunar Surface Experiments & Seismic Archive",
   "NASA-3D": "NASA 3D Resources Official Spacecraft Models",
@@ -18,6 +20,8 @@ const PORTAL_LABELS: Record<DatasetPortal, string> = {
 const PORTAL_ORDER: DatasetPortal[] = [
   "SVS",
   "LROC",
+  "MOLA",
+  "HIRISE",
   "NSSDCA",
   "ALSEP",
   "NASA-3D",
@@ -31,6 +35,7 @@ export default function SourcesDrawer() {
   const closeSources = useAppStore((s) => s.closeSources);
   const selectSite = useAppStore((s) => s.selectSite);
   const enterExplore = useAppStore((s) => s.enterExplore);
+  const setCelestialBody = useAppStore((s) => s.setCelestialBody);
   const mode = useAppStore((s) => s.mode);
 
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -46,7 +51,7 @@ export default function SourcesDrawer() {
 
   const sitesBySourceId = useMemo(() => {
     const map = new Map<string, Array<{ id: string; name: string; lat: number; lon: number }>>();
-    for (const site of ALL_SITES) {
+    for (const site of EVERY_PLANETARY_SITE) {
       for (const sid of site.sourceIds) {
         const list = map.get(sid) ?? [];
         list.push({ id: site.id, name: site.name, lat: site.lat, lon: site.lon });
@@ -117,7 +122,12 @@ export default function SourcesDrawer() {
                 NASA&apos;s Scientific Visualization Studio — CGI Moon Kit (Ernie
                 Wright, Noah Petro, LRO WAC &amp; LOLA Science Teams, GSFC)
               </strong>
-              . Anthropogenic hardware coordinates verified against{" "}
+              . Martian globe topography and Viking color mosaic courtesy of{" "}
+              <strong>
+                NASA GSFC / USGS Astrogeology (MGS MOLA MEGDR &amp; Viking MDIM 2.1)
+              </strong>{" "}
+              and <strong>MRO HiRISE (JPL-Caltech / University of Arizona)</strong>.
+              Anthropogenic hardware coordinates verified against{" "}
               <strong>Wagner et al. (2017, Icarus 283)</strong> and the{" "}
               <strong>NASA Space Science Data Coordinated Archive (NSSDCA)</strong>.
             </p>
@@ -188,6 +198,8 @@ export default function SourcesDrawer() {
                                 key={s.id}
                                 type="button"
                                 onClick={() => {
+                                  const targetBody = getSiteBody(s.id);
+                                  setCelestialBody(targetBody);
                                   if (mode !== "explore") enterExplore(true);
                                   selectSite(s.id, "story");
                                   closeSources();

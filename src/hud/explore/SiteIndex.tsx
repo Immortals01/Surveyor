@@ -1,24 +1,27 @@
 import { useMemo, useState } from "react";
 import { MapPin, Search, Sparkles, X } from "lucide-react";
-import { ALL_SITES, isNearside } from "@/data";
+import { getSitesForBody, isNearside } from "@/data";
 import { cameraBus } from "@/engine/camera";
 import { CATEGORY_META } from "@/lib/constants";
-import { formatLatLon } from "@/lib/geo";
+import { formatLatLon, normalizeLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function SiteIndex() {
   const open = useAppStore((s) => s.siteIndexOpen);
   const setOpen = useAppStore((s) => s.setSiteIndexOpen);
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const selectSite = useAppStore((s) => s.selectSite);
   const enterExplore = useAppStore((s) => s.enterExplore);
   const mode = useAppStore((s) => s.mode);
   const setSunDirection = useAppStore((s) => s.setSunDirection);
 
   const [query, setQuery] = useState("");
+  const sites = getSitesForBody(celestialBody);
+  const isMars = celestialBody === "mars";
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return ALL_SITES.filter((site) => {
+    return sites.filter((site) => {
       if (!q) return true;
       return (
         site.name.toLowerCase().includes(q) ||
@@ -27,17 +30,15 @@ export default function SiteIndex() {
         String(site.year).includes(q)
       );
     });
-  }, [query]);
+  }, [sites, query]);
 
   if (!open) return null;
 
-  const handleJump = (site: (typeof ALL_SITES)[number]) => {
+  const handleJump = (site: (typeof sites)[number]) => {
     if (mode !== "explore") {
       enterExplore(true);
     }
-    if (!isNearside(site.lon)) {
-      setSunDirection(site.lon > 0 ? 140 : -140, 1.5);
-    }
+    setSunDirection(normalizeLon(site.lon - 18), isMars ? 8 : 1.5);
     selectSite(site.id, "story");
     setOpen(false);
     void cameraBus.flyToLatLon(site.lat, site.lon);
@@ -48,16 +49,17 @@ export default function SiteIndex() {
       className="pointer-events-auto fixed inset-0 z-40 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="All Lunar Hardware Directory"
+      aria-label={`All ${isMars ? "Martian" : "Lunar"} Hardware Directory`}
     >
       <div className="flex max-h-[82dvh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-loro/35 bg-space-950/95 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div>
             <p className="font-mono text-[11px] tracking-wider text-loro uppercase">
-              Accessible Hardware Directory ({ALL_SITES.length} Verified Sites)
+              Accessible Hardware Directory ({sites.length} Verified{" "}
+              {isMars ? "Mars" : "Lunar"} Sites)
             </p>
             <h2 className="font-display text-xl font-bold text-regolith-bright">
-              Jump to Any Lunar Artifact
+              Jump to Any {isMars ? "Martian" : "Lunar"} Artifact
             </h2>
           </div>
 
@@ -78,7 +80,11 @@ export default function SiteIndex() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search Apollo 11, Surveyor, Rover, Tycho, Farside, 1972..."
+              placeholder={
+                isMars
+                  ? "Search Viking, Opportunity, Ingenuity, Perseverance, Jezero..."
+                  : "Search Apollo 11, Surveyor, Rover, Tycho, Farside, 1972..."
+              }
               className="w-full rounded-xl border border-white/15 bg-space-900/90 py-2.5 pr-4 pl-10 text-sm text-regolith-bright placeholder:text-regolith/45 focus:border-loro focus:outline-none"
               autoFocus
             />
@@ -109,7 +115,7 @@ export default function SiteIndex() {
                         <Sparkles className="h-2.5 w-2.5" /> Hero
                       </span>
                     )}
-                    {!isNearside(site.lon) && (
+                    {!isMars && !isNearside(site.lon) && (
                       <span className="rounded-full bg-purple-400/15 px-2 py-0.5 font-mono text-[10px] text-purple-300">
                         Farside
                       </span>
@@ -133,7 +139,8 @@ export default function SiteIndex() {
 
           {filtered.length === 0 && (
             <p className="py-8 text-center text-sm text-regolith/60">
-              No lunar artifacts matched &ldquo;{query}&rdquo;.
+              No {isMars ? "Martian" : "lunar"} artifacts matched &ldquo;{query}
+              &rdquo;.
             </p>
           )}
         </div>

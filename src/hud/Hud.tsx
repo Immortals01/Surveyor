@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech, speakLine } from "@/audio/speech";
-import { SITE_BY_ID } from "@/data";
+import { getSitesForBody, SITE_BY_ID } from "@/data";
 import type { DialogueLine } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { useTourRunner } from "@/engine/useTourRunner";
@@ -26,18 +26,28 @@ const SiteDrawer = lazy(() => import("@/hud/story/SiteDrawer"));
 const SiteIndex = lazy(() => import("@/hud/explore/SiteIndex"));
 const SourcesDrawer = lazy(() => import("@/hud/credits/SourcesDrawer"));
 
-const DEFAULT_EXPLORE_TIP: DialogueLine = {
+const DEFAULT_MOON_TIP: DialogueLine = {
   id: "loro-tip-1",
   speaker: "loro",
   mood: "waving",
-  text: "Click any glowing marker on the Moon—or open 'All 29 Sites' above—to swoop down and hear what our left-behind spacecraft remember!",
+  text: "Click any glowing marker on the Moon—or open 'Index (29)' above—to swoop down and hear what our left-behind spacecraft remember!",
   sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
+};
+
+const DEFAULT_MARS_TIP: DialogueLine = {
+  id: "mars-perseverance-intro",
+  speaker: "loro",
+  mood: "excited",
+  text: "Behold Jezero Crater's fan-shaped ancient river delta! Down there, Perseverance laid out humanity's first off-world sample depot—ten gleaming titanium tubes waiting in the dust—and brewed real breathable oxygen!",
+  sourceIds: ["S-NSSDCA-2020-052A", "S-HIRISE-HARDWARE"],
 };
 
 export default function Hud() {
   const { dispatchTour } = useTourRunner();
 
   const mode = useAppStore((s) => s.mode);
+  const celestialBody = useAppStore((s) => s.celestialBody);
+  const setCelestialBody = useAppStore((s) => s.setCelestialBody);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const siteIndexOpen = useAppStore((s) => s.siteIndexOpen);
   const sourcesDrawerOpen = useAppStore((s) => s.sourcesDrawerOpen);
@@ -49,7 +59,10 @@ export default function Hud() {
   const setSiteIndexOpen = useAppStore((s) => s.setSiteIndexOpen);
   const openSources = useAppStore((s) => s.openSources);
 
-  // Global Escape shortcut for layered drawers, selected lunar sites, and orbit reset
+  const isMars = celestialBody === "mars";
+  const siteCount = getSitesForBody(celestialBody).length;
+
+  // Global Escape shortcut for layered drawers, selected planetary sites, and orbit reset
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
@@ -99,6 +112,15 @@ export default function Hud() {
     updateSettings({ muted: nextMuted });
   };
 
+  const handleSwitchBody = (body: "moon" | "mars") => {
+    if (celestialBody === body) return;
+    audioEngine.unlock(muted);
+    audioEngine.playUiTick(520);
+    cancelSpeech();
+    setCelestialBody(body);
+    void cameraBus.goHome();
+  };
+
   const handleLoRoClick = () => {
     audioEngine.unlock(muted);
     audioEngine.playUiTick();
@@ -110,13 +132,18 @@ export default function Hud() {
     const line =
       selected && selected.tier === "hero"
         ? selected.loroIntro
-        : DEFAULT_EXPLORE_TIP;
+        : state.celestialBody === "mars"
+          ? DEFAULT_MARS_TIP
+          : DEFAULT_MOON_TIP;
 
     state.setLoRoMood(line.mood);
     state.setDialogue({
       lineId: line.id,
       speaker: "loro",
-      speakerLabel: "SURVEYOR 3 (1967)",
+      speakerLabel:
+        state.celestialBody === "mars"
+          ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
+          : "SURVEYOR 3 (1967)",
       text: line.text,
       sourceIds: line.sourceIds,
       isRevealing: !reduceMotion,
@@ -133,11 +160,15 @@ export default function Hud() {
     <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-6">
       {/* Top Navigation & Telemetry Bar */}
       <header className="relative z-30 flex flex-wrap items-center justify-between gap-2">
-        {/* Left Brand / Mode Controls */}
-        <div className="pointer-events-auto flex items-center gap-2">
+        {/* Left Brand / World Selector / Mode Controls */}
+        <div className="pointer-events-auto flex flex-wrap items-center gap-2">
           {mode === "intro" ? (
             <div className="flex items-center gap-2.5 border border-white/15 bg-space-950/85 px-3.5 py-2 backdrop-blur-md">
-              <span className="h-2 w-2 rounded-full bg-sunlit" />
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  isMars ? "bg-orange-400" : "bg-sunlit"
+                }`}
+              />
               <span className="font-display text-sm font-bold tracking-wider text-regolith-bright uppercase">
                 Surveyor
               </span>
@@ -153,10 +184,14 @@ export default function Hud() {
               className="group flex cursor-pointer items-center gap-3 border border-white/15 bg-space-950/85 px-3.5 py-2 text-left backdrop-blur-md transition hover:border-regolith-bright focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
               title="Return to Mission Briefing"
             >
-              <span className="h-2 w-2 rounded-full bg-sunlit" />
+              <span
+                className={`h-2 w-2 rounded-full ${
+                  isMars ? "bg-orange-400" : "bg-sunlit"
+                }`}
+              />
               <div>
                 <p className="font-mono text-[9.5px] tracking-[0.16em] text-regolith/65 uppercase">
-                  LRO ARCHIVE
+                  {isMars ? "MRO / MOLA ARCHIVE" : "LRO ARCHIVE"}
                 </p>
                 <p className="font-display text-xs font-bold tracking-tight text-regolith-bright">
                   Surveyor
@@ -164,6 +199,40 @@ export default function Hud() {
               </div>
             </button>
           )}
+
+          {/* Moon / Mars Planetary Switcher Pill */}
+          <div
+            role="group"
+            aria-label="Select celestial body"
+            className="flex items-center border border-white/15 bg-space-950/85 p-0.5 backdrop-blur-md"
+          >
+            <button
+              type="button"
+              onClick={() => handleSwitchBody("moon")}
+              className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                !isMars
+                  ? "bg-sunlit font-bold text-space-950"
+                  : "text-regolith/80 hover:bg-white/10 hover:text-white"
+              }`}
+              title="Switch to the Moon (29 NASA Hardware Sites)"
+            >
+              <span className="h-2 w-2 rounded-full bg-amber-200" />
+              <span>Moon</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSwitchBody("mars")}
+              className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                isMars
+                  ? "bg-orange-400 font-bold text-space-950"
+                  : "text-regolith/80 hover:bg-white/10 hover:text-white"
+              }`}
+              title="Switch to Mars (29 Robotic Hardware Sites)"
+            >
+              <span className="h-2 w-2 rounded-full bg-orange-500" />
+              <span>Mars</span>
+            </button>
+          </div>
 
           {mode === "explore" && (
             <>
@@ -188,7 +257,7 @@ export default function Hud() {
                   void cameraBus.goHome();
                 }}
                 className="hidden cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] text-regolith uppercase backdrop-blur-md hover:border-white/40 hover:text-white sm:inline-flex"
-                title="Reset camera to full lunar globe (Esc)"
+                title={`Reset camera to full ${isMars ? "Martian" : "lunar"} globe (Esc)`}
               >
                 <RotateCcw className="h-3 w-3" />
                 <span>Reset Orbit</span>
@@ -238,10 +307,10 @@ export default function Hud() {
                 setSiteIndexOpen(true);
               }}
               className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] tracking-wider text-regolith-bright uppercase backdrop-blur-md transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-              title="Browse and search all 29 lunar artifacts"
+              title={`Browse and search all ${siteCount} ${isMars ? "Martian" : "lunar"} artifacts`}
             >
               <ListFilter className="h-3.5 w-3.5 text-loro" />
-              <span>Index (29)</span>
+              <span>Index ({siteCount})</span>
             </button>
           )}
 
@@ -309,7 +378,7 @@ export default function Hud() {
 
             <div className="mt-1.5 flex items-center justify-center border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
               <span className="text-regolith-bright font-semibold">
-                SURVEYOR 3 - HOST
+                {isMars ? "SURVEYOR 3 · MARS RELAY" : "SURVEYOR 3 - HOST"}
               </span>
             </div>
           </button>

@@ -82,6 +82,7 @@ const _closest = new Vector3();
 const _siteDir = new Vector3();
 
 export class MoonTileManager {
+  private readonly baseUrl: string;
   private tiles = new Map<string, TileRecord>();
   private manifest: MoonManifest = DEFAULT_MANIFEST;
   private manifestLoaded = false;
@@ -96,7 +97,8 @@ export class MoonTileManager {
   private lastViewportHeight = -1;
   private lastQualityTier = "";
 
-  constructor() {
+  constructor(baseUrl = "/textures/moon") {
+    this.baseUrl = baseUrl;
     for (let row = 0; row < TILE_ROWS; row++) {
       for (let col = 0; col < TILE_COLS; col++) {
         const key = `${row}_${col}`;
@@ -142,7 +144,7 @@ export class MoonTileManager {
     this.initPromise = (async () => {
       if (!this.manifestLoaded) {
         try {
-          const res = await fetch("/textures/moon/manifest.json");
+          const res = await fetch(`${this.baseUrl}/manifest.json`);
           if (res.ok) {
             this.manifest = (await res.json()) as MoonManifest;
           }
@@ -530,7 +532,7 @@ export class MoonTileManager {
       loading.add(job.level);
       this.activeLoads++;
 
-      const url = `/textures/moon/${job.kind}/L${job.level}/${job.tile.row}_${job.tile.col}.webp`;
+      const url = `${this.baseUrl}/${job.kind}/L${job.level}/${job.tile.row}_${job.tile.col}.webp`;
       void loadTextureAsync(url, {
         colorSpace: job.kind === "color" ? SRGBColorSpace : NoColorSpace,
         wrapS: ClampToEdgeWrapping,
@@ -555,4 +557,9 @@ export class MoonTileManager {
   }
 }
 
-export const moonTileManager = new MoonTileManager();
+export const moonTileManager = new MoonTileManager("/textures/moon");
+export const marsTileManager = new MoonTileManager("/textures/mars");
+
+export function getTileManagerForBody(body: "moon" | "mars"): MoonTileManager {
+  return body === "mars" ? marsTileManager : moonTileManager;
+}

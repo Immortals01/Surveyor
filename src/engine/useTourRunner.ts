@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { cancelSpeech, speakLine } from "@/audio/speech";
-import { SITE_BY_ID, TOUR_CHAPTERS } from "@/data";
+import { getTourChaptersForBody, SITE_BY_ID } from "@/data";
 import type { DialogueLine } from "@/data/schema";
 import { useAppStore } from "@/store/useAppStore";
 import { cameraBus } from "./camera";
@@ -12,6 +12,7 @@ import { getActiveBeat, tourReducer, type TourEvent } from "./tourEngine";
  */
 export function useTourRunner() {
   const mode = useAppStore((s) => s.mode);
+  const celestialBody = useAppStore((s) => s.celestialBody);
   const chapterIndex = useAppStore((s) => s.tourChapterIndex);
   const beatIndex = useAppStore((s) => s.tourBeatIndex);
   const tourPaused = useAppStore((s) => s.tourPaused);
@@ -20,6 +21,7 @@ export function useTourRunner() {
 
   const dispatchTour = useCallback((event: TourEvent) => {
     const store = useAppStore.getState();
+    const chapters = getTourChaptersForBody(store.celestialBody);
     const next = tourReducer(
       {
         active: store.mode === "tour",
@@ -29,7 +31,7 @@ export function useTourRunner() {
         completed: false,
       },
       event,
-      TOUR_CHAPTERS,
+      chapters,
     );
 
     if (!next.active) {
@@ -69,7 +71,8 @@ export function useTourRunner() {
       return;
     }
 
-    const beat = getActiveBeat(TOUR_CHAPTERS, { chapterIndex, beatIndex });
+    const chapters = getTourChaptersForBody(celestialBody);
+    const beat = getActiveBeat(chapters, { chapterIndex, beatIndex });
     if (!beat) return;
 
     const controller = new AbortController();
@@ -83,7 +86,11 @@ export function useTourRunner() {
         speaker: line.speaker,
         speakerLabel:
           line.speakerLabel ??
-          (line.speaker === "loro" ? "SURVEYOR 3 (1967)" : "MEMORY LOG"),
+          (line.speaker === "loro"
+            ? store.celestialBody === "mars"
+              ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
+              : "SURVEYOR 3 (1967)"
+            : "MEMORY LOG"),
         text: line.text,
         sourceIds: line.sourceIds,
         isRevealing: !store.settings.reduceMotion,
@@ -184,7 +191,7 @@ export function useTourRunner() {
       controller.abort();
       cancelSpeech();
     };
-  }, [mode, chapterIndex, beatIndex, tourPaused, dispatchTour]);
+  }, [mode, celestialBody, chapterIndex, beatIndex, tourPaused, dispatchTour]);
 
   return { dispatchTour };
 }

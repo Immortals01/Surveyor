@@ -8,7 +8,7 @@ import { CAMERA } from "@/lib/constants";
 import { latLonToVector3, vector3ToLatLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 import { surfaceRadius } from "./moon/heightSampler";
-import { moonTileManager } from "./moon/tileManager";
+import { getTileManagerForBody } from "./moon/tileManager";
 
 const _camPos = new Vector3();
 const _targetPos = new Vector3();
@@ -283,9 +283,10 @@ export default function CameraRig() {
         );
 
         // Pre-warm highest-res color & normal tiles for the target site before arrival
-        moonTileManager.preloadSite(lat, lon);
+        const body = useAppStore.getState().celestialBody;
+        getTileManagerForBody(body).preloadSite(lat, lon);
 
-        const r = surfaceRadius(lat, lon);
+        const r = surfaceRadius(lat, lon, body);
         const minDist = Math.max(CAMERA.minDistance, r + CAMERA.minAltitude);
         const targetDist = Math.max(minDist, r + altitude);
         const camDest = latLonToVector3(lat, lon, targetDist);
@@ -307,7 +308,8 @@ export default function CameraRig() {
         instantArg,
       ) => {
         const instant = Boolean(instantArg);
-        moonTileManager.preloadSite(lat, lon);
+        const body = useAppStore.getState().celestialBody;
+        getTileManagerForBody(body).preloadSite(lat, lon);
         const dest = latLonToVector3(lat, lon, distance);
 
         await startSmoothFlight({
