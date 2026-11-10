@@ -1,5 +1,7 @@
-import { useEffect, useMemo } from "react";
-import { useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef } from "react";
+import { type ThreeEvent, useThree } from "@react-three/fiber";
+import { cameraBus } from "@/engine/camera";
+import { angularDistanceDeg, normalizeLon, vector3ToLatLon } from "@/lib/geo";
 import {
   detectDefaultQualityTier,
   QUALITY_SPECS,
@@ -13,6 +15,7 @@ import { moonTileManager } from "./tileManager";
 
 export default function MoonGlobe() {
   const { camera, gl, size } = useThree();
+  const downPosRef = useRef<{ x: number; y: number } | null>(null);
   const qualitySetting = useAppStore((s) => s.settings.qualityTier);
   const heightReady = useAppStore((s) => s.heightReady);
   const setHeightReady = useAppStore((s) => s.setHeightReady);
@@ -46,7 +49,7 @@ export default function MoonGlobe() {
       );
     };
     run();
-    const id = window.setInterval(run, 250);
+    const id = window.setInterval(run, 150);
     return () => window.clearInterval(id);
   }, [camera, gl, size.height, qualitySpec]);
 
@@ -60,8 +63,40 @@ export default function MoonGlobe() {
     return list;
   }, []);
 
+  const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
+    downPosRef.current = { x: e.clientX, y: e.clientY };
+  };
+
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    if (downPosRef.current) {
+      const dx = e.clientX - downPosRef.current.x;
+      const dy = e.clientY - downPosRef.current.y;
+      if (Math.hypot(dx, dy) > 5) return;
+    }
+    e.stopPropagation();
+    (document.activeElement as HTMLElement | null)?.blur?.();
+
+    const { lat, lon } = vector3ToLatLon(e.point);
+    const store = useAppStore.getState();
+    if (store.mode === "intro") {
+      store.enterExplore(false);
+    } else if (store.mode === "tour") {
+      store.setTourPaused(true);
+    }
+    if (
+      angularDistanceDeg(lat, lon, store.sunLatitude, store.sunLongitude) > 75
+    ) {
+      store.setSunDirection(normalizeLon(lon - 18), 1.5);
+    }
+    void cameraBus.flyToLatLon(lat, lon);
+  };
+
   return (
-    <group name="lunar-globe">
+    <group
+      name="lunar-globe"
+      onPointerDown={handlePointerDown}
+      onClick={handleClick}
+    >
       {tileCoords.map(({ row, col }) => (
         <MoonTile
           key={`${row}_${col}`}

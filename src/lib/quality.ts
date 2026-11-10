@@ -12,27 +12,27 @@ export interface QualitySpec {
 export const QUALITY_SPECS: Record<QualityTier, QualitySpec> = {
   low: {
     tier: "low",
-    maxColorLevel: 1,
-    tileSegments: 32,
+    maxColorLevel: 2,
+    tileSegments: 48,
     maxDpr: 1.25,
-    l2BudgetTiles: 0,
+    l2BudgetTiles: 6,
     l3BudgetTiles: 0,
   },
   medium: {
     tier: "medium",
-    maxColorLevel: 2,
-    tileSegments: 48,
-    maxDpr: 1.5,
+    maxColorLevel: 3,
+    tileSegments: 64,
+    maxDpr: 1.75,
     l2BudgetTiles: 16,
-    l3BudgetTiles: 0,
+    l3BudgetTiles: 8,
   },
   high: {
     tier: "high",
     maxColorLevel: 3,
-    tileSegments: 64,
+    tileSegments: 80,
     maxDpr: 2,
-    l2BudgetTiles: 20,
-    l3BudgetTiles: 12,
+    l2BudgetTiles: 24,
+    l3BudgetTiles: 14,
   },
 };
 
@@ -45,10 +45,10 @@ export function detectDefaultQualityTier(): QualityTier {
   const mem = nav.deviceMemory ?? 8;
   const cores = navigator.hardwareConcurrency ?? 4;
 
-  if (isCoarsePointer || mem <= 4 || cores <= 2) {
+  if (isCoarsePointer && (mem <= 4 || cores <= 2)) {
     return "low";
   }
-  if (mem >= 8 && cores >= 8) {
+  if (!isCoarsePointer && mem >= 4 && cores >= 4) {
     return "high";
   }
   return "medium";

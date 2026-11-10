@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "bun check && vite build",
-    "preview": "bun run build && wrangler dev",
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "bun check && node ./node_modules/vite/bin/vite.js build",
+    "preview": "bun run build && node ./node_modules/wrangler/bin/wrangler.js dev",
     "test": "bun test",
     "test:watch": "bun test --watch",
     "lint": "bun lint",
@@ -18,7 +18,7 @@
     "assets:models": "bun scripts/optimize-models.mjs",
     "assets:narration": "bun scripts/generate-narration.mjs",
     "content:check": "bun test src/data",
-    "deploy": "bun run build && wrangler deploy"
+    "deploy": "bun run build && node ./node_modules/wrangler/bin/wrangler.js deploy"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

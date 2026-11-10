@@ -2,22 +2,22 @@ import { lazy, Suspense, useEffect } from "react";
 import {
   BookOpen,
   ListFilter,
+  Minus,
   Play,
+  Plus,
   RotateCcw,
   Volume2,
   VolumeX,
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
-import { speakLine } from "@/audio/speech";
+import { cancelSpeech, speakLine } from "@/audio/speech";
 import { SITE_BY_ID } from "@/data";
 import type { DialogueLine } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { useTourRunner } from "@/engine/useTourRunner";
 import DialogueBox from "@/hud/character/DialogueBox";
 import LoRo from "@/hud/character/LoRo";
-import FilterBar from "@/hud/explore/FilterBar";
 import SiteIndex from "@/hud/explore/SiteIndex";
-import SunControl from "@/hud/explore/SunControl";
 import IntroScreen from "@/hud/intro/IntroScreen";
 import SiteDrawer from "@/hud/story/SiteDrawer";
 import ChapterCard from "@/hud/tour/ChapterCard";
@@ -38,7 +38,7 @@ const EXPLORE_TIPS: DialogueLine[] = [
     id: "loro-tip-2",
     speaker: "loro",
     mood: "scanning",
-    text: "Try dragging the 'Lunar Day' sun slider at the top! Watching long sunset shadows stretch across Oceanus Procellarum is how LRO's camera overhead spots our three-legged frames.",
+    text: "Long lunar shadows across Oceanus Procellarum are how LRO's camera overhead spots our three-legged frames and astronauts' bootprint trails.",
     sourceIds: ["S-LROC-FEATURED"],
   },
   {
@@ -63,17 +63,43 @@ export default function Hud() {
   const setSiteIndexOpen = useAppStore((s) => s.setSiteIndexOpen);
   const openSources = useAppStore((s) => s.openSources);
 
-  // Global Escape shortcut for layered drawers
+  // Global Escape shortcut for layered drawers, selected lunar sites, and orbit reset
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
+      e.preventDefault();
+      (document.activeElement as HTMLElement | null)?.blur?.();
+
       const state = useAppStore.getState();
       if (state.sourcesDrawerOpen) {
         state.closeSources();
-      } else if (state.siteIndexOpen) {
+        return;
+      }
+      if (state.siteIndexOpen) {
         state.setSiteIndexOpen(false);
-      } else if (state.selectedSiteId && state.mode === "explore") {
-        state.selectSite(null);
+        return;
+      }
+      if (state.selectedSiteId) {
+        cancelSpeech();
+        state.setDialogue(null);
+        if (state.mode === "tour") {
+          state.enterExplore(false);
+        } else {
+          state.selectSite(null);
+        }
+        void cameraBus.goHome();
+        return;
+      }
+      if (state.mode === "tour") {
+        cancelSpeech();
+        state.enterExplore(false);
+        void cameraBus.goHome();
+        return;
+      }
+      if (state.mode === "explore") {
+        cancelSpeech();
+        state.setDialogue(null);
+        void cameraBus.goHome();
       }
     };
     window.addEventListener("keydown", onKeyDown);
@@ -104,7 +130,7 @@ export default function Hud() {
     state.setDialogue({
       lineId: line.id,
       speaker: "loro",
-      speakerLabel: "SURVEYOR 3 · LUNAR HOST",
+      speakerLabel: "SURVEYOR 3 (1967)",
       text: line.text,
       sourceIds: line.sourceIds,
       isRevealing: !settings.reduceMotion,
@@ -176,23 +202,48 @@ export default function Hud() {
                   void cameraBus.goHome();
                 }}
                 className="hidden cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] text-regolith uppercase backdrop-blur-md hover:border-white/40 hover:text-white sm:inline-flex"
-                title="Reset camera to full lunar globe"
+                title="Reset camera to full lunar globe (Esc)"
               >
                 <RotateCcw className="h-3 w-3" />
                 <span>Reset Orbit</span>
               </button>
+
+              <div className="hidden items-center border border-white/15 bg-space-950/85 backdrop-blur-md sm:inline-flex">
+                <button
+                  type="button"
+                  onClick={() => {
+                    audioEngine.playUiTick(920);
+                    cameraBus.zoomIn();
+                  }}
+                  className="cursor-pointer p-2 text-regolith transition hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+                  aria-label="Zoom in"
+                  title="Zoom in (+)"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                </button>
+                <span className="h-4 w-px bg-white/15" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    audioEngine.playUiTick(720);
+                    cameraBus.zoomOut();
+                  }}
+                  className="cursor-pointer p-2 text-regolith transition hover:bg-white/10 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+                  aria-label="Zoom out"
+                  title="Zoom out (-)"
+                >
+                  <Minus className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </>
           )}
         </div>
 
-        {/* Center Mode Controls (Tour Bar or Category Filter Bar) */}
+        {/* Center Mode Controls (Tour Bar) */}
         {mode === "tour" && <TourBar dispatchTour={dispatchTour} />}
-        {mode === "explore" && <FilterBar />}
 
         {/* Right Utility Controls */}
-        <div className="pointer-events-auto flex items-center gap-1.5">
-          {mode === "explore" && <SunControl />}
-
+        <div className="pointer-events-auto ml-auto flex items-center gap-1.5">
           {mode !== "intro" && (
             <button
               type="button"
@@ -243,30 +294,43 @@ export default function Hud() {
       {/* Intro Welcome Screen */}
       {mode === "intro" && <IntroScreen />}
 
-      {/* Bottom-Left Surveyor 3 Storyteller Dock */}
+      {/* Surveyor 3 Hero Storyteller Stage & Callout Arrow */}
       {mode !== "intro" && (
         <div
-          className={`flex items-end gap-3 transition-all ${
-            selectedSiteId ? "hidden lg:flex lg:max-w-[calc(100vw-490px)]" : "max-w-2xl"
+          className={`mt-auto flex flex-col items-start gap-0 transition-all ${
+            selectedSiteId
+              ? "hidden lg:flex lg:max-w-[calc(100vw-470px)]"
+              : "max-w-xl"
           }`}
         >
+          <DialogueBox
+            onAdvanceTour={() => dispatchTour({ type: "NEXT_BEAT" })}
+            onRequestTip={handleLoRoClick}
+          />
+
           <button
             type="button"
             onClick={handleLoRoClick}
-            className="pointer-events-auto group relative cursor-pointer border border-white/15 bg-space-950/85 p-1.5 backdrop-blur-md transition hover:border-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            title="Click Surveyor 3 for mission commentary"
+            className="pointer-events-auto group relative shrink-0 cursor-pointer border border-loro/40 bg-space-950/90 p-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl transition hover:border-loro hover:bg-space-900/90 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            title="Click Surveyor 3 for voice commentary"
           >
-            <LoRo size="sm" />
-            {!dialogue && (
-              <span className="mt-1 block border-t border-white/10 pt-1 text-center font-mono text-[9px] tracking-wider text-loro uppercase">
-                COMMS
-              </span>
-            )}
-          </button>
+            {/* Corner telemetry brackets */}
+            <span className="pointer-events-none absolute -top-px -left-px h-3 w-3 border-t-2 border-l-2 border-loro" />
+            <span className="pointer-events-none absolute -top-px -right-px h-3 w-3 border-t-2 border-r-2 border-loro" />
+            <span className="pointer-events-none absolute -bottom-px -left-px h-3 w-3 border-b-2 border-l-2 border-loro" />
+            <span className="pointer-events-none absolute -right-px -bottom-px h-3 w-3 border-r-2 border-b-2 border-loro" />
 
-          <DialogueBox
-            onAdvanceTour={() => dispatchTour({ type: "NEXT_BEAT" })}
-          />
+            <LoRo size="lg" />
+
+            <div className="mt-1.5 flex items-center justify-between border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
+              <span className="text-regolith-bright font-semibold">
+                HOST · SURVEYOR 3
+              </span>
+              <span className="text-loro group-hover:underline">
+                {dialogue?.isSpeaking ? "TRANSMITTING ●" : "SPEAK ▶"}
+              </span>
+            </div>
+          </button>
         </div>
       )}
 

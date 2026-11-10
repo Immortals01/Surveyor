@@ -18,6 +18,12 @@ export default function App() {
             camera={{ fov: 40, near: 0.005, far: 120, position: [3.15, 0.35, 0] }}
             gl={{ antialias: true, powerPreference: "high-performance" }}
             dpr={[1, 2]}
+            onPointerDown={() => {
+              const active = document.activeElement as HTMLElement | null;
+              if (active && active !== document.body) {
+                active.blur?.();
+              }
+            }}
             onCreated={({ gl }) => {
               const el = gl.domElement;
               el.addEventListener("webglcontextlost", (e) => {

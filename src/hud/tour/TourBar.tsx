@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -22,25 +21,6 @@ export default function TourBar({ dispatchTour }: TourBarProps) {
   const startTour = useAppStore((s) => s.startTour);
 
   const activeChapter = TOUR_CHAPTERS[chapterIndex];
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement | null)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        dispatchTour({ type: "NEXT_BEAT" });
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        dispatchTour({ type: "PREV_BEAT" });
-      } else if (e.key === "Escape") {
-        dispatchTour({ type: "EXIT_TO_EXPLORE" });
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [dispatchTour]);
 
   return (
     <div className="pointer-events-auto flex flex-wrap items-center gap-2 border border-white/15 bg-space-950/88 px-3 py-1.5 backdrop-blur-md">

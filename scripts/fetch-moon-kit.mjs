@@ -7,10 +7,10 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
 const BASE_URL = "https://svs.gsfc.nasa.gov/vis/a000000/a004700/a004720";
-const STAR_URL =
+const STAR_16K_URL =
+  "https://svs.gsfc.nasa.gov/vis/a000000/a003800/a003895/starmap_16k.jpg";
+const STAR_8K_URL =
   "https://svs.gsfc.nasa.gov/vis/a000000/a003800/a003895/starmap_8k.jpg";
-const MILKYWAY_URL =
-  "https://svs.gsfc.nasa.gov/vis/a000000/a003800/a003895/starmap_g4k.jpg";
 const EARTH_BASE =
   "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets";
 
@@ -23,8 +23,8 @@ const FILES = [
   { name: "ldem_16_uint.tif", url: `${BASE_URL}/ldem_16_uint.tif`, tier: "p0" },
   { name: "lroc_color_poles_8k.tif", url: `${BASE_URL}/lroc_color_poles_8k.tif`, tier: "p1" },
   { name: "lroc_color_poles_16k.tif", url: `${BASE_URL}/lroc_color_poles_16k.tif`, tier: "p1" },
-  { name: "starmap_2020_4k_gal.jpg", url: STAR_URL, tier: "p0", optional: true },
-  { name: "milkyway_4k_gal.jpg", url: MILKYWAY_URL, tier: "p0", optional: true },
+  { name: "starmap_16k.jpg", url: STAR_16K_URL, tier: "p0", optional: true },
+  { name: "starmap_2020_4k_gal.jpg", url: STAR_8K_URL, tier: "p0", optional: true },
   { name: "earth_atmos_2048.jpg", url: `${EARTH_BASE}/earth_atmos_2048.jpg`, tier: "p0", optional: true },
   { name: "earth_clouds_1024.png", url: `${EARTH_BASE}/earth_clouds_1024.png`, tier: "p0", optional: true },
   { name: "earth_normal_2048.jpg", url: `${EARTH_BASE}/earth_normal_2048.jpg`, tier: "p0", optional: true },

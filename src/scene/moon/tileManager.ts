@@ -13,7 +13,7 @@ import {
   TextureLoader,
   Vector3,
 } from "three";
-import { DEG } from "@/lib/geo";
+import { DEG, latLonToVector3, normalizeLon } from "@/lib/geo";
 import type { QualitySpec } from "@/lib/quality";
 import { getTileCenterSphere, TILE_COLS, TILE_ROWS } from "./createTileGeometry";
 
@@ -44,6 +44,7 @@ interface TileRecord {
   loadingColor: Set<number>;
   loadingNormal: Set<number>;
   desiredColorLevel: number;
+  pinnedUntil: number;
   overResolvedSince: number | null;
   lastUsedAt: number;
   listeners: Set<TileListener>;
@@ -61,10 +62,14 @@ const DEFAULT_MANIFEST: MoonManifest = {
   colorLevels: [
     { level: 0, tileSize: 128 },
     { level: 1, tileSize: 512 },
+    { level: 2, tileSize: 1024 },
+    { level: 3, tileSize: 2048 },
   ],
   normalLevels: [
     { level: 0, tileSize: 128 },
     { level: 1, tileSize: 360 },
+    { level: 2, tileSize: 720 },
+    { level: 3, tileSize: 1440 },
   ],
   hasStarMap: false,
 };
@@ -73,15 +78,16 @@ const _projScreenMatrix = new Matrix4();
 const _frustum = new Frustum();
 const _camDir = new Vector3();
 const _closest = new Vector3();
+const _siteDir = new Vector3();
 
 export class MoonTileManager {
   private tiles = new Map<string, TileRecord>();
   private manifest: MoonManifest = DEFAULT_MANIFEST;
   private manifestLoaded = false;
   private loader = new TextureLoader();
-  private maxAnisotropy = 4;
+  private maxAnisotropy = 8;
   private activeLoads = 0;
-  private readonly maxConcurrent = 4;
+  private readonly maxConcurrent = 8;
   private queue: LoadJob[] = [];
 
   constructor() {
@@ -100,6 +106,7 @@ export class MoonTileManager {
           loadingColor: new Set(),
           loadingNormal: new Set(),
           desiredColorLevel: 1,
+          pinnedUntil: 0,
           overResolvedSince: null,
           lastUsedAt: performance.now(),
           listeners: new Set(),
@@ -130,10 +137,10 @@ export class MoonTileManager {
       this.enqueue(tile, "color", 0, 1000);
       this.enqueue(tile, "normal", 0, 950);
       if (this.hasLevel("color", 1)) {
-        this.enqueue(tile, "color", 1, 500);
+        this.enqueue(tile, "color", 1, 300);
       }
       if (this.hasLevel("normal", 1)) {
-        this.enqueue(tile, "normal", 1, 450);
+        this.enqueue(tile, "normal", 1, 250);
       }
     }
     this.pumpQueue();
@@ -142,6 +149,67 @@ export class MoonTileManager {
 
   getManifest(): MoonManifest {
     return this.manifest;
+  }
+
+  /**
+   * Pre-warm highest-resolution color and normal tiles for a target (lat, lon)
+   * as soon as a camera flight begins so L3 textures are ready before arrival.
+   */
+  preloadSite(lat: number, lon: number): void {
+    const now = performance.now();
+    const clampedLat = Math.max(-89.999, Math.min(89.999, lat));
+    const normLon = normalizeLon(lon);
+    const primaryRow = Math.max(
+      0,
+      Math.min(TILE_ROWS - 1, Math.floor((90 - clampedLat) / 45)),
+    );
+    const primaryCol = Math.max(
+      0,
+      Math.min(TILE_COLS - 1, Math.floor((normLon + 180) / 45)),
+    );
+
+    latLonToVector3(clampedLat, normLon, 1, _siteDir).normalize();
+
+    const maxColor = Math.max(
+      ...this.manifest.colorLevels.map((l) => l.level),
+      1,
+    );
+    const maxNormal = Math.max(
+      ...this.manifest.normalLevels.map((l) => l.level),
+      1,
+    );
+
+    for (const tile of this.tiles.values()) {
+      const isPrimary = tile.row === primaryRow && tile.col === primaryCol;
+      const dot = tile.centerDir.dot(_siteDir);
+      // Include primary tile and any neighboring tile whose border is near the site
+      if (!isPrimary && dot < 0.72) continue;
+
+      const targetColor = isPrimary ? maxColor : Math.max(1, maxColor);
+      const targetNormal = isPrimary ? maxNormal : Math.max(1, maxNormal);
+      const prio = isPrimary ? 2200 : 1750 + dot * 100;
+
+      tile.desiredColorLevel = Math.max(tile.desiredColorLevel, targetColor);
+      tile.pinnedUntil = now + 5000;
+      tile.overResolvedSince = null;
+      tile.lastUsedAt = now + 5000;
+
+      if (this.hasLevel("color", targetColor)) {
+        this.enqueue(tile, "color", targetColor, prio);
+      }
+      if (this.hasLevel("normal", targetNormal)) {
+        this.enqueue(tile, "normal", targetNormal, prio - 15);
+      }
+      if (targetColor > 2 && !tile.colorByLevel.has(targetColor) && this.hasLevel("color", 2)) {
+        this.enqueue(tile, "color", 2, prio - 40);
+      }
+      if (targetNormal > 2 && !tile.normalByLevel.has(targetNormal) && this.hasLevel("normal", 2)) {
+        this.enqueue(tile, "normal", 2, prio - 50);
+      }
+      this.notify(tile);
+    }
+
+    this.pumpQueue();
   }
 
   subscribe(row: number, col: number, listener: TileListener): () => void {
@@ -184,9 +252,11 @@ export class MoonTileManager {
     );
 
     for (const tile of this.tiles.values()) {
+      const isPinned = now < tile.pinnedUntil;
       const horizonDot = tile.centerDir.dot(_camDir);
       const visible =
-        horizonDot > -0.25 && _frustum.intersectsSphere(tile.sphere);
+        isPinned ||
+        (horizonDot > -0.28 && _frustum.intersectsSphere(tile.sphere));
 
       if (!visible) {
         tile.desiredColorLevel = 1;
@@ -199,12 +269,12 @@ export class MoonTileManager {
         .copy(camera.position)
         .sub(tile.sphere.center)
         .normalize()
-        .multiplyScalar(tile.sphere.radius * 0.6)
+        .multiplyScalar(tile.sphere.radius * 0.65)
         .add(tile.sphere.center);
 
-      const dist = Math.max(0.05, camera.position.distanceTo(_closest));
+      const dist = Math.max(0.04, camera.position.distanceTo(_closest));
       const pxPerUnit = viewportHeightPx / (2 * dist * tanHalfFov);
-      const neededTilePx = 0.785 * pxPerUnit;
+      const neededTilePx = 1.15 * pxPerUnit;
 
       let chosenColor = 1;
       for (const spec of this.manifest.colorLevels) {
@@ -213,20 +283,39 @@ export class MoonTileManager {
         if (spec.tileSize >= neededTilePx) break;
       }
 
-      tile.desiredColorLevel = chosenColor;
-      tile.lastUsedAt = now;
+      if (isPinned) {
+        chosenColor = Math.max(chosenColor, maxAvailableColor);
+      }
 
-      const prioBase = 100 + horizonDot * 50 + chosenColor * 25;
-      for (let lvl = 1; lvl <= chosenColor; lvl++) {
-        if (this.hasLevel("color", lvl)) {
-          this.enqueue(tile, "color", lvl, prioBase - lvl * 5);
+      tile.desiredColorLevel = chosenColor;
+      tile.lastUsedAt = Math.max(tile.lastUsedAt, now);
+
+      // Prioritize visible high-res upgrades above background L1 loads
+      const prioBase = 500 + horizonDot * 120 + chosenColor * 90;
+      if (this.hasLevel("color", chosenColor)) {
+        this.enqueue(tile, "color", chosenColor, prioBase);
+      }
+      for (let lvl = chosenColor - 1; lvl >= 1; lvl--) {
+        if (!tile.colorByLevel.has(chosenColor) && this.hasLevel("color", lvl)) {
+          this.enqueue(tile, "color", lvl, prioBase - (chosenColor - lvl) * 35);
         }
       }
 
       const desiredNormal = Math.min(chosenColor, maxAvailableNormal);
-      for (let lvl = 1; lvl <= desiredNormal; lvl++) {
-        if (this.hasLevel("normal", lvl)) {
-          this.enqueue(tile, "normal", lvl, prioBase - 20 - lvl * 5);
+      if (this.hasLevel("normal", desiredNormal)) {
+        this.enqueue(tile, "normal", desiredNormal, prioBase - 10);
+      }
+      for (let lvl = desiredNormal - 1; lvl >= 1; lvl--) {
+        if (
+          !tile.normalByLevel.has(desiredNormal) &&
+          this.hasLevel("normal", lvl)
+        ) {
+          this.enqueue(
+            tile,
+            "normal",
+            lvl,
+            prioBase - 15 - (desiredNormal - lvl) * 35,
+          );
         }
       }
 

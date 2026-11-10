@@ -1,5 +1,5 @@
 import CameraRig from "./CameraRig";
-import LroOrbit from "./LroOrbit";
+import Earth from "./Earth";
 import SiteMarkers from "./markers/SiteMarkers";
 import MoonGlobe from "./moon/MoonGlobe";
 import Starfield from "./Starfield";
@@ -10,9 +10,9 @@ export default function Scene() {
     <>
       <Sun />
       <Starfield />
+      <Earth />
       <MoonGlobe />
       <SiteMarkers />
-      <LroOrbit />
       <CameraRig />
     </>
   );

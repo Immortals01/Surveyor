@@ -12,8 +12,9 @@ dist
 dist-ssr
 *.local
 
-# Raw multi-hundred-MB NASA source downloads
+# Raw multi-hundred-MB NASA source downloads & oversized 8K star map
 raw/
+public/textures/sky/stars_8k.webp
 
 # Editor directories and files
 .vscode/*

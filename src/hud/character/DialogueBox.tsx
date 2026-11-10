@@ -1,30 +1,51 @@
 import { useEffect, useState } from "react";
-import { Radio, Satellite, Volume2, VolumeX } from "lucide-react";
+import { Radio, RefreshCw, Satellite, Volume2, VolumeX } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech } from "@/audio/speech";
+import { SITE_BY_ID } from "@/data";
 import { useAppStore } from "@/store/useAppStore";
 
 interface DialogueBoxProps {
   onAdvanceTour?: () => void;
+  onRequestTip?: () => void;
 }
 
-export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
+const DEFAULT_HOST_MESSAGE =
+  "I touched down in Oceanus Procellarum in April 1967. Click any glowing landing site on the Moon—or click my frame—to hear what our left-behind spacecraft remember!";
+
+export default function DialogueBox({
+  onAdvanceTour,
+  onRequestTip,
+}: DialogueBoxProps) {
   const dialogue = useAppStore((s) => s.dialogue);
+  const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const mode = useAppStore((s) => s.mode);
   const settings = useAppStore((s) => s.settings);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const patchDialogue = useAppStore((s) => s.patchDialogue);
-  const setDialogue = useAppStore((s) => s.setDialogue);
-  const openSources = useAppStore((s) => s.openSources);
 
   const [revealState, setRevealState] = useState<{
     lineId: string;
     count: number;
   }>({ lineId: "", count: 0 });
 
-  const fullText = dialogue?.text ?? "";
-  const lineId = dialogue?.lineId ?? "";
+  // Derive fallback host commentary when no explicit dialogue is active in Explore mode
+  const selectedSite = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
+  const fallbackText = selectedSite
+    ? selectedSite.tier === "hero"
+      ? selectedSite.loroIntro.text
+      : `${selectedSite.name} (${selectedSite.year}) — ${selectedSite.summary}`
+    : DEFAULT_HOST_MESSAGE;
+
+  const fullText = dialogue?.text ?? fallbackText;
+  const lineId = dialogue?.lineId ?? `fallback-${selectedSiteId ?? "home"}`;
   const isRevealing = Boolean(dialogue?.isRevealing);
+  const isEquipment = dialogue?.speaker === "equipment";
+  const speakerLabel =
+    dialogue?.speakerLabel ??
+    (selectedSite
+      ? `SURVEYOR 3 · ON ${selectedSite.mission.toUpperCase()}`
+      : "SURVEYOR 3 (1967)");
 
   useEffect(() => {
     if (!dialogue || !dialogue.isRevealing || settings.reduceMotion) {
@@ -49,10 +70,9 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
     return () => window.clearInterval(interval);
   }, [lineId, isRevealing, settings.reduceMotion]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!dialogue || !settings.captionsEnabled) return null;
+  if (!settings.captionsEnabled) return null;
 
   const charCount = revealState.lineId === lineId ? revealState.count : 0;
-  const isEquipment = dialogue.speaker === "equipment";
   const shownText =
     isRevealing && !settings.reduceMotion
       ? fullText.slice(0, charCount)
@@ -69,7 +89,9 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
       onAdvanceTour();
     } else if (mode === "explore") {
       cancelSpeech();
-      setDialogue(null);
+      if (onRequestTip) {
+        onRequestTip();
+      }
     }
   };
 
@@ -80,109 +102,180 @@ export default function DialogueBox({ onAdvanceTour }: DialogueBoxProps) {
     updateSettings({ muted: nextMuted });
   };
 
-  return (
-    <div
-      className={`pointer-events-auto relative w-full max-w-xl border p-4 shadow-2xl backdrop-blur-xl transition-colors ${
-        isEquipment
-          ? "telemetry-scanlines border-sunlit/45 bg-space-950/92"
-          : "border-white/20 bg-space-950/90"
-      }`}
-    >
-      {/* Screen-reader polite full-line announcement (fires once per line, never per character) */}
-      <span className="sr-only" aria-live="polite">
-        {dialogue.speakerLabel}: {fullText}
-      </span>
+  const accentStroke = isEquipment ? "#ffcf70" : "#5ce1ff";
 
-      <div className="mb-1.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          {isEquipment ? (
-            <Radio className="h-3.5 w-3.5 text-sunlit" />
-          ) : (
-            <Satellite className="h-3.5 w-3.5 text-loro" />
-          )}
-          <span
-            className={`font-mono text-[10.5px] font-semibold tracking-[0.14em] uppercase ${
-              isEquipment ? "text-sunlit" : "text-loro"
-            }`}
-          >
-            {dialogue.speakerLabel}
-          </span>
-          {dialogue.isSpeaking && (
-            <span className="inline-flex items-center gap-0.5" aria-hidden="true">
-              <span className="h-2 w-0.5 animate-pulse bg-current opacity-80" />
-              <span className="h-3 w-0.5 animate-pulse bg-current" />
-              <span className="h-1.5 w-0.5 animate-pulse bg-current opacity-70" />
+  return (
+    <div className="pointer-events-auto relative flex w-full flex-col items-start">
+      {/* ================================================================== */}
+      {/* SPEECH CALLOUT BOX (Shown above Surveyor 3)                        */}
+      {/* ================================================================== */}
+      <div
+        className={`relative w-full max-w-xl border p-4 shadow-[0_20px_60px_rgba(0,0,0,0.9)] backdrop-blur-xl transition-colors sm:p-5 ${
+          isEquipment
+            ? "telemetry-scanlines border-sunlit/60 bg-space-950/94"
+            : "border-loro/55 bg-space-950/94"
+        }`}
+      >
+        {/* Corner accent brackets */}
+        <span
+          className="pointer-events-none absolute -top-px -left-px h-3 w-3 border-t-2 border-l-2"
+          style={{ borderColor: accentStroke }}
+        />
+        <span
+          className="pointer-events-none absolute -top-px -right-px h-3 w-3 border-t-2 border-r-2"
+          style={{ borderColor: accentStroke }}
+        />
+        <span
+          className="pointer-events-none absolute -bottom-px -left-px h-3 w-3 border-b-2 border-l-2"
+          style={{ borderColor: accentStroke }}
+        />
+        <span
+          className="pointer-events-none absolute -right-px -bottom-px h-3 w-3 border-r-2 border-b-2"
+          style={{ borderColor: accentStroke }}
+        />
+
+        {/* Screen-reader polite full-line announcement */}
+        <span className="sr-only" aria-live="polite">
+          {speakerLabel}: {fullText}
+        </span>
+
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            {isEquipment ? (
+              <Radio className="h-4 w-4 text-sunlit" />
+            ) : (
+              <Satellite className="h-4 w-4 text-loro" />
+            )}
+            <span
+              className={`font-mono text-[11px] font-bold tracking-[0.14em] uppercase ${
+                isEquipment ? "text-sunlit" : "text-loro"
+              }`}
+            >
+              {speakerLabel}
             </span>
-          )}
+            {dialogue?.isSpeaking && (
+              <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+                <span className="h-2.5 w-0.5 animate-pulse bg-current opacity-80" />
+                <span className="h-3.5 w-0.5 animate-pulse bg-current" />
+                <span className="h-2 w-0.5 animate-pulse bg-current opacity-70" />
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={toggleMute}
+              className="cursor-pointer border border-white/15 bg-white/5 p-1 text-regolith/80 transition hover:border-loro/50 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+              aria-label={settings.muted ? "Unmute audio" : "Mute audio"}
+              title={settings.muted ? "Unmute audio" : "Mute audio"}
+            >
+              {settings.muted ? (
+                <VolumeX className="h-3.5 w-3.5 text-alert" />
+              ) : (
+                <Volume2 className="h-3.5 w-3.5 text-loro" />
+              )}
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
-          {dialogue.sourceIds.slice(0, 2).map((sid) => (
-            <button
-              key={sid}
-              type="button"
-              onClick={() => openSources(sid)}
-              className="border border-white/15 bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-regolith/80 transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-              title={`Inspect NASA citation ${sid}`}
-            >
-              {sid}
-            </button>
-          ))}
+        <p
+          onClick={handlePrimaryClick}
+          className={`cursor-pointer text-[15px] leading-relaxed sm:text-[15.5px] ${
+            isEquipment ? "text-amber-100/95 italic" : "text-regolith-bright"
+          }`}
+        >
+          {isEquipment ? `“${shownText}${isRevealing ? "" : "”"}` : `“${shownText}${isRevealing ? "" : "”"}`}
+          {isRevealing && (
+            <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-loro align-middle" />
+          )}
+        </p>
+
+        <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2.5 font-mono text-[10.5px] text-regolith/65">
+          <span>
+            {dialogue?.holdForInteraction
+              ? "INTERACTIVE EXPERIMENT READY"
+              : isRevealing
+                ? "CLICK TO REVEAL ALL"
+                : mode === "tour"
+                  ? "AUTO-ADVANCING · OR CLICK CONTINUE"
+                  : "SURVEYOR 3 LIVE TELEMETRY LINK"}
+          </span>
 
           <button
             type="button"
-            onClick={toggleMute}
-            className="border border-white/15 bg-white/5 p-1 text-regolith/80 transition hover:border-loro/50 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            aria-label={settings.muted ? "Unmute audio" : "Mute audio"}
-            title={settings.muted ? "Unmute audio" : "Mute audio"}
+            onClick={handlePrimaryClick}
+            className={`inline-flex cursor-pointer items-center gap-1.5 px-3 py-1 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+              dialogue?.holdForInteraction
+                ? "bg-regolith-bright text-space-950 hover:bg-white"
+                : "border border-loro/40 bg-loro/10 text-regolith-bright hover:border-loro hover:bg-loro/20 hover:text-white"
+            }`}
           >
-            {settings.muted ? (
-              <VolumeX className="h-3.5 w-3.5 text-alert" />
+            {isRevealing ? (
+              <span>Reveal</span>
+            ) : mode === "tour" ? (
+              <span>Continue →</span>
             ) : (
-              <Volume2 className="h-3.5 w-3.5 text-loro" />
+              <>
+                <RefreshCw className="h-3 w-3 text-loro" />
+                <span>Next Transmission</span>
+              </>
             )}
           </button>
         </div>
       </div>
 
-      <p
-        onClick={handlePrimaryClick}
-        className={`cursor-pointer text-[14.5px] leading-relaxed ${
-          isEquipment ? "text-amber-100/95 italic" : "text-regolith-bright"
-        }`}
+      {/* ================================================================== */}
+      {/* CALLOUT ARROW CONNECTOR (Emerging upward from Surveyor 3 -> Text)  */}
+      {/* ================================================================== */}
+      <div
+        className="pointer-events-none relative -mt-px flex h-11 w-full items-center pl-16 sm:pl-20"
+        aria-hidden="true"
       >
-        {isEquipment ? `“${shownText}${isRevealing ? "" : "”"}` : shownText}
-        {isRevealing && (
-          <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-loro align-middle" />
-        )}
-      </p>
-
-      <div className="mt-2.5 flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[10.5px] text-regolith/60">
-        <span>
-          {dialogue.holdForInteraction
-            ? "INTERACTIVE EXPERIMENT READY"
-            : isRevealing
-              ? "CLICK TO REVEAL ALL"
-              : mode === "tour"
-                ? "AUTO-ADVANCING · OR CLICK CONTINUE"
-                : "CLICK TO DISMISS"}
-        </span>
-
-        <button
-          type="button"
-          onClick={handlePrimaryClick}
-          className={`px-3 py-1 font-mono text-[11px] font-semibold uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
-            dialogue.holdForInteraction
-              ? "bg-regolith-bright text-space-950 hover:bg-white"
-              : "border border-white/20 bg-white/8 text-regolith-bright hover:border-loro hover:text-white"
-          }`}
+        <svg
+          viewBox="0 0 64 44"
+          className="h-11 w-16 overflow-visible"
+          fill="none"
         >
-          {isRevealing
-            ? "Reveal"
-            : mode === "tour"
-              ? "Continue →"
-              : "Close"}
-        </button>
+          {/* Speech bubble triangular tail welded to the bottom box border */}
+          <polygon
+            points="22,0 42,0 32,11"
+            fill="#05070d"
+            fillOpacity="0.94"
+          />
+          <polyline
+            points="22,0 32,11 42,0"
+            stroke={accentStroke}
+            strokeOpacity="0.65"
+            strokeWidth="1.5"
+            strokeLinejoin="round"
+          />
+
+          {/* Vertical telemetry leader line emerging from Surveyor 3 upward */}
+          <path
+            d="M 32 36 L 32 14"
+            stroke={accentStroke}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          {/* Crisp directional arrowhead pointing up into speech bubble */}
+          <polygon
+            points="32,12 26.5,21 32,19 37.5,21"
+            fill={accentStroke}
+          />
+
+          {/* Glowing origin node at Surveyor 3's top mast */}
+          <circle
+            cx="32"
+            cy="39"
+            r="4"
+            fill={accentStroke}
+            fillOpacity="0.25"
+            stroke={accentStroke}
+            strokeWidth="1.5"
+          />
+          <circle cx="32" cy="39" r="1.8" fill={accentStroke} />
+        </svg>
       </div>
     </div>
   );

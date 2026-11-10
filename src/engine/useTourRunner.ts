@@ -83,7 +83,7 @@ export function useTourRunner() {
         speaker: line.speaker,
         speakerLabel:
           line.speakerLabel ??
-          (line.speaker === "loro" ? "SURVEYOR 3 · LUNAR HOST" : "MEMORY LOG"),
+          (line.speaker === "loro" ? "SURVEYOR 3 (1967)" : "MEMORY LOG"),
         text: line.text,
         sourceIds: line.sourceIds,
         isRevealing: !store.settings.reduceMotion,
@@ -105,17 +105,19 @@ export function useTourRunner() {
         store.setLoRoMood("scanning");
         store.selectSite(site.id, beat.openTab ?? "story");
 
+        let spokeCompletely = true;
         if (beat.announce) {
           activateLine(beat.announce, false);
-          await Promise.all([
+          const [, completed] = await Promise.all([
             cameraBus.flyToLatLon(site.lat, site.lon),
             speakLine(beat.announce, signal),
           ]);
+          spokeCompletely = completed;
         } else {
           await cameraBus.flyToLatLon(site.lat, site.lon);
         }
 
-        if (signal.aborted) return;
+        if (signal.aborted || !spokeCompletely) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });
         await pauseGap(650, signal);
         if (!signal.aborted) {
@@ -129,16 +131,18 @@ export function useTourRunner() {
           store.setSunDirection(beat.sunLon);
         }
         store.setLoRoMood("scanning");
+        let spokeCompletely = true;
         if (beat.announce) {
           activateLine(beat.announce, false);
-          await Promise.all([
+          const [, completed] = await Promise.all([
             cameraBus.flyOverview(beat.lat, beat.lon, beat.distance),
             speakLine(beat.announce, signal),
           ]);
+          spokeCompletely = completed;
         } else {
           await cameraBus.flyOverview(beat.lat, beat.lon, beat.distance);
         }
-        if (signal.aborted) return;
+        if (signal.aborted || !spokeCompletely) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });
         await pauseGap(500, signal);
         if (!signal.aborted) {
@@ -148,14 +152,14 @@ export function useTourRunner() {
       }
 
       if (beat.kind === "speak") {
-        if (beat.siteId) {
+        if (beat.siteId && store.selectedSiteId !== null) {
           store.selectSite(beat.siteId, beat.openTab);
         } else if (beat.openTab && store.selectedSiteId) {
           store.setActiveStoryTab(beat.openTab);
         }
         activateLine(beat.line, false);
-        await speakLine(beat.line, signal);
-        if (signal.aborted) return;
+        const spokeCompletely = await speakLine(beat.line, signal);
+        if (signal.aborted || !spokeCompletely) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });
         await pauseGap(750, signal);
         if (!signal.aborted) {

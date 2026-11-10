@@ -38,7 +38,11 @@
     {
       "level": 2,
       "tileSize": 720
+    },
+    {
+      "level": 3,
+      "tileSize": 1440
     }
   ],
-  "hasStarMap": false
+  "hasStarMap": true
 }

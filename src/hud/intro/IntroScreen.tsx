@@ -44,7 +44,7 @@ export default function IntroScreen() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
-        className="pointer-events-auto w-full max-w-[490px]"
+        className="pointer-events-auto w-full max-w-lg"
       >
         {/* Technical Telemetry Index Eyebrow */}
         <div className="flex items-center gap-3 font-mono text-[11px] tracking-[0.18em] text-regolith/70 uppercase">
@@ -55,49 +55,48 @@ export default function IntroScreen() {
         </div>
 
         {/* Editorial Headline — Clean, Solid High-Contrast Typography */}
-        <h1 className="mt-3 font-display text-4xl leading-[1.06] font-bold tracking-tight text-regolith-bright sm:text-5xl">
-          Abandoned,
-          <br />
+        <h1 className="mt-2.5 font-display text-4xl leading-[1.05] font-bold tracking-tight text-regolith-bright sm:text-5xl">
+          Abandoned,{" "}
           <span className="font-normal text-regolith/85 italic">
             Not Forgotten.
           </span>
         </h1>
 
-        <p className="mt-4 max-w-md text-[15px] leading-relaxed text-regolith/80">
+        <p className="mt-3 max-w-xl text-[14.5px] leading-relaxed text-regolith/80">
           Across the lunar plains rest three electric rovers, six gold descent
           stages, seismic stations, and quartz mirror arrays left behind since
           1964—preserved in vacuum and still photographed from orbit today.
         </p>
 
-        {/* Lunar Host Telemetry Comms Block (Surveyor 3 Character Guide) */}
-        <div className="relative mt-6 border-y border-white/15 bg-space-950/70 py-4 pr-4 pl-3 backdrop-blur-md">
-          {/* Corner technical hairlines */}
-          <span className="pointer-events-none absolute -top-px left-0 h-px w-6 bg-loro" />
-          <span className="pointer-events-none absolute -bottom-px left-0 h-px w-6 bg-loro" />
+        {/* Compact Lunar Host Badge */}
+        <div className="relative mt-5 inline-flex items-center gap-3.5 border border-loro/45 bg-space-950/90 p-2.5 pr-4 shadow-[0_18px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+          <span className="pointer-events-none absolute -top-px -left-px h-3 w-3 border-t-2 border-l-2 border-loro" />
+          <span className="pointer-events-none absolute -top-px -right-px h-3 w-3 border-t-2 border-r-2 border-loro" />
+          <span className="pointer-events-none absolute -bottom-px -left-px h-3 w-3 border-b-2 border-l-2 border-loro" />
+          <span className="pointer-events-none absolute -right-px -bottom-px h-3 w-3 border-r-2 border-b-2 border-loro" />
 
-          <div className="flex items-start gap-4">
+          <div
+            onClick={handlePreviewVoice}
+            className="cursor-pointer"
+            title="Click to hear Surveyor 3's voice introduction"
+          >
             <LoRo size="md" />
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-[10.5px] tracking-[0.14em] text-loro uppercase">
-                  LUNAR HOST · SURVEYOR 3 (1967-035A)
-                </span>
-                <button
-                  type="button"
-                  onClick={handlePreviewVoice}
-                  className="inline-flex cursor-pointer items-center gap-1 border border-white/15 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-regolith hover:border-loro hover:text-white"
-                  title="Hear Surveyor 3's voice introduction"
-                >
-                  <Volume2 className="h-2.5 w-2.5 text-loro" />
-                  <span>VOICE</span>
-                </button>
-              </div>
-              <p className="mt-1.5 text-[13.5px] leading-relaxed text-regolith-bright/95">
-                &ldquo;I touched down in Oceanus Procellarum in April 1967—and 31
-                months later, Apollo 12 astronauts walked down my crater slope to
-                say hello. Select a mission mode below to explore our 29 lunar
-                artifacts and hear what we remember.&rdquo;
-              </p>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-loro uppercase">
+              LUNAR HOST · SURVEYOR 3 (1967-035A)
+            </span>
+            <div>
+              <button
+                type="button"
+                onClick={handlePreviewVoice}
+                className="inline-flex cursor-pointer items-center gap-1.5 border border-loro/35 bg-loro/10 px-2.5 py-1 font-mono text-[10px] text-loro transition hover:border-loro hover:bg-loro/20 hover:text-white"
+                title="Hear Surveyor 3's voice introduction"
+              >
+                <Volume2 className="h-3 w-3 text-loro" />
+                <span>VOICE INTRO</span>
+              </button>
             </div>
           </div>
         </div>

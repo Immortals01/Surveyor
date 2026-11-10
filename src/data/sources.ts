@@ -155,6 +155,24 @@ export const SOURCES: SourceEntry[] = [
     url: "https://images.nasa.gov/",
     creditLine: "NASA Image and Video Library (images.nasa.gov).",
   },
+  {
+    id: "S-SVS-4851",
+    title: "Deep Star Maps 2020 — Tycho-2, Hipparcos & Milky Way Panorama",
+    agencyOrAuthor: "NASA's Scientific Visualization Studio (Ernie Wright)",
+    dataset: "SVS",
+    url: "https://svs.gsfc.nasa.gov/4851/",
+    creditLine:
+      "NASA's Scientific Visualization Studio — Deep Star Maps 2020 (Hipparcos & Tycho-2 Catalogs).",
+  },
+  {
+    id: "S-BLUE-MARBLE",
+    title: "Blue Marble: Next Generation — Earth Albedo, Clouds, Bathymetry & City Lights",
+    agencyOrAuthor: "NASA Goddard Space Flight Center / Earth Observatory (Reto Stöckli)",
+    dataset: "SVS",
+    url: "https://visibleearth.nasa.gov/collection/1484/blue-marble",
+    creditLine:
+      "NASA Earth Observatory / Goddard Space Flight Center — Blue Marble Next Generation.",
+  },
 ];
 
 export const SOURCES_BY_ID: ReadonlyMap<string, SourceEntry> = new Map(

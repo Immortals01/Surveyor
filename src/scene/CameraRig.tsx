@@ -5,183 +5,643 @@ import type CameraControlsImpl from "camera-controls";
 import { Vector3 } from "three";
 import { cameraBus } from "@/engine/camera";
 import { CAMERA } from "@/lib/constants";
-import { DEG, latLonToVector3 } from "@/lib/geo";
+import { latLonToVector3, vector3ToLatLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 import { surfaceRadius } from "./moon/heightSampler";
+import { moonTileManager } from "./moon/tileManager";
 
-const _targetPos = new Vector3();
 const _camPos = new Vector3();
-const _curCamDir = new Vector3();
+const _targetPos = new Vector3();
+const _interpDir = new Vector3();
+const _interpPos = new Vector3();
+const _interpTarget = new Vector3();
+const _interpOffset = new Vector3();
+
+type NavAction =
+  | "left"
+  | "right"
+  | "up"
+  | "down"
+  | "zoomIn"
+  | "zoomOut";
+
+interface ActiveFlight {
+  id: number;
+  startDir: Vector3;
+  orthoDir: Vector3;
+  centralAngle: number;
+  startRadius: number;
+  endRadius: number;
+  peakRadius: number;
+  flightMode: "toSite" | "toOrbit";
+  startTarget: Vector3;
+  endTarget: Vector3;
+  startOffset: Vector3;
+  endOffset: Vector3;
+  minDistance: number;
+  elapsed: number;
+  duration: number;
+  resolve: () => void;
+}
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+function buildOrthoBasis(startDir: Vector3, endDir: Vector3): Vector3 {
+  const dot = Math.max(-1, Math.min(1, startDir.dot(endDir)));
+  const ortho = endDir.clone().addScaledVector(startDir, -dot);
+  if (ortho.lengthSq() > 1e-6) {
+    return ortho.normalize();
+  }
+  const fallback =
+    Math.abs(startDir.y) < 0.9
+      ? new Vector3(0, 1, 0)
+      : new Vector3(1, 0, 0);
+  return fallback.projectOnPlane(startDir).normalize();
+}
+
+function getEndRadius(c: CameraControlsImpl): number {
+  const internal = c as unknown as { _sphericalEnd?: { radius: number } };
+  if (typeof internal._sphericalEnd?.radius === "number") {
+    return internal._sphericalEnd.radius;
+  }
+  return c.distance;
+}
+
+function ensureOriginTarget(c: CameraControlsImpl, enableTransition: boolean) {
+  c.getTarget(_targetPos);
+  if (_targetPos.lengthSq() > 1e-4) {
+    void c.moveTo(0, 0, 0, enableTransition);
+  }
+}
 
 export default function CameraRig() {
   const controlsRef = useRef<CameraControlsImpl | null>(null);
   const flightIdRef = useRef(0);
+  const activeFlightRef = useRef<ActiveFlight | null>(null);
+  const pressedActionsRef = useRef<Set<NavAction>>(new Set());
   const { size } = useThree();
 
   const mode = useAppStore((s) => s.mode);
-  const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const reduceMotion = useAppStore((s) => s.settings.reduceMotion);
   const setCameraFlying = useAppStore((s) => s.setCameraFlying);
 
+  // Cancel active programmatic flight if the user manually drags or scrolls the globe
   useEffect(() => {
+    const c = controlsRef.current;
+    if (!c) return;
+    const onUserControl = () => {
+      const active = activeFlightRef.current;
+      if (active && active.elapsed > 0.12) {
+        activeFlightRef.current = null;
+        setCameraFlying(false);
+        active.resolve();
+      }
+    };
+    c.addEventListener("control", onUserControl);
+    return () => {
+      c.removeEventListener("control", onUserControl);
+    };
+  }, [setCameraFlying]);
+
+  useEffect(() => {
+    const cancelActiveFlight = () => {
+      if (activeFlightRef.current) {
+        const prev = activeFlightRef.current;
+        activeFlightRef.current = null;
+        setCameraFlying(false);
+        prev.resolve();
+      }
+    };
+
+    const startSmoothFlight = (params: {
+      endPos: Vector3;
+      endTarget: Vector3;
+      endOffset: Vector3;
+      minDistance: number;
+      flightMode: "toSite" | "toOrbit";
+      instant: boolean;
+    }): Promise<void> => {
+      const c = controlsRef.current;
+      if (!c) return Promise.resolve();
+
+      cancelActiveFlight();
+
+      const myFlight = ++flightIdRef.current;
+      const { endPos, endTarget, endOffset, minDistance, flightMode, instant } =
+        params;
+
+      c.minDistance = minDistance;
+
+      if (instant) {
+        setCameraFlying(false);
+        void c.setFocalOffset(endOffset.x, endOffset.y, endOffset.z, false);
+        void c.setLookAt(
+          endPos.x,
+          endPos.y,
+          endPos.z,
+          endTarget.x,
+          endTarget.y,
+          endTarget.z,
+          false,
+        );
+        c.normalizeRotations();
+        c.update(0);
+        return Promise.resolve();
+      }
+
+      const startPos = new Vector3();
+      const startTarget = new Vector3();
+      const startOffset = new Vector3();
+      c.getPosition(startPos, false);
+      c.getTarget(startTarget, false);
+      c.getFocalOffset(startOffset, false);
+
+      const startRadius = Math.max(1.01, startPos.length());
+      const endRadius = Math.max(1.01, endPos.length());
+      const startDir =
+        startPos.lengthSq() > 1e-6
+          ? startPos.clone().normalize()
+          : new Vector3(1, 0, 0);
+      const endDir =
+        endPos.lengthSq() > 1e-6
+          ? endPos.clone().normalize()
+          : new Vector3(1, 0, 0);
+
+      const dot = Math.max(-1, Math.min(1, startDir.dot(endDir)));
+      const centralAngle = Math.acos(dot);
+      const orthoDir = buildOrthoBasis(startDir, endDir);
+
+      const midLinear = 0.5 * (startRadius + endRadius);
+      const hopBoost = Math.min(
+        0.95,
+        Math.sin(centralAngle * 0.5) * 0.9 + centralAngle * 0.12,
+      );
+      const minClearance = 1.12 + Math.sin(centralAngle * 0.5) * 0.85;
+      const peakRadius = Math.max(midLinear + hopBoost, minClearance);
+
+      const posDelta = startPos.distanceTo(endPos);
+      const targetDelta = startTarget.distanceTo(endTarget);
+
+      if (posDelta < 1e-3 && targetDelta < 1e-3) {
+        void c.setFocalOffset(endOffset.x, endOffset.y, endOffset.z, true);
+        return Promise.resolve();
+      }
+
+      const duration = Math.min(
+        2.6,
+        Math.max(
+          1.15,
+          1.1 +
+            (centralAngle / Math.PI) * 1.15 +
+            Math.min(0.4, Math.abs(startRadius - endRadius) * 0.18),
+        ),
+      );
+
+      setCameraFlying(true);
+
+      return new Promise<void>((resolve) => {
+        activeFlightRef.current = {
+          id: myFlight,
+          startDir,
+          orthoDir,
+          centralAngle,
+          startRadius,
+          endRadius,
+          peakRadius,
+          flightMode,
+          startTarget,
+          endTarget: endTarget.clone(),
+          startOffset,
+          endOffset: endOffset.clone(),
+          minDistance,
+          elapsed: 0,
+          duration,
+          resolve,
+        };
+      });
+    };
+
+    const getLocalSurfaceRadius = (c: CameraControlsImpl) => {
+      c.getPosition(_camPos);
+      const { lat, lon } = vector3ToLatLon(_camPos);
+      return surfaceRadius(lat, lon);
+    };
+
+    const stepZoom = (direction: "in" | "out", instantArg?: boolean) => {
+      const c = controlsRef.current;
+      if (!c) return;
+      cancelActiveFlight();
+      ++flightIdRef.current;
+      setCameraFlying(false);
+
+      const instant = Boolean(instantArg);
+      ensureOriginTarget(c, !instant);
+
+      const r = getLocalSurfaceRadius(c);
+      const minDist = r + 0.018;
+      c.minDistance = minDist;
+
+      const curEndRadius = Math.max(minDist, getEndRadius(c));
+      const curAltitude = Math.max(0.015, curEndRadius - r);
+      const factor = direction === "in" ? -0.24 : 0.3;
+      const nextRadius = Math.max(
+        minDist,
+        Math.min(CAMERA.maxDistance, curEndRadius + curAltitude * factor),
+      );
+
+      c.smoothTime = instant ? 0.01 : 0.14;
+      void c.dollyTo(nextRadius, !instant);
+    };
+
+    const stepRotate = (
+      dAzimuth: number,
+      dPolar: number,
+      instantArg?: boolean,
+    ) => {
+      const c = controlsRef.current;
+      if (!c) return;
+      cancelActiveFlight();
+      ++flightIdRef.current;
+      setCameraFlying(false);
+
+      const instant = Boolean(instantArg);
+      ensureOriginTarget(c, !instant);
+
+      c.smoothTime = instant ? 0.01 : 0.14;
+      void c.rotate(dAzimuth, dPolar, !instant);
+    };
+
     const unregister = cameraBus.register({
       flyToLatLon: async (lat, lon, opts) => {
-        const c = controlsRef.current;
-        if (!c) return;
-
-        const myFlight = ++flightIdRef.current;
-        const instant =
-          opts?.instant ?? useAppStore.getState().settings.reduceMotion;
+        const instant = Boolean(opts?.instant);
         const altitude = opts?.altitude ?? CAMERA.siteAltitude;
 
-        setCameraFlying(true);
+        // Pre-warm highest-res color & normal tiles for the target site before arrival
+        moonTileManager.preloadSite(lat, lon);
 
         const r = surfaceRadius(lat, lon);
-        const sitePoint = latLonToVector3(lat, lon, r);
-        const siteDir = sitePoint.clone().normalize();
+        const minDist = r + 0.018;
+        const targetDist = Math.max(minDist, r + altitude);
+        const camDest = latLonToVector3(lat, lon, targetDist);
 
-        c.getPosition(_camPos);
-        const curDist = _camPos.length();
-        _curCamDir.copy(_camPos).normalize();
-
-        const angleDeg =
-          Math.acos(Math.max(-1, Math.min(1, _curCamDir.dot(siteDir)))) / DEG;
-
-        try {
-          // Stage 1: swing around the Moon at safe orbital altitude so we never clip through terrain
-          if (!instant && angleDeg > 34) {
-            const safeRadius = Math.max(curDist, CAMERA.homeDistance * 0.72);
-            const orbitStop = siteDir.clone().multiplyScalar(safeRadius);
-            c.smoothTime = 0.48;
-            await c.setLookAt(
-              orbitStop.x,
-              orbitStop.y,
-              orbitStop.z,
-              0,
-              0,
-              0,
-              true,
-            );
-            if (flightIdRef.current !== myFlight) return;
-          }
-
-          // Stage 2: descend to an oblique orbital vantage point over the landing site
-          const refVec =
-            Math.abs(lat) > 74
-              ? new Vector3(1, 0, 0)
-              : new Vector3(0, lat > 15 ? -1 : -0.65, 0);
-          const tiltAxis = refVec.projectOnPlane(siteDir);
-          if (tiltAxis.lengthSq() < 1e-4) {
-            tiltAxis.set(0, 0, 1).projectOnPlane(siteDir);
-          }
-          tiltAxis.normalize();
-
-          const camDest = sitePoint
-            .clone()
-            .addScaledVector(siteDir, altitude)
-            .addScaledVector(tiltAxis, altitude * 0.58);
-
-          c.smoothTime = instant ? 0.01 : 0.55;
-          await c.setLookAt(
-            camDest.x,
-            camDest.y,
-            camDest.z,
-            sitePoint.x,
-            sitePoint.y,
-            sitePoint.z,
-            !instant,
-          );
-        } finally {
-          if (flightIdRef.current === myFlight) {
-            setCameraFlying(false);
-          }
-        }
+        await startSmoothFlight({
+          endPos: camDest,
+          endTarget: new Vector3(0, 0, 0),
+          endOffset: new Vector3(0, 0, 0),
+          minDistance: minDist,
+          flightMode: "toSite",
+          instant,
+        });
       },
 
-      flyOverview: async (lat, lon, distance = CAMERA.homeDistance * 0.88, instantArg) => {
-        const c = controlsRef.current;
-        if (!c) return;
-        const myFlight = ++flightIdRef.current;
-        const instant =
-          instantArg ?? useAppStore.getState().settings.reduceMotion;
-
-        setCameraFlying(true);
+      flyOverview: async (
+        lat,
+        lon,
+        distance = CAMERA.homeDistance * 0.88,
+        instantArg,
+      ) => {
+        const instant = Boolean(instantArg);
+        moonTileManager.preloadSite(lat, lon);
         const dest = latLonToVector3(lat, lon, distance);
-        c.smoothTime = instant ? 0.01 : 0.6;
-        try {
-          await c.setLookAt(dest.x, dest.y, dest.z, 0, 0, 0, !instant);
-        } finally {
-          if (flightIdRef.current === myFlight) {
-            setCameraFlying(false);
-          }
-        }
+
+        await startSmoothFlight({
+          endPos: dest,
+          endTarget: new Vector3(0, 0, 0),
+          endOffset: new Vector3(0, 0, 0),
+          minDistance: CAMERA.minDistance,
+          flightMode: "toOrbit",
+          instant,
+        });
+      },
+
+      flyEarthrise: async (instantArg) => {
+        const instant = Boolean(instantArg);
+        // Position camera over the lunar farside approach looking past the sunlit limb toward Earth
+        const camPos = latLonToVector3(-5, -178, 2.55);
+        const lookTarget = latLonToVector3(5, 22, 0.45);
+
+        await startSmoothFlight({
+          endPos: camPos,
+          endTarget: lookTarget,
+          endOffset: new Vector3(0, 0, 0),
+          minDistance: CAMERA.minDistance,
+          flightMode: "toOrbit",
+          instant,
+        });
       },
 
       goHome: async (instantArg) => {
         const c = controlsRef.current;
         if (!c) return;
-        const myFlight = ++flightIdRef.current;
-        const instant =
-          instantArg ?? useAppStore.getState().settings.reduceMotion;
+        const instant = Boolean(instantArg);
 
-        setCameraFlying(true);
-        c.getPosition(_camPos);
+        c.getPosition(_camPos, false);
         const dir =
           _camPos.lengthSq() > 0.01
             ? _camPos.clone().normalize()
             : new Vector3(1, 0.12, 0).normalize();
         const home = dir.multiplyScalar(CAMERA.homeDistance);
-        c.smoothTime = instant ? 0.01 : 0.55;
-        try {
-          await c.setFocalOffset(0, 0, 0, !instant);
-          await c.setLookAt(home.x, home.y, home.z, 0, 0, 0, !instant);
-        } finally {
-          if (flightIdRef.current === myFlight) {
-            setCameraFlying(false);
-          }
-        }
+
+        await startSmoothFlight({
+          endPos: home,
+          endTarget: new Vector3(0, 0, 0),
+          endOffset: new Vector3(0, 0, 0),
+          minDistance: CAMERA.minDistance,
+          flightMode: "toOrbit",
+          instant,
+        });
+      },
+
+      zoomIn: (instantArg) => {
+        stepZoom("in", instantArg);
+      },
+
+      zoomOut: (instantArg) => {
+        stepZoom("out", instantArg);
+      },
+
+      rotateBy: (dAzimuth, dPolar, instantArg) => {
+        stepRotate(dAzimuth, dPolar, instantArg);
       },
     });
 
     return unregister;
   }, [setCameraFlying]);
 
-  // Offset camera framing on desktop:
-  // - In "intro" mode: shift Moon right so the left editorial column never covers the lunar limb
-  // - When right-side SiteDrawer is open: shift Moon left so the selected site stays in the open viewport
+  // Global keyboard navigation for Moon rotation (Arrow keys / WASD) and Zoom (+ / - / PageUp / PageDown)
+  useEffect(() => {
+    const mapKeyToAction = (e: KeyboardEvent): NavAction | null => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return null;
+
+      if (e.key === "ArrowUp") {
+        return e.shiftKey ? "zoomIn" : "up";
+      }
+      if (e.key === "ArrowDown") {
+        return e.shiftKey ? "zoomOut" : "down";
+      }
+      if (e.key === "ArrowLeft") return "left";
+      if (e.key === "ArrowRight") return "right";
+
+      if (
+        e.key === "+" ||
+        e.key === "=" ||
+        e.code === "NumpadAdd" ||
+        e.key === "PageUp"
+      ) {
+        return "zoomIn";
+      }
+      if (
+        e.key === "-" ||
+        e.key === "_" ||
+        e.code === "NumpadSubtract" ||
+        e.key === "PageDown"
+      ) {
+        return "zoomOut";
+      }
+
+      if (!e.shiftKey) {
+        const lower = e.key.toLowerCase();
+        if (lower === "w") return "up";
+        if (lower === "s") return "down";
+        if (lower === "a") return "left";
+        if (lower === "d") return "right";
+        if (lower === "e" || lower === "z") return "zoomIn";
+        if (lower === "q" || lower === "x") return "zoomOut";
+      }
+
+      return null;
+    };
+
+    const isEditableTarget = (target: EventTarget | null): boolean => {
+      const el = target as HTMLElement | null;
+      if (!el) return false;
+      const tag = el.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") {
+        return true;
+      }
+      return Boolean(el.isContentEditable);
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (isEditableTarget(e.target)) return;
+
+      const state = useAppStore.getState();
+      if (state.sourcesDrawerOpen || state.siteIndexOpen) return;
+
+      const action = mapKeyToAction(e);
+      if (!action) return;
+
+      e.preventDefault();
+
+      if (state.mode === "tour" && !state.tourPaused) {
+        state.setTourPaused(true);
+      }
+
+      const c = controlsRef.current;
+      if (!c) return;
+
+      pressedActionsRef.current.add(action);
+
+      // On initial key press, also fire an immediate step so quick single taps feel crisp
+      if (!e.repeat) {
+        c.getPosition(_camPos);
+        const { lat, lon } = vector3ToLatLon(_camPos);
+        const r = surfaceRadius(lat, lon);
+        const altitude = Math.max(0.015, _camPos.length() - r);
+        const stepRad = Math.max(0.008, Math.min(0.16, altitude * 0.12));
+
+        if (action === "left") {
+          cameraBus.rotateBy(-stepRad, 0);
+        } else if (action === "right") {
+          cameraBus.rotateBy(stepRad, 0);
+        } else if (action === "up") {
+          cameraBus.rotateBy(0, -stepRad);
+        } else if (action === "down") {
+          cameraBus.rotateBy(0, stepRad);
+        } else if (action === "zoomIn") {
+          cameraBus.zoomIn();
+        } else if (action === "zoomOut") {
+          cameraBus.zoomOut();
+        }
+      }
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      const action = mapKeyToAction(e);
+      if (action) {
+        pressedActionsRef.current.delete(action);
+      }
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        pressedActionsRef.current.delete("up");
+        pressedActionsRef.current.delete("down");
+        pressedActionsRef.current.delete("zoomIn");
+        pressedActionsRef.current.delete("zoomOut");
+      }
+    };
+
+    const onBlur = () => {
+      pressedActionsRef.current.clear();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, []);
+
+  // Offset camera framing on desktop only in "intro" mode so the left editorial column never covers the lunar limb.
+  // In explore/tour modes, keep focalOffset at (0, 0, 0) so clicked sites stay centered when zooming in and out.
   useEffect(() => {
     const c = controlsRef.current;
     if (!c) return;
     const isDesktop = size.width >= 1024;
-    if (!isDesktop) {
-      void c.setFocalOffset(0, 0, 0, !reduceMotion);
+    const offsetX = isDesktop && mode === "intro" ? -0.48 : 0;
+    if (activeFlightRef.current) {
+      activeFlightRef.current.endOffset.set(offsetX, 0, 0);
       return;
     }
-    if (mode === "intro") {
-      void c.setFocalOffset(-0.48, 0, 0, !reduceMotion);
-    } else if (selectedSiteId) {
-      c.getPosition(_camPos);
-      c.getTarget(_targetPos);
-      const d = Math.max(0.08, _camPos.distanceTo(_targetPos));
-      void c.setFocalOffset(d * 0.16, 0, 0, !reduceMotion);
-    } else {
-      void c.setFocalOffset(0, 0, 0, !reduceMotion);
-    }
-  }, [mode, selectedSiteId, size.width, reduceMotion]);
+    void c.setFocalOffset(offsetX, 0, 0, true);
+  }, [mode, size.width]);
 
   useFrame((_, delta) => {
     const c = controlsRef.current;
     if (!c) return;
 
+    const actions = pressedActionsRef.current;
+    if (actions.size > 0 && activeFlightRef.current) {
+      const prev = activeFlightRef.current;
+      activeFlightRef.current = null;
+      setCameraFlying(false);
+      prev.resolve();
+    }
+
+    const flight = activeFlightRef.current;
+    if (flight) {
+      flight.elapsed += Math.min(delta, 0.1);
+      const rawT = Math.min(1, flight.elapsed / flight.duration);
+      const s = easeInOutCubic(rawT);
+
+      // 1. Great-circle spherical direction around the Moon
+      const theta = flight.centralAngle * s;
+      _interpDir
+        .copy(flight.startDir)
+        .multiplyScalar(Math.cos(theta))
+        .addScaledVector(flight.orthoDir, Math.sin(theta));
+
+      // 2. Smooth orbital altitude profile (arcs over terrain; never clips through Moon)
+      let radius: number;
+      if (flight.startRadius < 1.85 && flight.endRadius < 1.85) {
+        const midLinear = 0.5 * (flight.startRadius + flight.endRadius);
+        const linearR =
+          flight.startRadius + (flight.endRadius - flight.startRadius) * s;
+        radius =
+          linearR + (flight.peakRadius - midLinear) * Math.sin(s * Math.PI);
+      } else if (flight.flightMode === "toSite" && flight.startRadius >= 1.85) {
+        const exponent = 1.0 + (flight.centralAngle / Math.PI) * 0.7;
+        const sR = Math.pow(s, exponent);
+        radius =
+          flight.startRadius + (flight.endRadius - flight.startRadius) * sR;
+      } else if (flight.flightMode === "toOrbit" && flight.startRadius < 1.85) {
+        const exponent = 1.0 + (flight.centralAngle / Math.PI) * 0.7;
+        const sR = 1 - Math.pow(1 - s, exponent);
+        radius =
+          flight.startRadius + (flight.endRadius - flight.startRadius) * sR;
+      } else {
+        const midLinear = 0.5 * (flight.startRadius + flight.endRadius);
+        const linearR =
+          flight.startRadius + (flight.endRadius - flight.startRadius) * s;
+        const safetyBoost = Math.max(0, flight.peakRadius - midLinear);
+        radius = linearR + safetyBoost * Math.sin(s * Math.PI);
+      }
+
+      _interpPos.copy(_interpDir).multiplyScalar(radius);
+      _interpTarget.lerpVectors(flight.startTarget, flight.endTarget, s);
+      _interpOffset.lerpVectors(flight.startOffset, flight.endOffset, s);
+
+      c.minDistance = flight.minDistance;
+      void c.setFocalOffset(
+        _interpOffset.x,
+        _interpOffset.y,
+        _interpOffset.z,
+        false,
+      );
+      void c.setLookAt(
+        _interpPos.x,
+        _interpPos.y,
+        _interpPos.z,
+        _interpTarget.x,
+        _interpTarget.y,
+        _interpTarget.z,
+        false,
+      );
+      c.normalizeRotations();
+      c.update(0);
+
+      if (rawT >= 1) {
+        activeFlightRef.current = null;
+        if (flightIdRef.current === flight.id) {
+          c.smoothTime = 0.18;
+          setCameraFlying(false);
+        }
+        flight.resolve();
+      }
+      return;
+    }
+
     c.getPosition(_camPos);
-    const altitude = Math.max(0.01, _camPos.length() - 1);
+    const { lat, lon } = vector3ToLatLon(_camPos);
+    const localR = surfaceRadius(lat, lon);
+    const minDist = localR + 0.018;
+    c.minDistance = minDist;
+
+    const altitude = Math.max(0.012, _camPos.length() - localR);
     const speed = Math.max(0.035, Math.min(1.0, altitude * 0.85));
     c.azimuthRotateSpeed = speed;
     c.polarRotateSpeed = speed;
+    c.dollySpeed = Math.max(0.08, Math.min(1.2, altitude * 1.15));
 
-    // Gentle orbital drift on the Intro welcome screen
-    if (mode === "intro" && !reduceMotion) {
-      c.azimuthAngle += delta * 0.045;
+    if (actions.size > 0) {
+      ++flightIdRef.current;
+      ensureOriginTarget(c, false);
+      c.smoothTime = 0.12;
+
+      const clampedDelta = Math.min(delta, 0.05);
+      const rotRate = Math.max(0.03, Math.min(1.15, altitude * 0.85));
+      let dAz = 0;
+      let dPol = 0;
+      if (actions.has("left")) dAz -= rotRate * clampedDelta;
+      if (actions.has("right")) dAz += rotRate * clampedDelta;
+      if (actions.has("up")) dPol -= rotRate * clampedDelta;
+      if (actions.has("down")) dPol += rotRate * clampedDelta;
+      if (dAz !== 0 || dPol !== 0) {
+        void c.rotate(dAz, dPol, true);
+      }
+
+      if (actions.has("zoomIn") || actions.has("zoomOut")) {
+        const curEndRadius = Math.max(minDist, getEndRadius(c));
+        const curAlt = Math.max(0.012, curEndRadius - localR);
+        const zoomRate = actions.has("zoomIn") ? -1.35 : 1.55;
+        const nextRadius = Math.max(
+          minDist,
+          Math.min(
+            CAMERA.maxDistance,
+            curEndRadius + curAlt * zoomRate * clampedDelta,
+          ),
+        );
+        void c.dollyTo(nextRadius, true);
+      }
+      return;
+    }
+
+    // Gentle orbital drift on the Intro welcome screen when idle
+    if (mode === "intro" && !reduceMotion && !c.active) {
+      void c.rotate(delta * 0.045, 0, false);
     }
   });
 
@@ -189,10 +649,9 @@ export default function CameraRig() {
     <CameraControls
       ref={controlsRef}
       makeDefault
-      minDistance={CAMERA.minDistance}
       maxDistance={CAMERA.maxDistance}
       dollyToCursor={false}
-      smoothTime={0.45}
+      smoothTime={0.18}
       draggingSmoothTime={0.14}
     />
   );

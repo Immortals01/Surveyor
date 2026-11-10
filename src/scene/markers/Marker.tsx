@@ -2,7 +2,6 @@ import { useMemo, useRef } from "react";
 import { Html } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import {
-  AdditiveBlending,
   DoubleSide,
   Group,
   Mesh,
@@ -35,7 +34,6 @@ export default function Marker({ site, heightReady }: MarkerProps) {
   const hoveredSiteId = useAppStore((s) => s.hoveredSiteId);
   const categoryFilter = useAppStore((s) => s.categoryFilter);
   const heroOnly = useAppStore((s) => s.heroOnly);
-  const reduceMotion = useAppStore((s) => s.settings.reduceMotion);
 
   const isSelected = selectedSiteId === site.id;
   const isHovered = hoveredSiteId === site.id;
@@ -65,7 +63,7 @@ export default function Marker({ site, heightReady }: MarkerProps) {
 
   const clickableRef = useRef(true);
 
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera }) => {
     const g = groupRef.current;
     if (!g) return;
 
@@ -73,7 +71,7 @@ export default function Marker({ site, heightReady }: MarkerProps) {
 
     // Hide close sub-markers until the user zooms near their parent landing site
     const tuckedBehindParent =
-      Boolean(site.parentHeroId) && camDist > 0.42 && !isSelected && !isHovered;
+      Boolean(site.parentHeroId) && camDist > 0.58 && !isSelected && !isHovered;
 
     _toCam.copy(camera.position).sub(position).normalize();
     const horizonDot = normal.dot(_toCam);
@@ -86,31 +84,28 @@ export default function Marker({ site, heightReady }: MarkerProps) {
     g.visible = finalVis > 0.01;
     if (!g.visible) return;
 
-    const baseAngular = Math.max(0.0018, Math.min(0.06, camDist * 0.017));
-    const tierMult = isHero ? 1.32 : 0.78;
-    const hoverMult = isSelected ? 1.35 : isHovered ? 1.2 : 1.0;
+    const baseAngular = Math.max(0.0016, Math.min(0.048, camDist * 0.0145));
+    const tierMult = isHero ? 1.18 : 0.76;
+    const hoverMult = isSelected ? 1.25 : isHovered ? 1.14 : 1.0;
     g.scale.setScalar(baseAngular * tierMult * hoverMult);
 
-    if (coreMatRef.current) coreMatRef.current.opacity = finalVis;
-    if (stemMatRef.current) stemMatRef.current.opacity = finalVis;
+    if (coreMatRef.current) coreMatRef.current.opacity = finalVis * 0.92;
+    if (stemMatRef.current) stemMatRef.current.opacity = finalVis * 0.75;
 
     if (pulseRingRef.current && ringMatRef.current) {
-      if (!reduceMotion && (isHero || isHovered || isSelected)) {
-        const t = (clock.getElapsedTime() * 0.75 + (site.lat + 90) * 0.03) % 1;
-        const s = 1 + t * (site.primaryCategory === "future" ? 2.1 : 1.45);
-        pulseRingRef.current.scale.setScalar(s);
-        ringMatRef.current.opacity = (1 - t) * 0.65 * finalVis;
-      } else {
-        pulseRingRef.current.scale.setScalar(1.25);
-        ringMatRef.current.opacity = (isHero ? 0.38 : 0.2) * finalVis;
-      }
+      pulseRingRef.current.scale.setScalar(isSelected || isHovered ? 1.15 : 1.0);
+      const ringOpacity = isSelected
+        ? 0.5
+        : isHovered
+          ? 0.42
+          : isHero
+            ? 0.24
+            : 0.14;
+      ringMatRef.current.opacity = ringOpacity * finalVis;
     }
 
     if (reticleRef.current && reticleMatRef.current && isSelected) {
-      if (!reduceMotion) {
-        reticleRef.current.rotation.y = clock.getElapsedTime() * 1.2;
-      }
-      reticleMatRef.current.opacity = 0.9 * horizonVis;
+      reticleMatRef.current.opacity = 0.75 * horizonVis;
     }
   });
 
@@ -142,6 +137,8 @@ export default function Marker({ site, heightReady }: MarkerProps) {
       const dy = e.clientY - downPosRef.current.y;
       if (Math.hypot(dx, dy) > 6) return;
     }
+
+    (document.activeElement as HTMLElement | null)?.blur?.();
 
     const store = useAppStore.getState();
     if (store.mode === "intro") {
@@ -202,20 +199,19 @@ export default function Marker({ site, heightReady }: MarkerProps) {
         </mesh>
       )}
 
-      {/* Expanding pulse halo */}
+      {/* Subtle static perimeter ring */}
       <mesh
         ref={pulseRingRef}
         position={[0, 0.02, 0]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
-        <ringGeometry args={[0.52, 0.72, 32]} />
+        <ringGeometry args={[0.52, 0.66, 32]} />
         <meshBasicMaterial
           ref={ringMatRef}
           color={colorHex}
           transparent
-          opacity={0.55}
+          opacity={0.24}
           side={DoubleSide}
-          blending={AdditiveBlending}
           depthWrite={false}
           toneMapped={false}
         />
@@ -228,14 +224,13 @@ export default function Marker({ site, heightReady }: MarkerProps) {
           position={[0, 0.04, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
         >
-          <ringGeometry args={[0.88, 1.06, 6]} />
+          <ringGeometry args={[0.82, 0.96, 24]} />
           <meshBasicMaterial
             ref={reticleMatRef}
             color="#5ce1ff"
             transparent
-            opacity={0.9}
+            opacity={0.75}
             side={DoubleSide}
-            blending={AdditiveBlending}
             depthWrite={false}
             toneMapped={false}
           />

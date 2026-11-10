@@ -28,6 +28,8 @@ mkdirSync(OUT_MOON, { recursive: true });
 mkdirSync(OUT_SKY, { recursive: true });
 mkdirSync(OUT_EARTH, { recursive: true });
 
+const FORCE = process.argv.includes("--force");
+
 async function buildColorPyramid() {
   const builtLevels = [];
 
@@ -40,6 +42,20 @@ async function buildColorPyramid() {
 
     const outDir = path.join(OUT_MOON, `color/L${spec.level}`);
     mkdirSync(outDir, { recursive: true });
+
+    const allExist =
+      !FORCE &&
+      Array.from({ length: ROWS * COLS }, (_, idx) => {
+        const r = Math.floor(idx / COLS);
+        const c = idx % COLS;
+        return existsSync(path.join(outDir, `${r}_${c}.webp`));
+      }).every(Boolean);
+
+    if (allExist) {
+      builtLevels.push({ level: spec.level, tileSize: spec.tileSize });
+      console.log(`[color] Skip L${spec.level} (already built @ ${spec.tileSize}px)`);
+      continue;
+    }
 
     console.log(`[color] Decoding ${spec.file} once into memory...`);
     const img = sharp(srcPath, { limitInputPixels: false });
@@ -131,96 +147,173 @@ async function buildHeightAndNormals() {
   const normDem = existsSync(dem16Path) ? await readUint16Dem(dem16Path) : dem4;
   const { u16, width: W, height: H } = normDem;
 
-  console.log(`[normal] Generating equirectangular normal map from ${W}x${H} LOLA DEM...`);
-  const rgb = Buffer.allocUnsafe(W * H * 3);
+  const normalSpecs = [
+    { level: 0, tileSize: 128, quality: 92 },
+    { level: 1, tileSize: 360, quality: 92 },
+    { level: 2, tileSize: 720, quality: 94 },
+    { level: 3, tileSize: 1440, quality: 94 },
+  ].filter((spec) => spec.tileSize <= Math.floor(W / COLS) * 2);
+
+  for (const spec of normalSpecs) {
+    mkdirSync(path.join(OUT_MOON, `normal/L${spec.level}`), { recursive: true });
+  }
+
+  const maxNormalSize = normalSpecs[normalSpecs.length - 1].tileSize;
+  console.log(
+    `[normal] Generating C1 cubic B-spline normal pyramid up to L${normalSpecs[normalSpecs.length - 1].level} (${maxNormalSize}px/tile) from ${W}x${H} LOLA DEM...`,
+  );
+
   const DEG = Math.PI / 180;
+  const srcTileW = W / COLS;
+  const srcTileH = H / ROWS;
+  const dyKm = (Math.PI * MOON_RADIUS_KM) / H;
 
   const hKm = (x, y) => {
     const wx = ((x % W) + W) % W;
-    const cy = Math.max(0, Math.min(H - 1, y));
+    const cy = y < 0 ? 0 : y >= H ? H - 1 : y;
     return u16[cy * W + wx] / 2000 - 10;
   };
 
-  const dyKm = (Math.PI * MOON_RADIUS_KM) / H;
+  const tileRgb = Buffer.allocUnsafe(maxNormalSize * maxNormalSize * 3);
+  const bx = new Float64Array(4);
+  const dbx = new Float64Array(4);
+  const by = new Float64Array(4);
+  const dby = new Float64Array(4);
 
-  for (let y = 0; y < H; y++) {
-    const latRad = (90 - ((y + 0.5) * 180) / H) * DEG;
-    const dxKm =
-      (2 * Math.PI * MOON_RADIUS_KM * Math.max(Math.cos(latRad), 0.015)) / W;
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      for (let py = 0; py < maxNormalSize; py++) {
+        const vDem = (row + (py + 0.5) / maxNormalSize) * srcTileH - 0.5;
+        const iy = Math.floor(vDem);
+        const ty = vDem - iy;
+        const ty2 = ty * ty;
+        const ty3 = ty2 * ty;
+        const omy = 1 - ty;
 
-    for (let x = 0; x < W; x++) {
-      const dhdx = (hKm(x + 1, y) - hKm(x - 1, y)) / (2 * dxKm);
-      const dhdn = (hKm(x, y - 1) - hKm(x, y + 1)) / (2 * dyKm);
+        by[0] = (omy * omy * omy) / 6;
+        by[1] = (3 * ty3 - 6 * ty2 + 4) / 6;
+        by[2] = (-3 * ty3 + 3 * ty2 + 3 * ty + 1) / 6;
+        by[3] = ty3 / 6;
 
-      const nx = -dhdx * NORMAL_STRENGTH;
-      const ny = -dhdn * NORMAL_STRENGTH;
-      const nz = 1.0;
-      const invLen = 1.0 / Math.hypot(nx, ny, nz);
+        dby[0] = -0.5 * omy * omy;
+        dby[1] = 1.5 * ty2 - 2 * ty;
+        dby[2] = -1.5 * ty2 + ty + 0.5;
+        dby[3] = 0.5 * ty2;
 
-      const idx = (y * W + x) * 3;
-      rgb[idx] = Math.round((nx * invLen * 0.5 + 0.5) * 255);
-      rgb[idx + 1] = Math.round((ny * invLen * 0.5 + 0.5) * 255);
-      rgb[idx + 2] = Math.round((nz * invLen * 0.5 + 0.5) * 255);
-    }
-  }
+        const latRad =
+          (90 - ((row + (py + 0.5) / maxNormalSize) * 180) / ROWS) * DEG;
+        const dxKm =
+          (2 * Math.PI * MOON_RADIUS_KM * Math.max(Math.cos(latRad), 0.015)) /
+          W;
 
-  const normalSpecs = [
-    { level: 0, tileSize: 128 },
-    { level: 1, tileSize: 360 },
-    { level: 2, tileSize: 720 },
-  ];
+        for (let px = 0; px < maxNormalSize; px++) {
+          const uDem = (col + (px + 0.5) / maxNormalSize) * srcTileW - 0.5;
+          const ix = Math.floor(uDem);
+          const tx = uDem - ix;
+          const tx2 = tx * tx;
+          const tx3 = tx2 * tx;
+          const omx = 1 - tx;
 
-  const builtNormalLevels = [];
-  const srcTileW = Math.floor(W / COLS);
-  const srcTileH = Math.floor(H / ROWS);
+          bx[0] = (omx * omx * omx) / 6;
+          bx[1] = (3 * tx3 - 6 * tx2 + 4) / 6;
+          bx[2] = (-3 * tx3 + 3 * tx2 + 3 * tx + 1) / 6;
+          bx[3] = tx3 / 6;
 
-  for (const spec of normalSpecs) {
-    if (spec.tileSize > srcTileW) continue;
-    const outDir = path.join(OUT_MOON, `normal/L${spec.level}`);
-    mkdirSync(outDir, { recursive: true });
+          dbx[0] = -0.5 * omx * omx;
+          dbx[1] = 1.5 * tx2 - 2 * tx;
+          dbx[2] = -1.5 * tx2 + tx + 0.5;
+          dbx[3] = 0.5 * tx2;
 
-    for (let row = 0; row < ROWS; row++) {
-      for (let col = 0; col < COLS; col++) {
-        const outPath = path.join(outDir, `${row}_${col}.webp`);
-        await sharp(rgb, {
-          raw: { width: W, height: H, channels: 3 },
+          let dhdu = 0;
+          let dhdv = 0;
+          for (let m = 0; m < 4; m++) {
+            const wy = by[m];
+            const dwy = dby[m];
+            const sy = iy - 1 + m;
+            let rowH = 0;
+            let rowDhDx = 0;
+            for (let k = 0; k < 4; k++) {
+              const hVal = hKm(ix - 1 + k, sy);
+              rowH += hVal * bx[k];
+              rowDhDx += hVal * dbx[k];
+            }
+            dhdu += rowDhDx * wy;
+            dhdv += rowH * dwy;
+          }
+
+          const dhdx = dhdu / dxKm;
+          const dhdn = -dhdv / dyKm;
+
+          const nx = -dhdx * NORMAL_STRENGTH;
+          const ny = -dhdn * NORMAL_STRENGTH;
+          const nz = 1.0;
+          const invLen = 1.0 / Math.hypot(nx, ny, nz);
+
+          const idx = (py * maxNormalSize + px) * 3;
+          tileRgb[idx] = Math.round((nx * invLen * 0.5 + 0.5) * 255);
+          tileRgb[idx + 1] = Math.round((ny * invLen * 0.5 + 0.5) * 255);
+          tileRgb[idx + 2] = Math.round((nz * invLen * 0.5 + 0.5) * 255);
+        }
+      }
+
+      for (const spec of normalSpecs) {
+        const outPath = path.join(
+          OUT_MOON,
+          `normal/L${spec.level}/${row}_${col}.webp`,
+        );
+        let pipeline = sharp(tileRgb, {
+          raw: { width: maxNormalSize, height: maxNormalSize, channels: 3 },
           limitInputPixels: false,
-        })
-          .extract({
-            left: col * srcTileW,
-            top: row * srcTileH,
-            width: srcTileW,
-            height: srcTileH,
-          })
-          .resize(spec.tileSize, spec.tileSize, { kernel: "lanczos3" })
-          .webp({ quality: 92 })
-          .toFile(outPath);
+        });
+        if (spec.tileSize !== maxNormalSize) {
+          pipeline = pipeline.resize(spec.tileSize, spec.tileSize, {
+            kernel: "lanczos3",
+          });
+        }
+        await pipeline.webp({ quality: spec.quality }).toFile(outPath);
       }
     }
-
-    builtNormalLevels.push({ level: spec.level, tileSize: spec.tileSize });
-    console.log(`[normal] Built L${spec.level} (${COLS * ROWS} tiles @ ${spec.tileSize}px)`);
+    console.log(`[normal] Row ${row + 1}/${ROWS} complete`);
   }
 
-  return builtNormalLevels;
+  return normalSpecs.map(({ level, tileSize }) => ({ level, tileSize }));
 }
 
 async function buildStarfield() {
-  const starOut = path.join(OUT_SKY, "stars_4k.webp");
-  const starSrc = path.join(RAW_DIR, "starmap_2020_4k_gal.jpg");
+  const star8kOut = path.join(OUT_SKY, "stars_8k.webp");
+  const star4kOut = path.join(OUT_SKY, "stars_4k.webp");
+  const mwOut = path.join(OUT_SKY, "milkyway_4k.webp");
+
+  const star16kSrc = path.join(RAW_DIR, "starmap_16k.jpg");
+  const starFallbackSrc = path.join(RAW_DIR, "starmap_2020_4k_gal.jpg");
+  const starSrc = existsSync(star16kSrc) ? star16kSrc : starFallbackSrc;
+
   if (existsSync(starSrc)) {
     await sharp(starSrc, { limitInputPixels: false })
-      .resize(4096, 2048, { fit: "fill" })
-      .webp({ quality: 86 })
-      .toFile(starOut);
+      .resize(8192, 4096, { kernel: "lanczos3", fit: "fill" })
+      .sharpen({ sigma: 0.65, m1: 0.5, m2: 1.8 })
+      .webp({ quality: 92, smartSubsample: true, effort: 4 })
+      .toFile(star8kOut);
+    console.log("[sky] Built public/textures/sky/stars_8k.webp");
+
+    await sharp(starSrc, { limitInputPixels: false })
+      .resize(4096, 2048, { kernel: "lanczos3", fit: "fill" })
+      .sharpen({ sigma: 0.6, m1: 0.5, m2: 1.6 })
+      .webp({ quality: 90, smartSubsample: true, effort: 4 })
+      .toFile(star4kOut);
     console.log("[sky] Built public/textures/sky/stars_4k.webp");
-  }
-  const mwSrc = path.join(RAW_DIR, "milkyway_4k_gal.jpg");
-  const mwOut = path.join(OUT_SKY, "milkyway_4k.webp");
-  if (existsSync(mwSrc)) {
-    await sharp(mwSrc, { limitInputPixels: false })
-      .resize(4096, 2048, { fit: "fill" })
-      .webp({ quality: 84 })
+
+    // Extract star-free diffuse Milky Way continuum in matching equatorial coordinates
+    const mid = await sharp(starSrc, { limitInputPixels: false })
+      .resize(2048, 1024, { kernel: "lanczos3", fit: "fill" })
+      .median(5)
+      .blur(1.4)
+      .linear([8.8, 8.4, 8.2], [-24, -23, -22])
+      .toBuffer();
+
+    await sharp(mid)
+      .resize(4096, 2048, { kernel: "cubic", fit: "fill" })
+      .webp({ quality: 88, smartSubsample: true, effort: 4 })
       .toFile(mwOut);
     console.log("[sky] Built public/textures/sky/milkyway_4k.webp");
   }
@@ -240,7 +333,7 @@ async function buildStarfield() {
         .toFile(path.join(OUT_EARTH, outFile));
     }
   }
-  return existsSync(starOut);
+  return existsSync(star4kOut);
 }
 
 const colorLevels = await buildColorPyramid();

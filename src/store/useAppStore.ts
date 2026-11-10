@@ -78,11 +78,6 @@ export interface AppState {
   updateSettings: (patch: Partial<UserSettings>) => void;
 }
 
-function getInitialReduceMotion(): boolean {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-}
-
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
@@ -113,7 +108,7 @@ export const useAppStore = create<AppState>()(
         muted: false,
         voiceEnabled: true,
         captionsEnabled: true,
-        reduceMotion: getInitialReduceMotion(),
+        reduceMotion: false,
         qualityTier: "auto",
       },
 
@@ -211,8 +206,19 @@ export const useAppStore = create<AppState>()(
         })),
     }),
     {
-      name: "abandoned-not-forgotten-settings-v1",
+      name: "abandoned-not-forgotten-settings-v2",
       partialize: (state) => ({ settings: state.settings }),
+      merge: (persistedState, currentState) => {
+        const persisted = persistedState as Partial<AppState> | undefined;
+        return {
+          ...currentState,
+          settings: {
+            ...currentState.settings,
+            ...persisted?.settings,
+            reduceMotion: false,
+          },
+        };
+      },
     },
   ),
 );

@@ -5,7 +5,7 @@ export const CAMERA = {
   homeDistance: 3.15,
   minDistance: 1.03,
   maxDistance: 7.5,
-  siteAltitude: 0.14,
+  siteAltitude: 0.28,
   flyDurationMs: 2600,
 } as const;
 
