@@ -224,10 +224,16 @@ export default function CameraRig() {
       });
     };
 
+    const bodySurfaceRadius = (lat: number, lon: number) => {
+      return useAppStore.getState().activeBody === "earth"
+        ? 1.0
+        : surfaceRadius(lat, lon);
+    };
+
     const getLocalSurfaceRadius = (c: CameraControlsImpl) => {
       c.getPosition(_camPos);
       const { lat, lon } = vector3ToLatLon(_camPos);
-      return surfaceRadius(lat, lon);
+      return bodySurfaceRadius(lat, lon);
     };
 
     const stepZoom = (direction: "in" | "out", instantArg?: boolean) => {
@@ -283,9 +289,11 @@ export default function CameraRig() {
         );
 
         // Pre-warm highest-res color & normal tiles for the target site before arrival
-        moonTileManager.preloadSite(lat, lon);
+        if (useAppStore.getState().activeBody === "moon") {
+          moonTileManager.preloadSite(lat, lon);
+        }
 
-        const r = surfaceRadius(lat, lon);
+        const r = bodySurfaceRadius(lat, lon);
         const minDist = Math.max(CAMERA.minDistance, r + CAMERA.minAltitude);
         const targetDist = Math.max(minDist, r + altitude);
         const camDest = latLonToVector3(lat, lon, targetDist);
@@ -307,7 +315,9 @@ export default function CameraRig() {
         instantArg,
       ) => {
         const instant = Boolean(instantArg);
-        moonTileManager.preloadSite(lat, lon);
+        if (useAppStore.getState().activeBody === "moon") {
+          moonTileManager.preloadSite(lat, lon);
+        }
         const dest = latLonToVector3(lat, lon, distance);
 
         await startSmoothFlight({
@@ -452,7 +462,7 @@ export default function CameraRig() {
       if (!e.repeat) {
         c.getPosition(_camPos);
         const { lat, lon } = vector3ToLatLon(_camPos);
-        const r = surfaceRadius(lat, lon);
+        const r = state.activeBody === "earth" ? 1.0 : surfaceRadius(lat, lon);
         const altitude = Math.max(CAMERA.minAltitude, _camPos.length() - r);
         const stepRad = Math.max(0.008, Math.min(0.16, altitude * 0.12));
 
@@ -600,7 +610,10 @@ export default function CameraRig() {
 
     c.getPosition(_camPos);
     const { lat, lon } = vector3ToLatLon(_camPos);
-    const localR = surfaceRadius(lat, lon);
+    const localR =
+      useAppStore.getState().activeBody === "earth"
+        ? 1.0
+        : surfaceRadius(lat, lon);
     const minDist = Math.max(CAMERA.minDistance, localR + CAMERA.minAltitude);
     c.minDistance = minDist;
     if (getEndRadius(c) < minDist - 1e-4) {

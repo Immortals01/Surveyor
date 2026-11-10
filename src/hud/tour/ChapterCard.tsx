@@ -1,11 +1,13 @@
-import { TOUR_CHAPTERS } from "@/data";
+import { getTourChaptersForBody } from "@/data";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function ChapterCard() {
+  const activeBody = useAppStore((s) => s.activeBody);
   const mode = useAppStore((s) => s.mode);
   const chapterIndex = useAppStore((s) => s.tourChapterIndex);
   const visible = useAppStore((s) => s.chapterBannerVisible);
-  const chapter = TOUR_CHAPTERS[chapterIndex];
+  const chapters = getTourChaptersForBody(activeBody);
+  const chapter = chapters[chapterIndex];
 
   if (mode !== "tour" || !visible || !chapter) return null;
 

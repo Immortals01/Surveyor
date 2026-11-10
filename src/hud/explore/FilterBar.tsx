@@ -1,9 +1,9 @@
 import { Globe2, Star } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
-import { ALL_SITES } from "@/data";
+import { getSitesForBody } from "@/data";
 import type { Category } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
-import { CATEGORY_META } from "@/lib/constants";
+import { getCategoryMeta } from "@/lib/constants";
 import { useAppStore } from "@/store/useAppStore";
 
 const FILTER_ORDER: Category[] = [
@@ -16,13 +16,17 @@ const FILTER_ORDER: Category[] = [
 ];
 
 export default function FilterBar() {
+  const activeBody = useAppStore((s) => s.activeBody);
   const categoryFilter = useAppStore((s) => s.categoryFilter);
   const heroOnly = useAppStore((s) => s.heroOnly);
   const setCategoryFilter = useAppStore((s) => s.setCategoryFilter);
   const setHeroOnly = useAppStore((s) => s.setHeroOnly);
   const setSunDirection = useAppStore((s) => s.setSunDirection);
 
-  const visibleCount = ALL_SITES.filter((site) => {
+  const sites = getSitesForBody(activeBody);
+  const categoryMeta = getCategoryMeta(activeBody);
+
+  const visibleCount = sites.filter((site) => {
     if (heroOnly && site.tier !== "hero") return false;
     if (categoryFilter === "all") return true;
     return site.categories.includes(categoryFilter);
@@ -42,11 +46,11 @@ export default function FilterBar() {
             : "text-regolith/80 hover:bg-white/10 hover:text-white"
         }`}
       >
-        All ({ALL_SITES.length})
+        All ({sites.length})
       </button>
 
       {FILTER_ORDER.map((cat) => {
-        const meta = CATEGORY_META[cat];
+        const meta = categoryMeta[cat];
         const active = categoryFilter === cat;
         return (
           <button
@@ -94,36 +98,73 @@ export default function FilterBar() {
       <div className="hidden items-center gap-1 lg:flex">
         <span className="mx-1 h-4 w-px bg-white/15" />
         <Globe2 className="h-3.5 w-3.5 text-loro/80" />
-        <button
-          type="button"
-          onClick={() => {
-            setSunDirection(-48, 1.5);
-            void cameraBus.flyOverview(8, 10, 2.75);
-          }}
-          className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
-        >
-          Near Side
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSunDirection(145, 1.5);
-            void cameraBus.flyOverview(8, 175, 2.85);
-          }}
-          className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
-        >
-          Far Side
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setSunDirection(-48, -1.5);
-            void cameraBus.flyOverview(-82, -30, 1.85);
-          }}
-          className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
-        >
-          South Pole
-        </button>
+        {activeBody === "earth" ? (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(-75, 15);
+                void cameraBus.flyOverview(28, -90, 2.75);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Americas
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(30, 18);
+                void cameraBus.flyOverview(36, 32, 2.75);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Eurasia
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(115, 10);
+                void cameraBus.flyOverview(12, 118, 2.85);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Asia-Pacific
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(-48, 1.5);
+                void cameraBus.flyOverview(8, 10, 2.75);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Near Side
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(145, 1.5);
+                void cameraBus.flyOverview(8, 175, 2.85);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              Far Side
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setSunDirection(-48, -1.5);
+                void cameraBus.flyOverview(-82, -30, 1.85);
+              }}
+              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
+            >
+              South Pole
+            </button>
+          </>
+        )}
       </div>
 
       <span className="ml-auto hidden font-mono text-[10px] text-regolith/55 xl:inline">

@@ -46,6 +46,7 @@ export default function Marker({ site, heightReady }: MarkerProps) {
   // Granular boolean selectors so only the affected 1-2 markers re-render on hover/select
   const isSelected = useAppStore((s) => s.selectedSiteId === site.id);
   const isHovered = useAppStore((s) => s.hoveredSiteId === site.id);
+  const activeBody = useAppStore((s) => s.activeBody);
   const categoryFilter = useAppStore((s) => s.categoryFilter);
   const heroOnly = useAppStore((s) => s.heroOnly);
 
@@ -59,12 +60,15 @@ export default function Marker({ site, heightReady }: MarkerProps) {
 
   const { position, quaternion, normal } = useMemo(() => {
     void heightReady;
-    const r = surfaceRadius(site.lat, site.lon) + 0.0026;
+    const isEarth = activeBody === "earth";
+    const r = isEarth ? 1.0032 : surfaceRadius(site.lat, site.lon) + 0.0026;
     const pos = latLonToVector3(site.lat, site.lon, r);
-    const nrm = surfaceNormal(site.lat, site.lon);
+    const nrm = isEarth
+      ? latLonToVector3(site.lat, site.lon, 1).normalize()
+      : surfaceNormal(site.lat, site.lon);
     const quat = new Quaternion().setFromUnitVectors(UP, nrm);
     return { position: pos, quaternion: quat, normal: nrm };
-  }, [site.lat, site.lon, heightReady]);
+  }, [activeBody, site.lat, site.lon, heightReady]);
 
   const colorHex = CATEGORY_META[site.primaryCategory].color;
 

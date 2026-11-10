@@ -1,12 +1,13 @@
 import { useMemo, useState } from "react";
 import { MapPin, Search, Sparkles, X } from "lucide-react";
-import { ALL_SITES, isNearside } from "@/data";
+import { getSitesForBody, isNearside } from "@/data";
 import { cameraBus } from "@/engine/camera";
-import { CATEGORY_META } from "@/lib/constants";
-import { formatLatLon } from "@/lib/geo";
+import { getCategoryMeta } from "@/lib/constants";
+import { formatLatLon, normalizeLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 
 export default function SiteIndex() {
+  const activeBody = useAppStore((s) => s.activeBody);
   const open = useAppStore((s) => s.siteIndexOpen);
   const setOpen = useAppStore((s) => s.setSiteIndexOpen);
   const selectSite = useAppStore((s) => s.selectSite);
@@ -16,26 +17,33 @@ export default function SiteIndex() {
 
   const [query, setQuery] = useState("");
 
+  const isEarth = activeBody === "earth";
+  const sites = getSitesForBody(activeBody);
+  const categoryMeta = getCategoryMeta(activeBody);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return ALL_SITES.filter((site) => {
+    return sites.filter((site) => {
       if (!q) return true;
       return (
         site.name.toLowerCase().includes(q) ||
         site.mission.toLowerCase().includes(q) ||
         site.region.toLowerCase().includes(q) ||
+        site.subtitle.toLowerCase().includes(q) ||
         String(site.year).includes(q)
       );
     });
-  }, [query]);
+  }, [query, sites]);
 
   if (!open) return null;
 
-  const handleJump = (site: (typeof ALL_SITES)[number]) => {
+  const handleJump = (site: (typeof sites)[number]) => {
     if (mode !== "explore") {
       enterExplore(true);
     }
-    if (!isNearside(site.lon)) {
+    if (isEarth) {
+      setSunDirection(normalizeLon(site.lon - 18), 12);
+    } else if (!isNearside(site.lon)) {
       setSunDirection(site.lon > 0 ? 140 : -140, 1.5);
     }
     selectSite(site.id, "story");
@@ -48,16 +56,24 @@ export default function SiteIndex() {
       className="pointer-events-auto fixed inset-0 z-40 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
-      aria-label="All Lunar Hardware Directory"
+      aria-label={
+        isEarth
+          ? "All Earth Spaceports & Mission Centers Directory"
+          : "All Lunar Hardware Directory"
+      }
     >
       <div className="flex max-h-[82dvh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-loro/35 bg-space-950/95 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
           <div>
             <p className="font-mono text-[11px] tracking-wider text-loro uppercase">
-              Accessible Hardware Directory ({ALL_SITES.length} Verified Sites)
+              {isEarth
+                ? `Global Spaceport & Mission Directory (${sites.length} Verified Sites)`
+                : `Accessible Hardware Directory (${sites.length} Verified Sites)`}
             </p>
             <h2 className="font-display text-xl font-bold text-regolith-bright">
-              Jump to Any Lunar Artifact
+              {isEarth
+                ? "Jump to Any Earth Spaceport or Mission Hub"
+                : "Jump to Any Lunar Artifact"}
             </h2>
           </div>
 
@@ -65,7 +81,7 @@ export default function SiteIndex() {
             type="button"
             onClick={() => setOpen(false)}
             className="cursor-pointer rounded-full border border-white/15 p-2 text-regolith hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            aria-label="Close hardware directory"
+            aria-label="Close site directory"
           >
             <X className="h-4 w-4" />
           </button>
@@ -78,7 +94,11 @@ export default function SiteIndex() {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search Apollo 11, Surveyor, Rover, Tycho, Farside, 1972..."
+              placeholder={
+                isEarth
+                  ? "Search Kennedy, Baikonur, Houston, JPL, Kourou, Sriharikota, DSN..."
+                  : "Search Apollo 11, Surveyor, Rover, Tycho, Farside, 1972..."
+              }
               className="w-full rounded-xl border border-white/15 bg-space-900/90 py-2.5 pr-4 pl-10 text-sm text-regolith-bright placeholder:text-regolith/45 focus:border-loro focus:outline-none"
               autoFocus
             />
@@ -87,7 +107,7 @@ export default function SiteIndex() {
 
         <div className="hud-scroll flex-1 divide-y divide-white/8 overflow-y-auto px-3 py-2">
           {filtered.map((site) => {
-            const cat = CATEGORY_META[site.primaryCategory];
+            const cat = categoryMeta[site.primaryCategory];
             return (
               <button
                 key={site.id}
@@ -109,7 +129,7 @@ export default function SiteIndex() {
                         <Sparkles className="h-2.5 w-2.5" /> Hero
                       </span>
                     )}
-                    {!isNearside(site.lon) && (
+                    {!isEarth && !isNearside(site.lon) && (
                       <span className="rounded-full bg-purple-400/15 px-2 py-0.5 font-mono text-[10px] text-purple-300">
                         Farside
                       </span>
@@ -133,7 +153,8 @@ export default function SiteIndex() {
 
           {filtered.length === 0 && (
             <p className="py-8 text-center text-sm text-regolith/60">
-              No lunar artifacts matched &ldquo;{query}&rdquo;.
+              No {isEarth ? "Earth space sites" : "lunar artifacts"} matched &ldquo;
+              {query}&rdquo;.
             </p>
           )}
         </div>

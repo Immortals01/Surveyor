@@ -4,6 +4,7 @@ import type { Category, LoRoMood, StoryTab } from "@/data/schema";
 import type { QualityTier } from "@/lib/quality";
 
 export type AppMode = "intro" | "tour" | "explore";
+export type CelestialBody = "moon" | "earth";
 
 export interface ActiveDialogue {
   lineId: string;
@@ -25,10 +26,12 @@ export interface UserSettings {
 }
 
 export interface AppState {
+  activeBody: CelestialBody;
   mode: AppMode;
   selectedSiteId: string | null;
   hoveredSiteId: string | null;
   activeStoryTab: StoryTab;
+  issPanelOpen: boolean;
 
   categoryFilter: Category | "all";
   heroOnly: boolean;
@@ -51,6 +54,8 @@ export interface AppState {
   settings: UserSettings;
 
   // Actions
+  setActiveBody: (body: CelestialBody) => void;
+  setIssPanelOpen: (open: boolean) => void;
   startTour: (chapterIndex?: number) => void;
   setTourCursor: (chapterIndex: number, beatIndex: number) => void;
   setTourPaused: (paused: boolean) => void;
@@ -81,10 +86,12 @@ export interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
+      activeBody: "moon",
       mode: "intro",
       selectedSiteId: null,
       hoveredSiteId: null,
       activeStoryTab: "story",
+      issPanelOpen: false,
 
       categoryFilter: "all",
       heroOnly: false,
@@ -112,6 +119,35 @@ export const useAppStore = create<AppState>()(
         qualityTier: "auto",
       },
 
+      setActiveBody: (body) =>
+        set((s) => {
+          if (s.activeBody === body) return s;
+          return {
+            activeBody: body,
+            mode: s.mode === "tour" ? "explore" : s.mode,
+            selectedSiteId: null,
+            hoveredSiteId: null,
+            issPanelOpen: false,
+            siteIndexOpen: false,
+            categoryFilter: "all",
+            heroOnly: false,
+            tourChapterIndex: 0,
+            tourBeatIndex: 0,
+            tourPaused: false,
+            chapterBannerVisible: false,
+            dialogue: null,
+            loroMood: "waving",
+            sunLongitude: body === "earth" ? -55 : -48,
+            sunLatitude: body === "earth" ? 12 : 1.5,
+          };
+        }),
+
+      setIssPanelOpen: (issPanelOpen) =>
+        set((s) => ({
+          issPanelOpen,
+          selectedSiteId: issPanelOpen ? null : s.selectedSiteId,
+        })),
+
       startTour: (chapterIndex = 0) =>
         set({
           mode: "tour",
@@ -119,6 +155,7 @@ export const useAppStore = create<AppState>()(
           tourBeatIndex: 0,
           tourPaused: false,
           siteIndexOpen: false,
+          issPanelOpen: false,
           categoryFilter: "all",
           heroOnly: false,
           chapterBannerVisible: true,
@@ -139,23 +176,26 @@ export const useAppStore = create<AppState>()(
           loroMood: "narrating",
           dialogue: keepSelection ? s.dialogue : null,
           selectedSiteId: keepSelection ? s.selectedSiteId : null,
+          issPanelOpen: keepSelection ? s.issPanelOpen : false,
         })),
 
       returnToIntro: () =>
-        set({
+        set((s) => ({
           mode: "intro",
           selectedSiteId: null,
+          issPanelOpen: false,
           dialogue: null,
           loroMood: "waving",
           tourPaused: false,
           siteIndexOpen: false,
-          sunLongitude: -48,
-          sunLatitude: 1.5,
-        }),
+          sunLongitude: s.activeBody === "earth" ? -55 : -48,
+          sunLatitude: s.activeBody === "earth" ? 12 : 1.5,
+        })),
 
       selectSite: (siteId, tab) =>
         set((s) => ({
           selectedSiteId: siteId,
+          issPanelOpen: siteId !== null ? false : s.issPanelOpen,
           activeStoryTab: tab ?? (siteId !== s.selectedSiteId ? "story" : s.activeStoryTab),
         })),
 

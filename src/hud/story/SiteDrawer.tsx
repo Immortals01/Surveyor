@@ -9,26 +9,28 @@ import {
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech } from "@/audio/speech";
-import { ALL_SITES, SITE_BY_ID } from "@/data";
+import { getSitesForBody, SITE_BY_ID } from "@/data";
 import { cameraBus } from "@/engine/camera";
 import { useAppStore } from "@/store/useAppStore";
 import MemoryLog from "./MemoryLog";
 import StatsGrid from "./StatsGrid";
 
 export default function SiteDrawer() {
+  const activeBody = useAppStore((s) => s.activeBody);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const selectSite = useAppStore((s) => s.selectSite);
   const openSources = useAppStore((s) => s.openSources);
 
   const site = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
+  const bodySites = getSitesForBody(activeBody);
   const relatedSecondary = useMemo(
     () =>
       site
-        ? ALL_SITES.filter(
+        ? bodySites.filter(
             (s) => s.tier === "secondary" && s.parentHeroId === site.id,
           )
         : [],
-    [site],
+    [bodySites, site],
   );
 
   if (!site) return null;
@@ -53,7 +55,7 @@ export default function SiteDrawer() {
 
   return (
     <aside
-      aria-label={`Lunar artifact dossier: ${site.name}`}
+      aria-label={`${activeBody === "earth" ? "Earth space site" : "Lunar artifact"} dossier: ${site.name}`}
       className="pointer-events-auto fixed right-0 bottom-0 left-0 z-30 flex max-h-[62dvh] flex-col overflow-hidden rounded-t-3xl border-t border-loro/35 bg-space-950/92 shadow-[0_-18px_60px_rgba(0,0,0,0.85)] backdrop-blur-xl lg:top-20 lg:right-5 lg:bottom-5 lg:left-auto lg:max-h-[calc(100dvh-6.25rem)] lg:w-[440px] lg:rounded-3xl lg:border"
     >
       {/* Mobile Drag Handle Indicator */}
@@ -110,11 +112,15 @@ export default function SiteDrawer() {
             {/* Verified Stats Grid */}
             <StatsGrid stats={site.stats} />
 
-            {/* Hardware Left Behind Inventory */}
+            {/* Hardware Left Behind / Launch Infrastructure Inventory */}
             <div className="rounded-2xl border border-white/10 bg-space-900/65 p-3.5">
               <div className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-sunlit uppercase">
                 <Wrench className="h-3.5 w-3.5" />
-                <span>Hardware Left on the Moon</span>
+                <span>
+                  {activeBody === "earth"
+                    ? "Key Launch & Mission Infrastructure"
+                    : "Hardware Left on the Moon"}
+                </span>
               </div>
               <ul className="mt-2 space-y-1.5 text-xs text-regolith-bright">
                 {site.hardwareLeftBehind.map((item) => (
@@ -138,7 +144,7 @@ export default function SiteDrawer() {
               </div>
               <div className="border-t border-white/10 pt-2">
                 <span className="inline-flex items-center gap-1 font-mono text-[10.5px] font-bold text-sunlit uppercase">
-                  <Rocket className="h-3 w-3" /> Path to Artemis
+                  <Rocket className="h-3 w-3" /> Path to Artemis &amp; Deep Space
                 </span>
                 <p className="mt-0.5 text-regolith/90">{site.artemisLink}</p>
               </div>
@@ -148,7 +154,9 @@ export default function SiteDrawer() {
             {relatedSecondary.length > 0 && (
               <div className="rounded-2xl border border-white/10 bg-space-900/50 p-3.5">
                 <p className="font-mono text-[10.5px] font-semibold tracking-wider text-regolith/70 uppercase">
-                  Related Lunar Hardware ({relatedSecondary.length})
+                  {activeBody === "earth"
+                    ? `Related Space Facilities (${relatedSecondary.length})`
+                    : `Related Lunar Hardware (${relatedSecondary.length})`}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {relatedSecondary.map((rel) => (

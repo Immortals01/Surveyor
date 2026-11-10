@@ -1,26 +1,38 @@
 import { Component, type ReactNode } from "react";
-import { ALL_SITES } from "@/data";
-import { CATEGORY_META } from "@/lib/constants";
+import { getSitesForBody } from "@/data";
+import { getCategoryMeta } from "@/lib/constants";
 import { useAppStore } from "@/store/useAppStore";
 
 export function Fallback2DMoonMap() {
+  const activeBody = useAppStore((s) => s.activeBody);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
   const selectSite = useAppStore((s) => s.selectSite);
   const enterExplore = useAppStore((s) => s.enterExplore);
   const mode = useAppStore((s) => s.mode);
 
+  const sites = getSitesForBody(activeBody);
+  const categoryMeta = getCategoryMeta(activeBody);
+
   return (
     <div className="relative flex h-full w-full items-center justify-center bg-space-950 p-6">
       <div className="relative aspect-[2/1] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/15 bg-space-900 shadow-2xl">
         <img
-          src="/textures/moon/color/L0/0_0.webp"
-          alt="NASA LRO WAC Global Lunar Map"
+          src={
+            activeBody === "earth"
+              ? "/textures/earth/earth_day_2k.webp"
+              : "/textures/moon/moon_day_2k.webp"
+          }
+          alt={
+            activeBody === "earth"
+              ? "NASA Blue Marble Global Earth Map"
+              : "NASA LRO WAC Global Lunar Map"
+          }
           className="h-full w-full object-cover opacity-80"
         />
-        {ALL_SITES.map((site) => {
+        {sites.map((site) => {
           const xPct = ((site.lon + 180) / 360) * 100;
           const yPct = ((90 - site.lat) / 180) * 100;
-          const cat = CATEGORY_META[site.primaryCategory];
+          const cat = categoryMeta[site.primaryCategory];
           const isSelected = site.id === selectedSiteId;
 
           return (

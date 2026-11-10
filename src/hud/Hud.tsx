@@ -1,8 +1,11 @@
 import { lazy, Suspense, useEffect } from "react";
 import {
   BookOpen,
+  Globe2,
   ListFilter,
   Minus,
+  Moon,
+  Orbit,
   Play,
   Plus,
   RotateCcw,
@@ -11,7 +14,7 @@ import {
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech, speakLine } from "@/audio/speech";
-import { SITE_BY_ID } from "@/data";
+import { getSitesForBody, SITE_BY_ID } from "@/data";
 import type { DialogueLine } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { useTourRunner } from "@/engine/useTourRunner";
@@ -20,36 +23,53 @@ import LoRo from "@/hud/character/LoRo";
 import IntroScreen from "@/hud/intro/IntroScreen";
 import ChapterCard from "@/hud/tour/ChapterCard";
 import TourBar from "@/hud/tour/TourBar";
-import { useAppStore } from "@/store/useAppStore";
+import { normalizeLon } from "@/lib/geo";
+import { getLatestIssTelemetry } from "@/lib/issTracker";
+import { type CelestialBody, useAppStore } from "@/store/useAppStore";
 
 const SiteDrawer = lazy(() => import("@/hud/story/SiteDrawer"));
+const IssDrawer = lazy(() => import("@/hud/earth/IssDrawer"));
 const SiteIndex = lazy(() => import("@/hud/explore/SiteIndex"));
 const SourcesDrawer = lazy(() => import("@/hud/credits/SourcesDrawer"));
 
-const DEFAULT_EXPLORE_TIP: DialogueLine = {
+const DEFAULT_MOON_EXPLORE_TIP: DialogueLine = {
   id: "loro-tip-1",
   speaker: "loro",
   mood: "waving",
-  text: "Click any glowing marker on the Moon—or open 'All 29 Sites' above—to swoop down and hear what our left-behind spacecraft remember!",
+  text: "Click any glowing marker on the Moon—or open 'Index (29)' above—to swoop down and hear what our left-behind spacecraft remember!",
   sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
+};
+
+const DEFAULT_EARTH_EXPLORE_TIP: DialogueLine = {
+  id: "loro-earth-tip-1",
+  speaker: "loro",
+  mood: "excited",
+  text: "Welcome home to Earth! Click any launch complex or Mission Control pin to see how many space missions started there—or click 'ISS LIVE' to track the International Space Station!",
+  sourceIds: ["S-BLUE-MARBLE", "S-NASA-KSC", "S-NASA-ISS"],
 };
 
 export default function Hud() {
   const { dispatchTour } = useTourRunner();
 
+  const activeBody = useAppStore((s) => s.activeBody);
   const mode = useAppStore((s) => s.mode);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
+  const issPanelOpen = useAppStore((s) => s.issPanelOpen);
   const siteIndexOpen = useAppStore((s) => s.siteIndexOpen);
   const sourcesDrawerOpen = useAppStore((s) => s.sourcesDrawerOpen);
   const muted = useAppStore((s) => s.settings.muted);
   const reduceMotion = useAppStore((s) => s.settings.reduceMotion);
+  const setActiveBody = useAppStore((s) => s.setActiveBody);
+  const setIssPanelOpen = useAppStore((s) => s.setIssPanelOpen);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const startTour = useAppStore((s) => s.startTour);
   const returnToIntro = useAppStore((s) => s.returnToIntro);
   const setSiteIndexOpen = useAppStore((s) => s.setSiteIndexOpen);
   const openSources = useAppStore((s) => s.openSources);
 
-  // Global Escape shortcut for layered drawers, selected lunar sites, and orbit reset
+  const sites = getSitesForBody(activeBody);
+
+  // Global Escape shortcut for layered drawers, selected sites, and orbit reset
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
@@ -63,6 +83,11 @@ export default function Hud() {
       }
       if (state.siteIndexOpen) {
         state.setSiteIndexOpen(false);
+        return;
+      }
+      if (state.issPanelOpen) {
+        state.setIssPanelOpen(false);
+        void cameraBus.goHome();
         return;
       }
       if (state.selectedSiteId) {
@@ -99,6 +124,34 @@ export default function Hud() {
     updateSettings({ muted: nextMuted });
   };
 
+  const handleSwitchBody = (targetBody: CelestialBody) => {
+    if (targetBody === activeBody) return;
+    audioEngine.unlock(muted);
+    audioEngine.playUiTick(840);
+    cancelSpeech();
+    setActiveBody(targetBody);
+    if (targetBody === "earth") {
+      // Frame the Americas/Atlantic spaceports with the Moon visible in the upper-right sky
+      void cameraBus.flyOverview(20, -38, 3.15);
+    } else {
+      void cameraBus.flyOverview(6, 0, 3.15);
+    }
+  };
+
+  const handleTrackIss = () => {
+    audioEngine.unlock(muted);
+    audioEngine.playUiTick(920);
+    cancelSpeech();
+    const state = useAppStore.getState();
+    if (state.mode !== "explore") {
+      state.enterExplore(true);
+    }
+    const live = getLatestIssTelemetry();
+    state.setSunDirection(normalizeLon(live.lon - 15), 12);
+    setIssPanelOpen(true);
+    void cameraBus.flyToLatLon(live.lat, live.lon, { altitude: 0.44 });
+  };
+
   const handleLoRoClick = () => {
     audioEngine.unlock(muted);
     audioEngine.playUiTick();
@@ -107,10 +160,13 @@ export default function Hud() {
       ? SITE_BY_ID.get(state.selectedSiteId)
       : undefined;
 
+    const defaultTip =
+      state.activeBody === "earth"
+        ? DEFAULT_EARTH_EXPLORE_TIP
+        : DEFAULT_MOON_EXPLORE_TIP;
+
     const line =
-      selected && selected.tier === "hero"
-        ? selected.loroIntro
-        : DEFAULT_EXPLORE_TIP;
+      selected && selected.tier === "hero" ? selected.loroIntro : defaultTip;
 
     state.setLoRoMood(line.mood);
     state.setDialogue({
@@ -133,8 +189,8 @@ export default function Hud() {
     <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-6">
       {/* Top Navigation & Telemetry Bar */}
       <header className="relative z-30 flex flex-wrap items-center justify-between gap-2">
-        {/* Left Brand / Mode Controls */}
-        <div className="pointer-events-auto flex items-center gap-2">
+        {/* Left Brand / Globe Switcher / Mode Controls */}
+        <div className="pointer-events-auto flex flex-wrap items-center gap-2">
           {mode === "intro" ? (
             <div className="flex items-center gap-2.5 border border-white/15 bg-space-950/85 px-3.5 py-2 backdrop-blur-md">
               <span className="h-2 w-2 rounded-full bg-sunlit" />
@@ -156,7 +212,7 @@ export default function Hud() {
               <span className="h-2 w-2 rounded-full bg-sunlit" />
               <div>
                 <p className="font-mono text-[9.5px] tracking-[0.16em] text-regolith/65 uppercase">
-                  LRO ARCHIVE
+                  {activeBody === "earth" ? "EARTH ARCHIVE" : "LRO ARCHIVE"}
                 </p>
                 <p className="font-display text-xs font-bold tracking-tight text-regolith-bright">
                   Surveyor
@@ -164,6 +220,42 @@ export default function Hud() {
               </div>
             </button>
           )}
+
+          {/* Celestial Body Switcher: Moon <-> Earth */}
+          <div
+            className="inline-flex items-center border border-white/15 bg-space-950/85 p-0.5 backdrop-blur-md"
+            role="group"
+            aria-label="Switch celestial body between Moon and Earth"
+          >
+            <button
+              type="button"
+              onClick={() => handleSwitchBody("moon")}
+              aria-pressed={activeBody === "moon"}
+              className={`inline-flex cursor-pointer items-center gap-1.5 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                activeBody === "moon"
+                  ? "bg-regolith-bright text-space-950 shadow-sm"
+                  : "text-regolith/75 hover:bg-white/10 hover:text-white"
+              }`}
+              title="Explore 29 Lunar Hardware Sites on the Moon"
+            >
+              <Moon className="h-3.5 w-3.5" />
+              <span>Moon</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSwitchBody("earth")}
+              aria-pressed={activeBody === "earth"}
+              className={`inline-flex cursor-pointer items-center gap-1.5 px-3 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                activeBody === "earth"
+                  ? "bg-loro text-space-950 shadow-sm"
+                  : "text-regolith/75 hover:bg-white/10 hover:text-white"
+              }`}
+              title="Explore 24 Historic Space Launch Sites & Live ISS on Earth"
+            >
+              <Globe2 className="h-3.5 w-3.5" />
+              <span>Earth</span>
+            </button>
+          </div>
 
           {mode === "explore" && (
             <>
@@ -180,15 +272,33 @@ export default function Hud() {
                 <span>Guided Tour</span>
               </button>
 
+              {activeBody === "earth" && (
+                <button
+                  type="button"
+                  onClick={handleTrackIss}
+                  className={`inline-flex cursor-pointer items-center gap-1.5 border px-3 py-2 font-mono text-[11px] font-bold tracking-wider uppercase backdrop-blur-md transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                    issPanelOpen
+                      ? "border-sunlit bg-sunlit/20 text-sunlit"
+                      : "border-loro/50 bg-space-950/85 text-loro hover:border-loro hover:bg-loro/15"
+                  }`}
+                  title="Fly to the real-time location of the International Space Station"
+                >
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                  <Orbit className="h-3.5 w-3.5" />
+                  <span>ISS Live</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => {
                   audioEngine.playUiTick();
                   useAppStore.getState().selectSite(null);
+                  useAppStore.getState().setIssPanelOpen(false);
                   void cameraBus.goHome();
                 }}
                 className="hidden cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] text-regolith uppercase backdrop-blur-md hover:border-white/40 hover:text-white sm:inline-flex"
-                title="Reset camera to full lunar globe (Esc)"
+                title={`Reset camera to full ${activeBody === "earth" ? "Earth" : "lunar"} globe (Esc)`}
               >
                 <RotateCcw className="h-3 w-3" />
                 <span>Reset Orbit</span>
@@ -238,10 +348,10 @@ export default function Hud() {
                 setSiteIndexOpen(true);
               }}
               className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] tracking-wider text-regolith-bright uppercase backdrop-blur-md transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-              title="Browse and search all 29 lunar artifacts"
+              title={`Browse and search all ${sites.length} ${activeBody === "earth" ? "Earth space sites" : "lunar artifacts"}`}
             >
               <ListFilter className="h-3.5 w-3.5 text-loro" />
-              <span>Index (29)</span>
+              <span>Index ({sites.length})</span>
             </button>
           )}
 
@@ -284,7 +394,7 @@ export default function Hud() {
       {mode !== "intro" && (
         <div
           className={`mt-auto flex flex-col items-start gap-0 transition-all ${
-            selectedSiteId
+            selectedSiteId || issPanelOpen
               ? "hidden lg:flex lg:max-w-[calc(100vw-470px)]"
               : "max-w-xl"
           }`}
@@ -320,6 +430,13 @@ export default function Hud() {
       {selectedSiteId && (
         <Suspense fallback={null}>
           <SiteDrawer />
+        </Suspense>
+      )}
+
+      {/* Live International Space Station Telemetry Drawer */}
+      {issPanelOpen && activeBody === "earth" && (
+        <Suspense fallback={null}>
+          <IssDrawer />
         </Suspense>
       )}
 

@@ -3,7 +3,12 @@ import path from "node:path";
 import { describe, expect, it } from "bun:test";
 import { latLonToVector3 } from "@/lib/geo";
 import {
+  ALL_COMBINED_SITES,
+  ALL_EARTH_SITES,
   ALL_SITES,
+  EARTH_HERO_SITES,
+  EARTH_SECONDARY_SITES,
+  EARTH_TOUR_CHAPTERS,
   HERO_SITES,
   SECONDARY_SITES,
   SITE_BY_ID,
@@ -26,12 +31,14 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("contains exactly 9 hero sites and >= 20 secondary sites passing SiteSchema", () => {
+  it("contains 9 lunar hero sites, >= 20 lunar secondary sites, 9 Earth hero sites, and 15 Earth secondary sites passing SiteSchema", () => {
     expect(HERO_SITES).toHaveLength(9);
     expect(SECONDARY_SITES.length).toBeGreaterThanOrEqual(20);
+    expect(EARTH_HERO_SITES).toHaveLength(9);
+    expect(EARTH_SECONDARY_SITES).toHaveLength(15);
 
     const seenIds = new Set<string>();
-    for (const site of ALL_SITES) {
+    for (const site of ALL_COMBINED_SITES) {
       expect(() => SiteSchema.parse(site)).not.toThrow();
       expect(seenIds.has(site.id)).toBe(false);
       seenIds.add(site.id);
@@ -39,8 +46,8 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("resolves every referenced sourceId across sites, stats, models, and tour beats", () => {
-    for (const site of ALL_SITES) {
+  it("resolves every referenced sourceId across lunar & Earth sites, stats, models, and tour beats", () => {
+    for (const site of ALL_COMBINED_SITES) {
       for (const sid of site.sourceIds) {
         expect(SOURCES_BY_ID.has(sid), `${site.id} missing source ${sid}`).toBe(
           true,
@@ -68,11 +75,12 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("validates all 5 tour chapters and ensures unique dialogue line IDs", () => {
+  it("validates all 5 lunar and 5 Earth tour chapters and ensures unique dialogue line IDs", () => {
     expect(TOUR_CHAPTERS).toHaveLength(5);
+    expect(EARTH_TOUR_CHAPTERS).toHaveLength(5);
     const lineIds = new Set<string>();
 
-    for (const ch of TOUR_CHAPTERS) {
+    for (const ch of [...TOUR_CHAPTERS, ...EARTH_TOUR_CHAPTERS]) {
       expect(() => TourChapterSchema.parse(ch)).not.toThrow();
       for (const hid of ch.heroSiteIds) {
         expect(SITE_BY_ID.get(hid)?.tier).toBe("hero");
@@ -85,16 +93,18 @@ describe("NASA dataset integrity & citation ledger", () => {
           for (const sid of beat.line.sourceIds) {
             expect(SOURCES_BY_ID.has(sid)).toBe(true);
           }
+          expect(lineIds.has(beat.line.id)).toBe(false);
           lineIds.add(beat.line.id);
         }
         if (beat.kind === "spotlightWidget") {
+          expect(lineIds.has(beat.promptLine.id)).toBe(false);
           lineIds.add(beat.promptLine.id);
         }
       }
     }
   });
 
-  it("places key lunar landmarks in the right selenographic quadrants", () => {
+  it("places key lunar and Earth landmarks in the right geographic quadrants", () => {
     // Apollo 11 (0.67N, 23.47E): nearside (+X), north (+Y), east (-Z)
     const ap11 = SITE_BY_ID.get("apollo-11")!;
     const p11 = latLonToVector3(ap11.lat, ap11.lon, 1);
@@ -113,10 +123,26 @@ describe("NASA dataset integrity & citation ledger", () => {
     const ladee = SITE_BY_ID.get("ladee")!;
     const pl = latLonToVector3(ladee.lat, ladee.lon, 1);
     expect(pl.x).toBeLessThan(0);
+
+    // Kennedy Space Center LC-39 (28.61N, -80.60W): northern (+Y), western (+Z)
+    const ksc = SITE_BY_ID.get("kennedy-lc39")!;
+    const pksc = latLonToVector3(ksc.lat, ksc.lon, 1);
+    expect(pksc.y).toBeGreaterThan(0.4);
+    expect(pksc.z).toBeGreaterThan(0.8);
   });
 
-  it("verifies all referenced public image and 3D model files exist on disk", () => {
-    for (const site of ALL_SITES) {
+  it("verifies all referenced public image, texture, and 3D model files exist on disk", () => {
+    expect(ALL_SITES.length + ALL_EARTH_SITES.length).toBe(
+      ALL_COMBINED_SITES.length,
+    );
+    expect(
+      existsSync(path.join(PUBLIC_DIR, "textures/moon/moon_day_2k.webp")),
+    ).toBe(true);
+    expect(
+      existsSync(path.join(PUBLIC_DIR, "textures/earth/earth_day_2k.webp")),
+    ).toBe(true);
+
+    for (const site of ALL_COMBINED_SITES) {
       const thumbDisk = path.join(PUBLIC_DIR, site.thumbnailImage.slice(1));
       expect(existsSync(thumbDisk), `Missing ${site.thumbnailImage}`).toBe(
         true,
@@ -142,3 +168,4 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 });
+
