@@ -304,12 +304,12 @@ function buildFallbackSvg({ title, subtitle, badge, accent, isOrbital, w, h }) {
   </svg>`);
 }
 
-async function saveWebpOrFallback(outPath, buf, fallbackOpts, width, height, quality = 82) {
+async function saveWebpOrFallback(outPath, buf, fallbackOpts, width, height, quality = 80) {
   if (existsSync(outPath)) return;
   if (buf) {
     try {
       await sharp(buf)
-        .resize(width, height, { fit: "cover", position: "attention" })
+        .resize(width, height, { fit: "cover", position: "attention", kernel: "lanczos3" })
         .webp({ quality })
         .toFile(outPath);
       return;
@@ -318,7 +318,7 @@ async function saveWebpOrFallback(outPath, buf, fallbackOpts, width, height, qua
     }
   }
   const svg = buildFallbackSvg({ ...fallbackOpts, w: width, h: height });
-  await sharp(svg).webp({ quality: 86 }).toFile(outPath);
+  await sharp(svg).webp({ quality: 84 }).toFile(outPath);
 }
 
 console.log("[media] Fetching NASA Image Library & LROC site imagery...");
@@ -327,10 +327,7 @@ for (const hero of HERO_QUERIES) {
   const dir = path.join(SITES_IMG_DIR, hero.id);
   mkdirSync(dir, { recursive: true });
 
-  const [thenBuf, nowBuf] = await Promise.all([
-    fetchNasaImageBuffer(hero.thenQuery, false),
-    fetchNasaImageBuffer(hero.nowQuery, false),
-  ]);
+  const thenBuf = await fetchNasaImageBuffer(hero.thenQuery, false);
 
   await saveWebpOrFallback(
     path.join(dir, "then.webp"),
@@ -342,29 +339,14 @@ for (const hero of HERO_QUERIES) {
       accent: hero.accent,
       isOrbital: false,
     },
-    1200,
-    900,
-    82,
-  );
-
-  await saveWebpOrFallback(
-    path.join(dir, "now.webp"),
-    nowBuf,
-    {
-      title: `${hero.title} — Orbital View`,
-      subtitle: `LROC NAC Frame ${hero.lrocId} · ${hero.coords}`,
-      badge: `NOW // LROC ORBIT (${hero.lrocId})`,
-      accent: "#5ce1ff",
-      isOrbital: true,
-    },
-    1200,
-    900,
-    84,
+    640,
+    400,
+    80,
   );
 
   await saveWebpOrFallback(
     path.join(dir, "thumb.webp"),
-    thenBuf ?? nowBuf,
+    thenBuf,
     {
       title: hero.title,
       subtitle: `${hero.year} · ${hero.coords}`,
@@ -373,11 +355,11 @@ for (const hero of HERO_QUERIES) {
       isOrbital: false,
     },
     640,
-    480,
+    400,
     80,
   );
 
-  console.log(`[media] Ready: ${hero.id} (then/now/thumb)`);
+  console.log(`[media] Ready: ${hero.id} (then/thumb)`);
 }
 
 for (const sec of SECONDARY_QUERIES) {
@@ -395,9 +377,9 @@ for (const sec of SECONDARY_QUERIES) {
       isOrbital: false,
     },
     640,
-    480,
+    400,
     80,
   );
 }
 
-console.log("[media] All 29 lunar site WebP media assets verified in public/images/sites/!");
+console.log("[media] All site WebP media assets verified in public/images/sites/!");

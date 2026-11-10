@@ -16,6 +16,7 @@ import {
 import type { LunarSite } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { CATEGORY_META } from "@/lib/constants";
+import { preloadSiteImage } from "@/lib/siteImagePreloader";
 import { angularDistanceDeg, latLonToVector3, normalizeLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
 import { surfaceNormal, surfaceRadius } from "../moon/heightSampler";
@@ -147,6 +148,7 @@ export default function Marker({ site, heightReady }: MarkerProps) {
     if (!clickableRef.current) return;
     e.stopPropagation();
     document.body.style.cursor = "pointer";
+    preloadSiteImage(site);
     useAppStore.getState().setHoveredSite(site.id);
   };
 
@@ -159,6 +161,7 @@ export default function Marker({ site, heightReady }: MarkerProps) {
 
   const handlePointerDown = (e: ThreeEvent<PointerEvent>) => {
     if (!clickableRef.current) return;
+    preloadSiteImage(site);
     downPosRef.current = { x: e.clientX, y: e.clientY };
   };
 
