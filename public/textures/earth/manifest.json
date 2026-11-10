@@ -1,0 +1,49 @@
+{
+  "grid": {
+    "cols": 8,
+    "rows": 4
+  },
+  "heightGrid": {
+    "width": 1440,
+    "height": 720,
+    "path": "/textures/earth/height_1440x720.u16",
+    "scalePerKm": 1000,
+    "offsetKm": -10
+  },
+  "colorLevels": [
+    {
+      "level": 0,
+      "tileSize": 128
+    },
+    {
+      "level": 1,
+      "tileSize": 512
+    },
+    {
+      "level": 2,
+      "tileSize": 1024
+    },
+    {
+      "level": 3,
+      "tileSize": 2048
+    }
+  ],
+  "normalLevels": [
+    {
+      "level": 0,
+      "tileSize": 128
+    },
+    {
+      "level": 1,
+      "tileSize": 360
+    },
+    {
+      "level": 2,
+      "tileSize": 720
+    },
+    {
+      "level": 3,
+      "tileSize": 1440
+    }
+  ]
+}

@@ -289,9 +289,7 @@ export default function CameraRig() {
 
         // Pre-warm highest-res color & normal tiles for the target site before arrival
         const body = useAppStore.getState().celestialBody;
-        if (body !== "earth") {
-          getTileManagerForBody(body).preloadSite(lat, lon);
-        }
+        getTileManagerForBody(body).preloadSite(lat, lon);
 
         const r = bodySurfaceRadius(lat, lon);
         const minDist = Math.max(CAMERA.minDistance, r + CAMERA.minAltitude);
@@ -316,9 +314,7 @@ export default function CameraRig() {
       ) => {
         const instant = Boolean(instantArg);
         const body = useAppStore.getState().celestialBody;
-        if (body !== "earth") {
-          getTileManagerForBody(body).preloadSite(lat, lon);
-        }
+        getTileManagerForBody(body).preloadSite(lat, lon);
         const dest = latLonToVector3(lat, lon, distance);
 
         await startSmoothFlight({

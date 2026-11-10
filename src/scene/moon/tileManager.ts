@@ -558,8 +558,13 @@ export class MoonTileManager {
 }
 
 export const moonTileManager = new MoonTileManager("/textures/moon");
+export const earthTileManager = new MoonTileManager("/textures/earth");
 export const marsTileManager = new MoonTileManager("/textures/mars");
 
-export function getTileManagerForBody(body: "moon" | "mars"): MoonTileManager {
-  return body === "mars" ? marsTileManager : moonTileManager;
+export function getTileManagerForBody(
+  body: "moon" | "earth" | "mars",
+): MoonTileManager {
+  if (body === "mars") return marsTileManager;
+  if (body === "earth") return earthTileManager;
+  return moonTileManager;
 }

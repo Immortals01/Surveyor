@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import {
   AdditiveBlending,
   BackSide,
+  BufferGeometry,
   ClampToEdgeWrapping,
   LinearFilter,
   LinearMipmapLinearFilter,
@@ -11,22 +12,36 @@ import {
   ShaderMaterial,
   SRGBColorSpace,
   Texture,
+  Vector2,
+  Vector3,
 } from "three";
 import { latLonToVector3, normalizeLon } from "@/lib/geo";
+import { detectDefaultQualityTier, QUALITY_SPECS } from "@/lib/quality";
 import { disposeTexture, loadTextureAsync } from "@/lib/textureLoader";
 import { useAppStore } from "@/store/useAppStore";
+import {
+  createTileGeometry,
+  TILE_COLS,
+  TILE_ROWS,
+} from "../moon/createTileGeometry";
+import { earthTileManager } from "../moon/tileManager";
 
 export const EARTH_SCENE_RADIUS = 1.0;
 const HALO_RADIUS = 1.036;
 const NOOP_RAYCAST = () => {};
 
-const EARTH_GLOBE_VERTEX = /* glsl */ `
-  varying vec2 vUv;
+const EARTH_TILE_VERTEX = /* glsl */ `
+  uniform vec2 uTileOffset;
+  uniform vec2 uTileScale;
+
+  varying vec2 vTileUv;
+  varying vec2 vGlobalUv;
   varying vec3 vNormalWorld;
   varying vec3 vWorldPos;
 
   void main() {
-    vUv = uv;
+    vTileUv = uv;
+    vGlobalUv = uTileOffset + uv * uTileScale;
     vec4 worldPosition = modelMatrix * vec4(position, 1.0);
     vWorldPos = worldPosition.xyz;
     vNormalWorld = normalize(mat3(modelMatrix) * normal);
@@ -34,7 +49,7 @@ const EARTH_GLOBE_VERTEX = /* glsl */ `
   }
 `;
 
-const EARTH_GLOBE_FRAGMENT = /* glsl */ `
+const EARTH_TILE_FRAGMENT = /* glsl */ `
   uniform sampler2D uDayMap;
   uniform sampler2D uNormalMap;
   uniform sampler2D uCloudsMap;
@@ -48,7 +63,8 @@ const EARTH_GLOBE_FRAGMENT = /* glsl */ `
   uniform float uCloudOffset;
   uniform vec3 uSunDir;
 
-  varying vec2 vUv;
+  varying vec2 vTileUv;
+  varying vec2 vGlobalUv;
   varying vec3 vNormalWorld;
   varying vec3 vWorldPos;
 
@@ -64,10 +80,10 @@ const EARTH_GLOBE_FRAGMENT = /* glsl */ `
     T = tLen > 1e-4 ? T / tLen : vec3(0.0, 0.0, -1.0);
     vec3 B = normalize(cross(geomN, T));
 
-    // Perturb surface normal in tangent space so mountain chains (Andes, Himalayas, Rockies, Alps) have crisp solar relief
+    // Perturb surface normal in tangent space using L0-L3 high-res C1 B-spline GEBCO normal tiles
     vec3 N = geomN;
     if (uHasNormal > 0.5) {
-      vec3 mapN = texture2D(uNormalMap, vUv).xyz * 2.0 - 1.0;
+      vec3 mapN = texture2D(uNormalMap, vTileUv).xyz * 2.0 - 1.0;
       mapN.xy *= 1.85;
       N = normalize(T * mapN.x + B * mapN.y + geomN * max(0.2, mapN.z));
     }
@@ -83,14 +99,14 @@ const EARTH_GLOBE_FRAGMENT = /* glsl */ `
     float twilight = smoothstep(-0.18, 0.05, geomSunDot) * (1.0 - smoothstep(0.0, 0.28, geomSunDot));
 
     vec3 daySample = uHasDay > 0.5
-      ? texture2D(uDayMap, vUv).rgb
+      ? texture2D(uDayMap, vTileUv).rgb
       : vec3(0.07, 0.25, 0.58);
-    float specMask = uHasSpec > 0.5 ? texture2D(uSpecMap, vUv).r : 0.65;
+    float specMask = uHasSpec > 0.5 ? texture2D(uSpecMap, vGlobalUv).r : 0.65;
     float clouds = uHasClouds > 0.5
-      ? texture2D(uCloudsMap, vec2(vUv.x + uCloudOffset, vUv.y)).r
+      ? texture2D(uCloudsMap, vec2(vGlobalUv.x + uCloudOffset, vGlobalUv.y)).r
       : 0.0;
     vec3 lightsSample = uHasLights > 0.5
-      ? texture2D(uLightsMap, vUv).rgb
+      ? texture2D(uLightsMap, vGlobalUv).rgb
       : vec3(0.0);
 
     // Rich sapphire water shading & vibrant continental tones
@@ -158,7 +174,6 @@ const HALO_FRAGMENT = /* glsl */ `
   varying vec3 vNormalView;
 
   void main() {
-    // On a BackSide sphere, vNormalView.z is 0 at the outer silhouette and -1 at the center.
     float viewZ = clamp(-vNormalView.z, 0.0, 1.0);
     float rim = pow(smoothstep(0.0, 0.44, viewZ), 2.2);
 
@@ -174,68 +189,160 @@ const HALO_FRAGMENT = /* glsl */ `
   }
 `;
 
+interface SharedEarthGlobals {
+  uCloudsMap: { value: Texture | null };
+  uSpecMap: { value: Texture | null };
+  uLightsMap: { value: Texture | null };
+  uHasClouds: { value: number };
+  uHasSpec: { value: number };
+  uHasLights: { value: number };
+  uCloudOffset: { value: number };
+  uSunDir: { value: Vector3 };
+}
+
+interface EarthTileMeshProps {
+  row: number;
+  col: number;
+  segments: number;
+  sharedUniforms: SharedEarthGlobals;
+}
+
+function EarthTileMesh({
+  row,
+  col,
+  segments,
+  sharedUniforms,
+}: EarthTileMeshProps) {
+  const geometry = useMemo<BufferGeometry>(
+    () => createTileGeometry(row, col, segments, "earth"),
+    [row, col, segments],
+  );
+
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+    };
+  }, [geometry]);
+
+  const material = useMemo(() => {
+    const scaleX = 1 / TILE_COLS;
+    const scaleY = 1 / TILE_ROWS;
+    const offsetX = col * scaleX;
+    // Row 0 is +90°..+45°N (top of image -> vGlobalUv.y in [0.75, 1.0])
+    const offsetY = (TILE_ROWS - 1 - row) * scaleY;
+
+    return new ShaderMaterial({
+      vertexShader: EARTH_TILE_VERTEX,
+      fragmentShader: EARTH_TILE_FRAGMENT,
+      uniforms: {
+        uTileOffset: { value: new Vector2(offsetX, offsetY) },
+        uTileScale: { value: new Vector2(scaleX, scaleY) },
+        uDayMap: { value: null },
+        uNormalMap: { value: null },
+        uHasDay: { value: 0 },
+        uHasNormal: { value: 0 },
+        uCloudsMap: sharedUniforms.uCloudsMap,
+        uSpecMap: sharedUniforms.uSpecMap,
+        uLightsMap: sharedUniforms.uLightsMap,
+        uHasClouds: sharedUniforms.uHasClouds,
+        uHasSpec: sharedUniforms.uHasSpec,
+        uHasLights: sharedUniforms.uHasLights,
+        uCloudOffset: sharedUniforms.uCloudOffset,
+        uSunDir: sharedUniforms.uSunDir,
+      },
+    });
+  }, [row, col, sharedUniforms]);
+
+  useEffect(() => {
+    return () => {
+      material.dispose();
+    };
+  }, [material]);
+
+  useEffect(() => {
+    return earthTileManager.subscribe(row, col, (state) => {
+      if (material.uniforms.uDayMap!.value !== state.colorTex) {
+        material.uniforms.uDayMap!.value = state.colorTex;
+        material.uniforms.uHasDay!.value = state.colorTex ? 1 : 0;
+      }
+      if (material.uniforms.uNormalMap!.value !== state.normalTex) {
+        material.uniforms.uNormalMap!.value = state.normalTex;
+        material.uniforms.uHasNormal!.value = state.normalTex ? 1 : 0;
+      }
+    });
+  }, [row, col, material]);
+
+  return (
+    <mesh
+      geometry={geometry}
+      material={material}
+      receiveShadow={false}
+      raycast={NOOP_RAYCAST}
+    />
+  );
+}
+
 export default function EarthGlobe() {
-  const { gl } = useThree();
+  const { camera, size, gl } = useThree();
   const sunLongitude = useAppStore((s) => s.sunLongitude);
   const sunLatitude = useAppStore((s) => s.sunLatitude);
   const reduceMotion = useAppStore((s) => s.settings.reduceMotion);
+  const qualitySetting = useAppStore((s) => s.settings.qualityTier);
+
+  const defaultTierRef = useRef(detectDefaultQualityTier());
+  const effectiveTier =
+    qualitySetting === "auto" ? defaultTierRef.current : qualitySetting;
+  const qualitySpec = QUALITY_SPECS[effectiveTier];
 
   const curLonRef = useRef(sunLongitude);
   const curLatRef = useRef(sunLatitude);
-  const sunVecRef = useRef(
-    latLonToVector3(sunLatitude, sunLongitude, 1).normalize(),
-  );
 
-  const earthMaterial = useMemo(() => {
+  const sharedUniforms = useMemo<SharedEarthGlobals>(() => {
     const initialSun = latLonToVector3(sunLatitude, sunLongitude, 1).normalize();
-    return new ShaderMaterial({
-      vertexShader: EARTH_GLOBE_VERTEX,
-      fragmentShader: EARTH_GLOBE_FRAGMENT,
-      uniforms: {
-        uDayMap: { value: null },
-        uNormalMap: { value: null },
-        uCloudsMap: { value: null },
-        uSpecMap: { value: null },
-        uLightsMap: { value: null },
-        uHasDay: { value: 0 },
-        uHasNormal: { value: 0 },
-        uHasClouds: { value: 0 },
-        uHasSpec: { value: 0 },
-        uHasLights: { value: 0 },
-        uCloudOffset: { value: 0 },
-        uSunDir: { value: initialSun.clone() },
-      },
-    });
+    return {
+      uCloudsMap: { value: null },
+      uSpecMap: { value: null },
+      uLightsMap: { value: null },
+      uHasClouds: { value: 0 },
+      uHasSpec: { value: 0 },
+      uHasLights: { value: 0 },
+      uCloudOffset: { value: 0 },
+      uSunDir: { value: initialSun },
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const haloMaterial = useMemo(() => {
-    const initialSun = latLonToVector3(sunLatitude, sunLongitude, 1).normalize();
     return new ShaderMaterial({
       vertexShader: HALO_VERTEX,
       fragmentShader: HALO_FRAGMENT,
       uniforms: {
-        uSunDir: { value: initialSun.clone() },
+        uSunDir: sharedUniforms.uSunDir,
       },
       transparent: true,
       blending: AdditiveBlending,
       depthWrite: false,
       side: BackSide,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [sharedUniforms]);
+
+  useEffect(() => {
+    earthTileManager.setMaxAnisotropy(gl.capabilities.getMaxAnisotropy());
+    void earthTileManager.init();
+  }, [gl]);
 
   useEffect(() => {
     const controller = new AbortController();
-    const maxAniso = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    const maxAniso = Math.min(16, gl.capabilities.getMaxAnisotropy());
     const loaded: Texture[] = [];
 
     const loadTex = (
       url: string,
+      fallbackUrl: string,
       srgb: boolean,
       onDone: (t: Texture) => void,
     ) => {
-      void loadTextureAsync(url, {
+      const opts = {
         colorSpace: srgb ? SRGBColorSpace : NoColorSpace,
         anisotropy: maxAniso,
         minFilter: LinearMipmapLinearFilter,
@@ -243,7 +350,9 @@ export default function EarthGlobe() {
         wrapS: RepeatWrapping,
         wrapT: ClampToEdgeWrapping,
         signal: controller.signal,
-      })
+      };
+      void loadTextureAsync(url, opts)
+        .catch(() => loadTextureAsync(fallbackUrl, opts))
         .then((tex) => {
           if (controller.signal.aborted) {
             disposeTexture(tex);
@@ -255,41 +364,59 @@ export default function EarthGlobe() {
         .catch(() => {});
     };
 
-    loadTex("/textures/earth/earth_day_2k.webp", true, (day) => {
-      earthMaterial.uniforms.uDayMap!.value = day;
-      earthMaterial.uniforms.uHasDay!.value = 1;
-    });
-    loadTex("/textures/earth/earth_normal_2k.webp", false, (normal) => {
-      earthMaterial.uniforms.uNormalMap!.value = normal;
-      earthMaterial.uniforms.uHasNormal!.value = 1;
-    });
-    loadTex("/textures/earth/earth_clouds_2k.webp", false, (clouds) => {
-      earthMaterial.uniforms.uCloudsMap!.value = clouds;
-      earthMaterial.uniforms.uHasClouds!.value = 1;
-    });
-    loadTex("/textures/earth/earth_specular_2k.webp", false, (spec) => {
-      earthMaterial.uniforms.uSpecMap!.value = spec;
-      earthMaterial.uniforms.uHasSpec!.value = 1;
-    });
-    loadTex("/textures/earth/earth_lights_2k.webp", true, (lights) => {
-      earthMaterial.uniforms.uLightsMap!.value = lights;
-      earthMaterial.uniforms.uHasLights!.value = 1;
-    });
+    loadTex(
+      "/textures/earth/earth_clouds_4k.webp",
+      "/textures/earth/earth_clouds_2k.webp",
+      false,
+      (clouds) => {
+        sharedUniforms.uCloudsMap.value = clouds;
+        sharedUniforms.uHasClouds.value = 1;
+      },
+    );
+    loadTex(
+      "/textures/earth/earth_specular_4k.webp",
+      "/textures/earth/earth_specular_2k.webp",
+      false,
+      (spec) => {
+        sharedUniforms.uSpecMap.value = spec;
+        sharedUniforms.uHasSpec.value = 1;
+      },
+    );
+    loadTex(
+      "/textures/earth/earth_lights_8k.webp",
+      "/textures/earth/earth_lights_2k.webp",
+      true,
+      (lights) => {
+        sharedUniforms.uLightsMap.value = lights;
+        sharedUniforms.uHasLights.value = 1;
+      },
+    );
 
     return () => {
       controller.abort();
       for (const t of loaded) disposeTexture(t);
     };
-  }, [gl, earthMaterial]);
+  }, [gl, sharedUniforms]);
 
   useEffect(() => {
     return () => {
-      earthMaterial.dispose();
       haloMaterial.dispose();
     };
-  }, [earthMaterial, haloMaterial]);
+  }, [haloMaterial]);
+
+  const tileCoords = useMemo(() => {
+    const list: Array<{ row: number; col: number }> = [];
+    for (let r = 0; r < TILE_ROWS; r++) {
+      for (let c = 0; c < TILE_COLS; c++) {
+        list.push({ row: r, col: c });
+      }
+    }
+    return list;
+  }, []);
 
   useFrame((_, delta) => {
+    earthTileManager.evaluateLod(camera, size.height, qualitySpec);
+
     const dLon = ((sunLongitude - curLonRef.current + 540) % 360) - 180;
     const dLat = sunLatitude - curLatRef.current;
     if (Math.abs(dLon) > 1e-3 || Math.abs(dLat) > 1e-3) {
@@ -301,23 +428,27 @@ export default function EarthGlobe() {
         curLatRef.current,
         curLonRef.current,
         1,
-        sunVecRef.current,
+        sharedUniforms.uSunDir.value,
       ).normalize();
-      earthMaterial.uniforms.uSunDir!.value.copy(sunVecRef.current);
-      haloMaterial.uniforms.uSunDir!.value.copy(sunVecRef.current);
     }
 
     if (!reduceMotion) {
-      earthMaterial.uniforms.uCloudOffset!.value =
-        (earthMaterial.uniforms.uCloudOffset!.value + delta * 0.00085) % 1;
+      sharedUniforms.uCloudOffset.value =
+        (sharedUniforms.uCloudOffset.value + delta * 0.00085) % 1;
     }
   });
 
   return (
     <group name="earth-primary-globe" position={[0, 0, 0]} rotation={[0, 0, 0]}>
-      <mesh material={earthMaterial} receiveShadow={false}>
-        <sphereGeometry args={[EARTH_SCENE_RADIUS, 96, 64]} />
-      </mesh>
+      {tileCoords.map(({ row, col }) => (
+        <EarthTileMesh
+          key={`earth_${row}_${col}`}
+          row={row}
+          col={col}
+          segments={qualitySpec.tileSegments}
+          sharedUniforms={sharedUniforms}
+        />
+      ))}
 
       {/* BackSide Rayleigh atmospheric limb halo */}
       <mesh material={haloMaterial} raycast={NOOP_RAYCAST}>
