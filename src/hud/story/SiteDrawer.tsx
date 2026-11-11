@@ -11,7 +11,6 @@ import {
   preloadBodySiteImages,
 } from "@/lib/siteImagePreloader";
 import { useAppStore } from "@/store/useAppStore";
-import MemoryLog from "./MemoryLog";
 import StatsGrid from "./StatsGrid";
 
 export default function SiteDrawer() {
@@ -145,9 +144,6 @@ export default function SiteDrawer() {
                 {site.summary}
               </p>
             </div>
-
-            {/* First-Person Equipment Memory Log */}
-            <MemoryLog memoryLog={site.memoryLog} />
 
             {/* Verified Telemetry Specs Ledger */}
             <div className="space-y-2">

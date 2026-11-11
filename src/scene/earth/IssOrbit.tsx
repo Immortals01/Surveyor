@@ -11,11 +11,10 @@ import {
   Vector3,
 } from "three";
 import { cameraBus } from "@/engine/camera";
-import { formatLatLon, latLonToVector3, normalizeLon } from "@/lib/geo";
+import { latLonToVector3, normalizeLon } from "@/lib/geo";
 import {
   computeIssOrbitRingPoints,
   getLatestIssTelemetry,
-  useIssTracker,
 } from "@/lib/issTracker";
 import { useAppStore } from "@/store/useAppStore";
 
@@ -48,8 +47,6 @@ function IssHudBadge({
   active: boolean;
   onSelect: () => void;
 }) {
-  const telemetry = useIssTracker(true);
-
   return (
     <button
       type="button"
@@ -63,11 +60,6 @@ function IssHudBadge({
     >
       <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
       <span className="font-bold tracking-wider text-loro">ISS LIVE</span>
-      <span className="text-white/30">·</span>
-      <span>{formatLatLon(telemetry.lat, telemetry.lon)}</span>
-      <span className="hidden text-regolith/75 sm:inline">
-        ({Math.round(telemetry.altitudeKm)} km)
-      </span>
     </button>
   );
 }

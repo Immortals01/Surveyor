@@ -146,6 +146,6 @@ export const TourChapterSchema = z.object({
   shortTitle: z.string(),
   subtitle: z.string(),
   heroSiteIds: z.array(z.string()).min(1),
-  beats: z.array(TourBeatSchema).min(2),
+  beats: z.array(TourBeatSchema).min(1),
 });
 export type TourChapter = z.infer<typeof TourChapterSchema>;

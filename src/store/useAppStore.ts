@@ -255,6 +255,7 @@ export const useAppStore = create<AppState>()(
       selectSite: (siteId) =>
         set((s) => ({
           selectedSiteId: siteId,
+          dialogue: null,
           issPanelOpen: siteId !== null ? false : s.issPanelOpen,
         })),
 
