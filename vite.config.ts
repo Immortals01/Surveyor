@@ -136,6 +136,11 @@ function optimizeBarrels(): Plugin {
 
 export default defineConfig({
   plugins: [optimizeBarrels(), react(), tailwindcss(), cloudflare()],
+  // Quick cloudflared tunnels get a random `*.trycloudflare.com` hostname, so allow the
+  // whole suffix instead of pasting each new host. Vite only accepts loopback unless listed.
+  server: {
+    allowedHosts: [".trycloudflare.com"],
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),

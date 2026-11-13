@@ -1,5 +1,5 @@
-import { Component, lazy, type ReactNode, Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Component, lazy, useEffect, type ReactNode, Suspense } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import { getHost } from "@/data/hosts";
 import { useAppStore } from "@/store/useAppStore";
 import { LORO_MOODS } from "./moods";
@@ -8,6 +8,12 @@ const HostMascot3D = lazy(() => import("./HostMascot3D"));
 
 interface LoRoProps {
   size?: "sm" | "md" | "lg" | "xl";
+  /**
+   * While false the canvas stays paused in demand mode and only renders a single
+   * warm-up frame, so WebGL context creation, shader compilation, and geometry
+   * upload happen before the host becomes visible instead of during an interaction.
+   */
+  active?: boolean;
 }
 
 /** If WebGL is unavailable for the mini-canvas, fall back to a simple name badge. */
@@ -25,11 +31,24 @@ class HostErrorBoundary extends Component<
 }
 
 /**
+ * Renders one frame on mount (after the lazy host resolves, since siblings inside
+ * the same Suspense boundary commit together) and whenever `active` flips, so the
+ * expensive first GL frame never lands on the "Start Moon Tour" click.
+ */
+function WarmFrames({ active }: { active: boolean }) {
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    invalidate();
+  }, [active, invalidate]);
+  return null;
+}
+
+/**
  * The mascot stage. Surveyor 3 is the standing navigator; the tour swaps in the
  * machine that actually lives at each site (Surveyor 1, Surveyor 7, Eagle,
  * Intrepid, Antares) so every stop has its own friendly host.
  */
-export default function LoRo({ size = "lg" }: LoRoProps) {
+export default function LoRo({ size = "lg", active = true }: LoRoProps) {
   const mood = useAppStore((s) => s.loroMood);
   const isSpeaking = useAppStore((s) => Boolean(s.dialogue?.isSpeaking));
   const speaker = useAppStore((s) => s.dialogue?.speaker ?? "loro");
@@ -40,7 +59,7 @@ export default function LoRo({ size = "lg" }: LoRoProps) {
   const spec = LORO_MOODS[mood];
   const dim =
     size === "xl"
-      ? "h-52 w-52 sm:h-64 sm:w-64"
+      ? "h-52 w-52 sm:h-80 sm:w-80"
       : size === "lg"
         ? "h-40 w-40 sm:h-52 sm:w-52"
         : size === "md"
@@ -83,7 +102,7 @@ export default function LoRo({ size = "lg" }: LoRoProps) {
           className="pointer-events-none! absolute! inset-0"
           camera={{ position: [0, 0.14, 4.65], fov: 32 }}
           dpr={[1, 1.5]}
-          frameloop={reduceMotion ? "demand" : "always"}
+          frameloop={active ? (reduceMotion ? "demand" : "always") : "demand"}
           gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
           onCreated={({ camera }) => camera.lookAt(0, 0.06, 0)}
         >
@@ -95,6 +114,7 @@ export default function LoRo({ size = "lg" }: LoRoProps) {
               accent={accentHex}
               reduceMotion={reduceMotion}
             />
+            <WarmFrames active={active} />
           </Suspense>
         </Canvas>
       </HostErrorBoundary>

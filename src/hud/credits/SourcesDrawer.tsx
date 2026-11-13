@@ -222,12 +222,6 @@ export default function SourcesDrawer() {
           })}
         </div>
 
-        {/* Footer */}
-        <div className="border-t border-white/10 bg-space-900/90 px-6 py-3 text-center font-mono text-[11px] text-regolith/65">
-          Created for the 2026 NASA International Space Apps Challenge (&ldquo;NASA&apos;s
-          Discarded Equipment Storytelling&rdquo;). Uses public-domain NASA imagery
-          and data; does not imply official NASA endorsement.
-        </div>
       </div>
     </div>
   );

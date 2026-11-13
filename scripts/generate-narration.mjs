@@ -24,6 +24,7 @@ async function collectDialogueLines() {
   const files = [
     path.join(ROOT, "src/data/heroSites.ts"),
     path.join(ROOT, "src/data/marsHeroSites.ts"),
+    path.join(ROOT, "src/data/host.ts"),
     path.join(ROOT, "src/data/tourChapters.ts"),
     path.join(ROOT, "src/data/marsTourChapters.ts"),
     path.join(ROOT, "src/hud/Hud.tsx"),

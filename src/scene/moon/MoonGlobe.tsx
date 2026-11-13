@@ -18,10 +18,44 @@ import {
   isHeightLoaded,
   loadPlanetaryHeightGrid,
 } from "./heightSampler";
-import { getTileManagerForBody } from "./tileManager";
+import {
+  getTileManagerForBody,
+  type TileTextureState,
+} from "./tileManager";
 
 const NORMAL_SCALE = new Vector2(1.9, 1.9);
 const NOOP_RAYCAST = () => {};
+
+function applyTileState(
+  material: MeshStandardMaterial,
+  state: TileTextureState,
+  body: "moon" | "mars",
+): boolean {
+  let changed = false;
+  if (material.map !== state.colorTex) {
+    material.map = state.colorTex;
+    material.color.set(
+      state.colorTex ? "#ffffff" : body === "mars" ? "#c26b4a" : "#b8b0a0",
+    );
+    changed = true;
+  }
+  if (material.normalMap !== state.normalTex) {
+    material.normalMap = state.normalTex;
+    changed = true;
+  }
+  if (changed) {
+    material.needsUpdate = true;
+  }
+  return changed;
+}
+
+/**
+ * Pending L2+ texture upgrades, applied at most one per frame in MoonGlobe's
+ * useFrame. three.js uploads each swapped texture synchronously on the GL thread
+ * (texImage2D + full mipmap chain for a 2048² color map), so letting several
+ * tiles land in the same frame stalls rendering for seconds during a flight.
+ */
+const pendingSwaps = new Map<string, () => void>();
 
 interface MoonTileMeshProps {
   row: number;
@@ -76,24 +110,40 @@ function MoonTileMesh({
     };
   }, [material]);
 
+  // Highest texture levels currently bound to the material (-1 = none yet)
+  const appliedColorLevelRef = useRef(-1);
+  const appliedNormalLevelRef = useRef(-1);
+
   useEffect(() => {
-    return tileManager.subscribe(row, col, (state) => {
-      let changed = false;
-      if (material.map !== state.colorTex) {
-        material.map = state.colorTex;
-        material.color.set(
-          state.colorTex ? "#ffffff" : body === "mars" ? "#c26b4a" : "#b8b0a0",
-        );
-        changed = true;
+    const swapKey = `${body}_${row}_${col}`;
+    const unsubscribe = tileManager.subscribe(row, col, (state) => {
+      // L2/L3 upgrades carry heavy synchronous GPU uploads, so defer them to the
+      // per-frame drain below; L0/L1 swaps and downgrades/evictions are cheap.
+      const isUpgrade =
+        (state.colorLevel > appliedColorLevelRef.current &&
+          state.colorLevel >= 2) ||
+        (state.normalLevel > appliedNormalLevelRef.current &&
+          state.normalLevel >= 2);
+
+      if (isUpgrade) {
+        pendingSwaps.set(swapKey, () => {
+          appliedColorLevelRef.current = state.colorLevel;
+          appliedNormalLevelRef.current = state.normalLevel;
+          applyTileState(material, state, body);
+        });
+        return;
       }
-      if (material.normalMap !== state.normalTex) {
-        material.normalMap = state.normalTex;
-        changed = true;
-      }
-      if (changed) {
-        material.needsUpdate = true;
-      }
+
+      // The latest manager state supersedes any queued upgrade for this tile.
+      pendingSwaps.delete(swapKey);
+      appliedColorLevelRef.current = state.colorLevel;
+      appliedNormalLevelRef.current = state.normalLevel;
+      applyTileState(material, state, body);
     });
+    return () => {
+      pendingSwaps.delete(swapKey);
+      unsubscribe();
+    };
   }, [row, col, material, tileManager, body]);
 
   return (
@@ -143,6 +193,16 @@ export default function MoonGlobe() {
   }, []);
 
   useFrame(() => {
+    // Spread pending high-res texture upgrades across frames: one tile per frame
+    // keeps each GPU upload (~30 MB for an L3 color+normal pair) in its own frame.
+    if (pendingSwaps.size > 0) {
+      const next = pendingSwaps.entries().next();
+      if (!next.done) {
+        pendingSwaps.delete(next.value[0]);
+        next.value[1]();
+      }
+    }
+
     getTileManagerForBody(body).evaluateLod(camera, size.height, qualitySpec);
   });
 

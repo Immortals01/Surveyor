@@ -1,4 +1,5 @@
 import { HERO_SITES } from "./heroSites";
+import { HOST_INTRO_MARS, HOST_INTRO_MOON } from "./host";
 import { MARS_HERO_SITES } from "./marsHeroSites";
 import { MARS_SECONDARY_SITES } from "./marsSecondarySites";
 import { MARS_TOUR_CHAPTERS } from "./marsTourChapters";
@@ -12,6 +13,8 @@ export {
   SECONDARY_SITES,
   MARS_HERO_SITES,
   MARS_SECONDARY_SITES,
+  HOST_INTRO_MOON,
+  HOST_INTRO_MARS,
   SOURCES,
   SOURCES_BY_ID,
   TOUR_CHAPTERS,

@@ -49,6 +49,8 @@ const CORONA_FRAGMENT = /* glsl */ `
     s += 0.30 * cos(angle * 7.0 - 1.2 + cos(t * 0.06 - r * 1.2) * 0.18);
     s += 0.15 * sin(angle * 12.0 + 2.0 + t * 0.05);
     s += 0.10 * cos(angle * 19.0 - 0.5 - t * 0.04);
+    // Fine filament octave: narrow coronal threads drifting slowly outward (kept faint to stay alias-free)
+    s += 0.06 * sin(angle * 31.0 + r * 5.0 - t * 0.09);
     return clamp(0.5 + 0.5 * s, 0.0, 1.0);
   }
 
@@ -60,11 +62,17 @@ const CORONA_FRAGMENT = /* glsl */ `
     float angle = atan(vUv.y, vUv.x);
     float edgeFade = smoothstep(1.0, 0.18, r);
 
-    // 1. Crisp, pure-white solar disc core (monotonically brightest at center, zero inner ring)
-    float discCore = 1.0 - smoothstep(uDiscRadiusUv * 0.72, uDiscRadiusUv * 1.04, r);
+    // 1. Defined photosphere with a screen-space anti-aliased limb (crisp at every zoom level)
+    float discR = uDiscRadiusUv;
+    float aa = clamp(fwidth(r) * 1.2, 1e-4, discR * 0.4);
+    float discCore = 1.0 - smoothstep(discR * 0.92 - aa, discR * 1.03 + aa, r);
+
+    // Softened Eddington limb darkening: interior dims gently toward the rim like the real photosphere
+    float discMu = sqrt(max(0.0, 1.0 - min(1.0, (r / discR) * (r / discR))));
+    float limb = mix(0.86, 1.0, discMu);
 
     // 2. Smooth radial distance outside the solar disc limb
-    float dLimb = max(0.0, r - uDiscRadiusUv * 0.85);
+    float dLimb = max(0.0, r - discR * 0.85);
 
     // 3. Silky inner & mid K-corona glow (kept < 1.0 outside disc so it never hard-clips)
     float streamers = streamerHarmonics(angle, r, uTime);
@@ -76,19 +84,21 @@ const CORONA_FRAGMENT = /* glsl */ `
     // 4. Wide F-corona inverse-square dust aureole fading smoothly to 0 before r = 1.0
     float outerAureole = max(0.0, (0.036 / (r * r + 0.028) - 0.035)) * edgeFade;
 
-    float rawIntensity = discCore + (innerCorona + midCorona + outerAureole) * edgeFade;
+    float rawIntensity = discCore * limb + (innerCorona + midCorona + outerAureole) * edgeFade;
     // Soft shoulder roll-off outside the disc so the bloom is velvety and perfectly round
     float intensity = clamp(1.0 - exp(-rawIntensity * 1.35), 0.0, 1.0);
-    intensity = max(intensity, discCore);
+    intensity = max(intensity, discCore * limb);
 
     // Seamless color temperature progression: pure white disc -> warm ivory -> golden outer corona
     vec3 colDisc = vec3(1.0, 0.998, 0.99);
     vec3 colInner = vec3(1.0, 0.93, 0.76);
     vec3 colOuter = vec3(1.0, 0.68, 0.34);
 
-    vec3 color = mix(colDisc, colInner, smoothstep(uDiscRadiusUv * 0.85, 0.24, r));
+    vec3 color = mix(colDisc, colInner, smoothstep(discR * 0.85, 0.24, r));
     color = mix(color, colOuter, smoothstep(0.20, 0.78, r));
     color = mix(color, colDisc, discCore);
+    // Warm photospheric rim tint tied to the limb-darkening profile
+    color = mix(color, vec3(1.0, 0.84, 0.60), discCore * smoothstep(0.6, 0.0, discMu) * 0.7);
 
     // Sub-LSB dither to prevent 8-bit framebuffer Mach banding in dark space
     float dither = (hash12(gl_FragCoord.xy) - 0.5) * (1.0 / 255.0);
@@ -102,6 +112,7 @@ const CORONA_FRAGMENT = /* glsl */ `
 const GLARE_FRAGMENT = /* glsl */ `
   uniform float uVisibility;
   uniform float uLimbGrazing;
+  uniform float uDiscRadiusUv;
 
   varying vec2 vUv;
 
@@ -126,11 +137,14 @@ const GLARE_FRAGMENT = /* glsl */ `
     float r = sqrt(r2);
     float edgeFade = smoothstep(1.0, 0.15, r);
 
+    // Spikes fade in just outside the photosphere so their lobes never dent the round disc silhouette
+    float spikeOnset = smoothstep(uDiscRadiusUv * 0.98, uDiscRadiusUv * 1.7, r);
+
     // 1. Primary 4-point spacecraft aperture diffraction spikes
-    float mainSpikes = needleSpike(vUv, 0.12, 48.0, 3.1) * 0.46;
+    float mainSpikes = needleSpike(vUv, 0.12, 48.0, 3.1) * 0.46 * spikeOnset;
 
     // 2. Secondary 4-point diagonal aperture spikes (45 deg offset, finer and shorter)
-    float diagSpikes = needleSpike(vUv, 0.12 + 0.785398, 68.0, 4.8) * 0.24;
+    float diagSpikes = needleSpike(vUv, 0.12 + 0.785398, 68.0, 4.8) * 0.24 * spikeOnset;
 
     // 3. Diamond-ring horizon flare when the Sun grazes the lunar limb
     float horizonStreak = exp(-abs(vUv.y) * 60.0) * exp(-abs(vUv.x) * 2.1) * uLimbGrazing * 0.68;
@@ -214,6 +228,7 @@ export default function Sun() {
         uScale: { value: GLARE_SCALE * 0.5 },
         uVisibility: { value: 1 },
         uLimbGrazing: { value: 0 },
+        uDiscRadiusUv: { value: SUN_DISC_RADIUS / (GLARE_SCALE * 0.5) },
       },
       transparent: true,
       blending: AdditiveBlending,
