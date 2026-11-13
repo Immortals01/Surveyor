@@ -56,6 +56,14 @@ export const MARS_SECONDARY_SITES: SecondarySite[] = [
       "S-NASA-PATHFINDER",
       "S-3D-MARS-ROVER",
     ],
+    video: {
+      youtubeId: "9HGRReKUzfU",
+      title: "NASA's Mars Pathfinder & Sojourner Rover (360 View)",
+      credit: "NASA / JPL-Caltech (YouTube)",
+      sourceId: "S-NASA-PATHFINDER",
+      description:
+        "Pan around the Ares Vallis site in 360 degrees — Sojourner is the microwave-oven-sized rover beside the lander.",
+    },
   },
   {
     id: "spirit-lander",

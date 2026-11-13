@@ -536,6 +536,14 @@ export const HERO_SITES: HeroSite[] = [
       "S-3D-LM",
       "S-3D-LRV",
     ],
+    video: {
+      youtubeId: "YEVZzHUGJd4",
+      title: "Apollo 17 50th Anniversary — Unchallenged After Fifty Years",
+      credit: "NASA / GSFC / Arizona State University (LROC)",
+      sourceId: "S-WAGNER-2017",
+      description:
+        "The LROC team's retrospective on the last Apollo landing, hosted on the LROC site cited for Taurus-Littrow's hardware coordinates.",
+    },
   },
   {
     id: "surveyor-7",

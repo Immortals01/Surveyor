@@ -97,6 +97,30 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
+  it("attributes every embedded mission film to a cited NASA source", () => {
+    const videoSites = ALL_COMBINED_SITES.filter((site) => site.video !== undefined);
+    expect(videoSites.length).toBeGreaterThan(0);
+
+    for (const site of videoSites) {
+      const video = site.video!;
+      expect(video.youtubeId, `${site.id} video id`).toMatch(/^[A-Za-z0-9_-]{11}$/);
+      expect(site.sourceIds, `${site.id} cites ${video.sourceId}`).toContain(
+        video.sourceId,
+      );
+      expect(SOURCES_BY_ID.has(video.sourceId), `${site.id} → ${video.sourceId}`).toBe(
+        true,
+      );
+    }
+
+    // Every NASA mission page that carries a YouTube embed must reach the UI.
+    const videoSourceIds = new Set(videoSites.map((site) => site.video!.sourceId));
+    for (const sid of ["S-NASA-PATHFINDER", "S-NASA-INSIGHT", "S-NASA-INGENUITY"]) {
+      expect(videoSourceIds.has(sid), `no site embeds the film from ${sid}`).toBe(
+        true,
+      );
+    }
+  });
+
   it("places key Moon and Mars landmarks in the right geographic quadrants", () => {
     // Apollo 11 (0.67N, 23.47E): nearside (+X), north (+Y), east (-Z)
     const ap11 = SITE_BY_ID.get("apollo-11")!;

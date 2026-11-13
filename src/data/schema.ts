@@ -45,6 +45,22 @@ export const SourceEntrySchema = z.object({
 });
 export type SourceEntry = z.infer<typeof SourceEntrySchema>;
 
+/**
+ * A YouTube film embedded on one of the NASA pages this site cites.
+ * `sourceId` records the exact ledger entry whose page carries the player,
+ * so the right-panel embed can never drift away from its citation.
+ */
+export const SiteVideoSchema = z.object({
+  youtubeId: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{11}$/, "YouTube video IDs are 11 characters"),
+  title: z.string().min(1),
+  credit: z.string().min(1),
+  sourceId: z.string().regex(/^S-[A-Z0-9-]+$/),
+  description: z.string().min(1).optional(),
+});
+export type SiteVideo = z.infer<typeof SiteVideoSchema>;
+
 export const StatItemSchema = z.object({
   label: z.string(),
   value: z.string(),
@@ -81,6 +97,7 @@ export const BaseSiteSchema = z.object({
   thumbnailImage: z.string().startsWith("/"),
   parentHeroId: z.string().optional(),
   sourceIds: z.array(z.string()).min(1),
+  video: SiteVideoSchema.optional(),
 });
 
 export const HeroSiteSchema = BaseSiteSchema.extend({

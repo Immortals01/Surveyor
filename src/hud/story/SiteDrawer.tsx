@@ -11,6 +11,7 @@ import {
   preloadBodySiteImages,
 } from "@/lib/siteImagePreloader";
 import { useAppStore } from "@/store/useAppStore";
+import SiteVideoEmbed from "./SiteVideoEmbed";
 import StatsGrid from "./StatsGrid";
 
 export default function SiteDrawer() {
@@ -49,6 +50,17 @@ export default function SiteDrawer() {
   };
 
   const bodyCornerColor = isMars ? "border-orange-400" : "border-sunlit";
+
+  const videoSection = site.video ? (
+    <div className="space-y-2">
+      <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">
+        02 // ARCHIVE FILM
+      </div>
+      <SiteVideoEmbed video={site.video} />
+    </div>
+  ) : null;
+
+  const metricsStep = site.video ? "03" : "02";
 
   return (
     <aside
@@ -140,10 +152,13 @@ export default function SiteDrawer() {
               </p>
             </div>
 
+            {/* Archive film hosted on the cited NASA source page */}
+            {videoSection}
+
             {/* Verified Telemetry Specs Ledger */}
             <div className="space-y-2">
               <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">
-                02 // KEY METRICS
+                {metricsStep} // KEY METRICS
               </div>
               <StatsGrid stats={site.stats} />
             </div>
@@ -182,9 +197,11 @@ export default function SiteDrawer() {
               </p>
             </div>
 
+            {videoSection}
+
             <div className="space-y-2">
               <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">
-                02 // KEY METRICS
+                {metricsStep} // KEY METRICS
               </div>
               <StatsGrid stats={site.stats} />
             </div>

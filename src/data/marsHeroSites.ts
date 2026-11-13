@@ -234,6 +234,14 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "S-HIRISE-HARDWARE",
       "S-3D-MARS-ROVER",
     ],
+    video: {
+      youtubeId: "9HGRReKUzfU",
+      title: "NASA's Mars Pathfinder & Sojourner Rover (360 View)",
+      credit: "NASA / JPL-Caltech (YouTube)",
+      sourceId: "S-NASA-PATHFINDER",
+      description:
+        "A 360-degree panorama of the Ares Vallis landing site, with Sojourner parked beside the lander.",
+    },
   },
   {
     id: "spirit-rover",
@@ -538,6 +546,14 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "S-HIRISE-HARDWARE",
       "S-MOLA-MEGDR",
     ],
+    video: {
+      youtubeId: "yT50Q_Zbf3s",
+      title: "Sounds of Mars: NASA's InSight Senses Martian Wind",
+      credit: "NASA / JPL-Caltech (YouTube)",
+      sourceId: "S-NASA-INSIGHT",
+      description:
+        "SEIS and the lander's air-pressure sensor turn the wind over Elysium Planitia into sound.",
+    },
   },
   {
     id: "ingenuity-helicopter",
@@ -614,5 +630,13 @@ export const MARS_HERO_SITES: HeroSite[] = [
       "S-HIRISE-HARDWARE",
       "S-3D-MARS-ROVER",
     ],
+    video: {
+      youtubeId: "qMbHE_VXI-8",
+      title: "Legacy of NASA's Ingenuity Mars Helicopter",
+      credit: "NASA / JPL-Caltech (YouTube)",
+      sourceId: "S-NASA-INGENUITY",
+      description:
+        "JPL's look back at 72 flights, from the first hop at Wright Brothers Field to the final landing at Valinor Hills.",
+    },
   },
 ];
