@@ -51,6 +51,8 @@ export default function Marker({ site, heightReady }: MarkerProps) {
   // Granular boolean selectors so only the affected 1-2 markers re-render on hover/select
   const isSelected = useAppStore((s) => s.selectedSiteId === site.id);
   const isHovered = useAppStore((s) => s.hoveredSiteId === site.id);
+  // The site drawer already titles the selected site, so suppress its floating marker label
+  const isDrawerOpen = useAppStore((s) => s.selectedSiteId != null);
   const celestialBody = useAppStore((s) => s.celestialBody);
   const categoryFilter = useAppStore((s) => s.categoryFilter);
   const heroOnly = useAppStore((s) => s.heroOnly);
@@ -277,7 +279,9 @@ export default function Marker({ site, heightReady }: MarkerProps) {
       )}
 
       {/* Mount max 2 DOM labels across the entire Moon (hovered + selected only) */}
-      {(isHovered || isSelected) && matchesFilter && (
+      {(isHovered || isSelected) &&
+        matchesFilter &&
+        !(isSelected && isDrawerOpen) && (
         <Html
           position={[0, isHero ? 1.05 : 0.75, 0]}
           center
