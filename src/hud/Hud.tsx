@@ -414,17 +414,12 @@ export default function Hud() {
 
             <LoRo size="lg" active={mode === "tour"} />
 
-            <div className="mt-1.5 flex flex-col items-center justify-center gap-0.5 border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
+            <div className="mt-1.5 flex items-center justify-center border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
               <span className="text-regolith-bright font-semibold">
                 {isMars
                   ? "SURVEYOR 3 · MARS RELAY"
-                  : `${activeHost.name.toUpperCase()} · HOST`}
+                  : activeHost.name.toUpperCase()}
               </span>
-              {!isMars && activeHost.id !== "surveyor-3" && (
-                <span className="text-[8px] tracking-[0.18em] text-regolith/60">
-                  {activeHost.callSign}
-                </span>
-              )}
             </div>
           </button>
         </div>
