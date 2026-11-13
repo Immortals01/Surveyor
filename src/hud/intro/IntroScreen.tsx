@@ -88,7 +88,7 @@ export default function IntroScreen() {
             <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-loro uppercase">
               {isMars
                 ? "DEEP-SPACE HOST · SURVEYOR 3 RELAY"
-                : "LUNAR HOST · SURVEYOR 3 (1967-035A)"}
+                : "LUNAR HOST · SURVEYOR 3"}
             </span>
             <div>
               <button
