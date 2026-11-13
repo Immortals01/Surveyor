@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { cancelSpeech, speakLine } from "@/audio/speech";
 import { getTourChaptersForBody, SITE_BY_ID } from "@/data";
+import { resolveHostForSite } from "@/data/hosts";
 import type { DialogueLine } from "@/data/schema";
 import { useAppStore } from "@/store/useAppStore";
 import { cameraBus } from "./camera";
@@ -110,6 +111,7 @@ export function useTourRunner() {
         }
         store.setLoRoMood("scanning");
         store.selectSite(site.id);
+        store.setActiveHost(resolveHostForSite(site.id));
 
         if (beat.announce) {
           activateLine(beat.announce);
@@ -146,6 +148,9 @@ export function useTourRunner() {
       }
 
       if (beat.kind === "speak") {
+        if (beat.siteId) {
+          store.setActiveHost(resolveHostForSite(beat.siteId));
+        }
         if (beat.siteId && store.selectedSiteId !== null) {
           store.selectSite(beat.siteId);
         }

@@ -13,6 +13,7 @@ import {
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech, speakLine } from "@/audio/speech";
 import { getSitesForBody, SITE_BY_ID } from "@/data";
+import { getHost } from "@/data/hosts";
 import type { DialogueLine } from "@/data/schema";
 import { cameraBus } from "@/engine/camera";
 import { useTourRunner } from "@/engine/useTourRunner";
@@ -54,6 +55,7 @@ export default function Hud() {
   const sourcesDrawerOpen = useAppStore((s) => s.sourcesDrawerOpen);
   const muted = useAppStore((s) => s.settings.muted);
   const reduceMotion = useAppStore((s) => s.settings.reduceMotion);
+  const activeHost = getHost(useAppStore((s) => s.activeHostId));
   const updateSettings = useAppStore((s) => s.updateSettings);
   const startTour = useAppStore((s) => s.startTour);
   const returnToIntro = useAppStore((s) => s.returnToIntro);
@@ -127,6 +129,7 @@ export default function Hud() {
     audioEngine.unlock(muted);
     audioEngine.playUiTick();
     const state = useAppStore.getState();
+    const host = getHost(state.activeHostId);
     const selected = state.selectedSiteId
       ? SITE_BY_ID.get(state.selectedSiteId)
       : undefined;
@@ -134,17 +137,28 @@ export default function Hud() {
     const defaultTip =
       state.celestialBody === "mars" ? DEFAULT_MARS_TIP : DEFAULT_MOON_TIP;
 
-    const line =
-      selected && selected.tier === "hero" ? selected.loroIntro : defaultTip;
+    // The machine standing beside the visitor introduces itself; otherwise
+    // Surveyor 3 picks up the commentary from orbit.
+    let line: DialogueLine;
+    if (selected && selected.tier === "hero" && host.siteId === selected.id) {
+      line = host.intro;
+    } else if (selected && selected.tier === "hero") {
+      line = selected.loroIntro;
+    } else if (host.id !== "surveyor-3") {
+      line = host.intro;
+    } else {
+      line = defaultTip;
+    }
 
     state.setLoRoMood(line.mood);
     state.setDialogue({
       lineId: line.id,
-      speaker: "loro",
+      speaker: line.speaker,
       speakerLabel:
-        state.celestialBody === "mars"
+        line.speakerLabel ??
+        (state.celestialBody === "mars"
           ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-          : "SURVEYOR 3 (1967)",
+          : "SURVEYOR 3 (1967)"),
       text: line.text,
       sourceIds: line.sourceIds,
       isRevealing: !reduceMotion,
@@ -373,7 +387,7 @@ export default function Hud() {
             type="button"
             onClick={handleLoRoClick}
             className="pointer-events-auto group relative shrink-0 cursor-pointer border border-loro/40 bg-space-950/90 p-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl transition hover:border-loro hover:bg-space-900/90 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-            title="Click Surveyor 3 for voice commentary"
+            title={`Click ${activeHost.name} for voice commentary`}
           >
             {/* Corner telemetry brackets */}
             <span className="pointer-events-none absolute -top-px -left-px h-3 w-3 border-t-2 border-l-2 border-loro" />
@@ -383,12 +397,17 @@ export default function Hud() {
 
             <LoRo size="lg" />
 
-            <div className="mt-1.5 flex items-center justify-center border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
+            <div className="mt-1.5 flex flex-col items-center justify-center gap-0.5 border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
               <span className="text-regolith-bright font-semibold">
                 {isMars
                   ? "SURVEYOR 3 · MARS RELAY"
-                  : "SURVEYOR 3 - HOST"}
+                  : `${activeHost.name.toUpperCase()} · HOST`}
               </span>
+              {!isMars && activeHost.id !== "surveyor-3" && (
+                <span className="text-[8px] tracking-[0.18em] text-regolith/60">
+                  {activeHost.callSign}
+                </span>
+              )}
             </div>
           </button>
         </div>

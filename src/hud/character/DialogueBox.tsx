@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Radio, Satellite, Volume2, VolumeX } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { SITE_BY_ID } from "@/data";
+import { getHost } from "@/data/hosts";
 import { useAppStore } from "@/store/useAppStore";
 
 interface DialogueBoxProps {
@@ -26,6 +27,7 @@ export default function DialogueBox({
   const muted = useAppStore((s) => s.settings.muted);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const patchDialogue = useAppStore((s) => s.patchDialogue);
+  const activeHost = getHost(useAppStore((s) => s.activeHostId));
 
   const [revealState, setRevealState] = useState<{
     lineId: string;
@@ -49,8 +51,8 @@ export default function DialogueBox({
   const speakerLabel =
     dialogue?.speakerLabel ??
     (selectedSite
-      ? `SURVEYOR 3 · ON ${selectedSite.mission.toUpperCase()}`
-      : "SURVEYOR 3 (1967)");
+      ? `${activeHost.name.toUpperCase()} · ON ${selectedSite.mission.toUpperCase()}`
+      : activeHost.callSign);
 
   useEffect(() => {
     if (!dialogue || !dialogue.isRevealing || reduceMotion) {

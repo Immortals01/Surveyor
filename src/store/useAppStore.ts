@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Category, CelestialBody, LoRoMood } from "@/data/schema";
+import { DEFAULT_HOST, resolveHostForSite, type HostId } from "@/data/hosts";
 import type { QualityTier } from "@/lib/quality";
 import {
   isHeightLoaded,
@@ -58,6 +59,8 @@ export interface AppState {
 
   // Lo-Ro character & speech bubble
   loroMood: LoRoMood;
+  /** Cartoon host currently on stage (Surveyor 3, Surveyor 1/7, Eagle, Intrepid, Antares). */
+  activeHostId: HostId;
   dialogue: ActiveDialogue | null;
 
   // Scene & camera state
@@ -85,6 +88,7 @@ export interface AppState {
   openSources: (sourceId?: string) => void;
   closeSources: () => void;
   setLoRoMood: (mood: LoRoMood) => void;
+  setActiveHost: (hostId: HostId) => void;
   setDialogue: (dialogue: ActiveDialogue | null) => void;
   patchDialogue: (patch: Partial<ActiveDialogue>) => void;
   setSunDirection: (lon: number, lat?: number) => void;
@@ -114,6 +118,7 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
     sunLongitude: body === "mars" ? 18 : -48,
     sunLatitude: body === "mars" ? 8 : 1.5,
     loroMood: "waving",
+    activeHostId: DEFAULT_HOST,
     dialogue:
       s.mode === "intro"
         ? null
@@ -163,6 +168,7 @@ export const useAppStore = create<AppState>()(
       highlightedSourceId: null,
 
       loroMood: "waving",
+      activeHostId: DEFAULT_HOST,
       dialogue: null,
 
       sunLongitude: -48,
@@ -210,6 +216,7 @@ export const useAppStore = create<AppState>()(
           hoveredSiteId: null,
           dialogue: null,
           loroMood: "waving",
+          activeHostId: DEFAULT_HOST,
           siteIndexOpen: false,
           sunLongitude: s.celestialBody === "mars" ? 18 : -48,
           sunLatitude: s.celestialBody === "mars" ? 8 : 1.5,
@@ -226,6 +233,7 @@ export const useAppStore = create<AppState>()(
       selectSite: (siteId) =>
         set({
           selectedSiteId: siteId,
+          activeHostId: resolveHostForSite(siteId),
           dialogue: null,
         }),
 
@@ -247,6 +255,8 @@ export const useAppStore = create<AppState>()(
         set({ sourcesDrawerOpen: false, highlightedSourceId: null }),
 
       setLoRoMood: (loroMood) => set({ loroMood }),
+
+      setActiveHost: (activeHostId) => set({ activeHostId }),
 
       setDialogue: (dialogue) => set({ dialogue }),
 
