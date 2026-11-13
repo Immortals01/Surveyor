@@ -12,6 +12,9 @@ import { defineConfig, type Plugin } from "vite";
  */
 function optimizeBarrels(): Plugin {
   const rootDir = import.meta.dirname;
+  // Absolute paths are injected into import specifiers, so keep them POSIX-style;
+  // raw Windows backslashes would be consumed as escape sequences.
+  const toSpec = (p: string) => p.replaceAll("\\", "/");
   const lucideMap = new Map<string, string>();
   const dreiMap = new Map<string, { target: string; isDefault: boolean }>();
   const stdlibMap = new Map<string, string>();
@@ -25,7 +28,7 @@ function optimizeBarrels(): Plugin {
       for (const part of specifiers.split(",")) {
         const asMatch = part.trim().match(/^default\s+as\s+(\w+)$/);
         if (asMatch?.[1]) {
-          lucideMap.set(asMatch[1], path.resolve(rootDir, "node_modules/lucide-react/dist/esm", relPath));
+          lucideMap.set(asMatch[1], toSpec(path.resolve(rootDir, "node_modules/lucide-react/dist/esm", relPath)));
         }
       }
     }
@@ -40,7 +43,7 @@ function optimizeBarrels(): Plugin {
       for (const part of specifiers.split(",")) {
         const trimmed = part.trim();
         const defaultAs = trimmed.match(/^default\s+as\s+(\w+)$/);
-        const absTarget = path.resolve(rootDir, "node_modules/@react-three/drei", relPath);
+        const absTarget = toSpec(path.resolve(rootDir, "node_modules/@react-three/drei", relPath));
         if (defaultAs?.[1]) {
           dreiMap.set(defaultAs[1], { target: absTarget, isDefault: true });
         } else if (/^\w+$/.test(trimmed)) {
@@ -56,7 +59,7 @@ function optimizeBarrels(): Plugin {
     for (const match of content.matchAll(/import\s+\{([^}]+)\}\s+from\s+["']\.\/([^"']+)["']/g)) {
       const specifiers = match[1]!;
       const relPath = match[2]!;
-      const absTarget = path.resolve(rootDir, "node_modules/three-stdlib", relPath);
+      const absTarget = toSpec(path.resolve(rootDir, "node_modules/three-stdlib", relPath));
       for (const part of specifiers.split(",")) {
         const trimmed = part.trim();
         const aliasMatch = trimmed.match(/^(\w+)\s+as\s+(\w+)$/);
