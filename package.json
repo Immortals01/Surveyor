@@ -18,7 +18,8 @@
     "assets:models": "bun scripts/optimize-models.mjs",
     "assets:narration": "bun scripts/generate-narration.mjs",
     "content:check": "bun test src/data",
-    "deploy": "bun run build && node ./node_modules/wrangler/bin/wrangler.js deploy"
+    "deploy": "bun run build && node ./node_modules/wrangler/bin/wrangler.js deploy",
+    "deploy:preview": "bun run build && node ./node_modules/wrangler/bin/wrangler.js preview"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",
