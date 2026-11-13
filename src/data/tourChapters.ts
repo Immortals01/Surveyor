@@ -1,3 +1,4 @@
+import { HOSTS } from "./hosts";
 import { HERO_SITES } from "./heroSites";
 import type { TourChapter } from "./schema";
 
@@ -33,11 +34,21 @@ export const TOUR_CHAPTERS: TourChapter[] = [
         announce: surveyor1.loroIntro,
       },
       {
+        kind: "speak",
+        siteId: "surveyor-1",
+        line: HOSTS["surveyor-1"].intro,
+      },
+      {
         kind: "flySite",
         siteId: "surveyor-7",
         sunLon: -30,
         sunLat: -20,
         announce: surveyor7.loroIntro,
+      },
+      {
+        kind: "speak",
+        siteId: "surveyor-7",
+        line: HOSTS["surveyor-7"].intro,
       },
     ],
   },
@@ -55,6 +66,11 @@ export const TOUR_CHAPTERS: TourChapter[] = [
         siteId: "apollo-11",
         sunLon: -18,
         announce: apollo11.loroIntro,
+      },
+      {
+        kind: "speak",
+        siteId: "apollo-11",
+        line: HOSTS.eagle.intro,
       },
     ],
   },
@@ -74,10 +90,20 @@ export const TOUR_CHAPTERS: TourChapter[] = [
         announce: apollo12.loroIntro,
       },
       {
+        kind: "speak",
+        siteId: "apollo-12",
+        line: HOSTS.intrepid.intro,
+      },
+      {
         kind: "flySite",
         siteId: "apollo-14",
         sunLon: -40,
         announce: apollo14.loroIntro,
+      },
+      {
+        kind: "speak",
+        siteId: "apollo-14",
+        line: HOSTS.antares.intro,
       },
     ],
   },

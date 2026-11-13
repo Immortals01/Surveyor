@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "bun:test";
 import { latLonToVector3 } from "@/lib/geo";
+import { HOSTS, HOST_BY_SITE, HOST_ORDER } from "./hosts";
 import {
   ALL_COMBINED_SITES,
   ALL_SITES,
@@ -94,6 +95,35 @@ describe("NASA dataset integrity & citation ledger", () => {
           lineIds.add(beat.line.id);
         }
       }
+    }
+  });
+
+  it("validates the cartoon host cast and their self-introductions", () => {
+    for (const id of HOST_ORDER) {
+      const host = HOSTS[id];
+      expect(host.id).toBe(id);
+      expect(host.name.length).toBeGreaterThan(0);
+      expect(host.intro.text.length).toBeGreaterThan(40);
+      expect(host.intro.text.length).toBeLessThanOrEqual(360);
+      for (const sid of host.intro.sourceIds) {
+        expect(SOURCES_BY_ID.has(sid), `${id} intro missing source ${sid}`).toBe(true);
+      }
+      if (host.siteId) {
+        expect(SITE_BY_ID.has(host.siteId), `${id} points at ${host.siteId}`).toBe(true);
+        expect(HOST_BY_SITE[host.siteId]).toBe(id);
+      }
+    }
+
+    // Every specialty host must actually take the stage somewhere in the tour.
+    const tourSiteIds = new Set(
+      TOUR_CHAPTERS.flatMap((ch) =>
+        ch.beats.flatMap((b) => ("siteId" in b && b.siteId ? [b.siteId] : [])),
+      ),
+    );
+    for (const id of HOST_ORDER) {
+      const siteId = HOSTS[id].siteId;
+      if (!siteId) continue;
+      expect(tourSiteIds.has(siteId), `${id} never appears in the tour`).toBe(true);
     }
   });
 
