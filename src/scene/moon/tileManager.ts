@@ -46,6 +46,8 @@ interface TileRecord {
   loadingNormal: Map<number, AbortController>;
   desiredColorLevel: number;
   pinnedUntil: number;
+  /** Color LOD a pinned tile is held at while `pinnedUntil` is active (0 = not pinned). */
+  pinnedColorLevel: number;
   overResolvedSince: number | null;
   lastUsedAt: number;
   listeners: Set<TileListener>;
@@ -115,6 +117,7 @@ export class MoonTileManager {
           loadingNormal: new Map(),
           desiredColorLevel: 1,
           pinnedUntil: 0,
+          pinnedColorLevel: 0,
           overResolvedSince: null,
           lastUsedAt: performance.now(),
           listeners: new Set(),
@@ -208,12 +211,16 @@ export class MoonTileManager {
       // Include primary tile and any neighboring tile whose border is near the site
       if (!isPrimary && dot < 0.72) continue;
 
-      const targetColor = isPrimary ? maxColor : Math.max(1, maxColor);
-      const targetNormal = isPrimary ? maxNormal : Math.max(1, maxNormal);
+      // Only the primary tile pre-warms at the highest LOD; neighbors are held at
+      // L2 so the flight is not buried under a dozen 2K texture uploads at once.
+      // Neighbors upgrade to L3 naturally via evaluateLod as the camera approaches.
+      const targetColor = isPrimary ? maxColor : Math.min(maxColor, 2);
+      const targetNormal = isPrimary ? maxNormal : Math.min(maxNormal, 2);
       const prio = isPrimary ? 2200 : 1750 + dot * 100;
 
       tile.desiredColorLevel = Math.max(tile.desiredColorLevel, targetColor);
       tile.pinnedUntil = now + 5000;
+      tile.pinnedColorLevel = targetColor;
       tile.overResolvedSince = null;
       tile.lastUsedAt = now + 5000;
 
@@ -337,7 +344,7 @@ export class MoonTileManager {
       }
 
       if (isPinned) {
-        chosenColor = Math.max(chosenColor, maxAvailableColor);
+        chosenColor = Math.max(chosenColor, tile.pinnedColorLevel);
       }
 
       tile.desiredColorLevel = chosenColor;
@@ -393,6 +400,7 @@ export class MoonTileManager {
     for (const tile of this.tiles.values()) {
       tile.desiredColorLevel = 1;
       tile.pinnedUntil = 0;
+      tile.pinnedColorLevel = 0;
       tile.overResolvedSince = null;
 
       for (const [lvl, ctrl] of tile.loadingColor.entries()) {

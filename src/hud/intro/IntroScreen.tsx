@@ -1,25 +1,14 @@
-import { ArrowRight, Compass, Volume2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { ArrowRight, Compass, Volume2, VolumeX } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
-import { speakLine } from "@/audio/speech";
+import { cancelSpeech, speakLine } from "@/audio/speech";
+import { HOST_INTRO_MARS, HOST_INTRO_MOON } from "@/data";
 import { cameraBus } from "@/engine/camera";
 import LoRo from "@/hud/character/LoRo";
 import { useAppStore } from "@/store/useAppStore";
 
-const MOON_VOICE_LINE = {
-  id: "loro-tip-1",
-  speaker: "loro" as const,
-  mood: "waving" as const,
-  text: "Click any glowing marker on the Moon, or start the five-chapter guided tour to swoop down and hear what our left-behind spacecraft remember!",
-  sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
-};
-
-const MARS_VOICE_LINE = {
-  id: "mars-viking1-intro",
-  speaker: "loro" as const,
-  mood: "excited" as const,
-  text: "Down on the Golden Plains of Chryse Planitia sits the pioneer that started it all: Viking 1! Even from MRO's orbit, its bright triangular deck and nearby discarded backshell gleam against the rusty dust.",
-  sourceIds: ["S-NSSDCA-1975-075C", "S-HIRISE-HARDWARE"],
-};
+/** The welcome greeting plays once per page load, so returning to Home skips straight to the menu. */
+let hasIntroduced = false;
 
 export default function IntroScreen() {
   const muted = useAppStore((s) => s.settings.muted);
@@ -27,15 +16,93 @@ export default function IntroScreen() {
   const startTour = useAppStore((s) => s.startTour);
   const enterExplore = useAppStore((s) => s.enterExplore);
 
+  const [started, setStarted] = useState(hasIntroduced);
+
+  // Fetch the SiteDrawer bundle while the visitor reads the intro so the first
+  // tour beat's selectSite() does not pay for the chunk mid camera-flight.
+  useEffect(() => {
+    let cancelled = false;
+    const preload = () => {
+      if (!cancelled) void import("@/hud/story/SiteDrawer");
+    };
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(preload, { timeout: 2000 });
+      return () => {
+        cancelled = true;
+      };
+    }
+    const timer = window.setTimeout(preload, 1500);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, []);
+
   const isMars = celestialBody === "mars";
+  const introLine = isMars ? HOST_INTRO_MARS : HOST_INTRO_MOON;
+
+  /** Plays Surveyor 3's self-introduction; clicking the host portrait replays it. */
+  const playIntro = useCallback(() => {
+    const state = useAppStore.getState();
+    const settings = state.settings;
+    if (settings.muted) return;
+
+    audioEngine.unlock(false);
+    state.setLoRoMood(introLine.mood);
+    state.setDialogue({
+      lineId: introLine.id,
+      speaker: "loro",
+      speakerLabel: isMars ? "SURVEYOR 3 · MARS RELAY" : "SURVEYOR 3 (1967)",
+      text: introLine.text,
+      sourceIds: introLine.sourceIds,
+      isRevealing: !settings.reduceMotion,
+      isSpeaking: true,
+    });
+
+    void speakLine(introLine).finally(() => {
+      useAppStore
+        .getState()
+        .patchDialogue({ isSpeaking: false, isRevealing: false });
+    });
+  }, [introLine, isMars]);
+
+  const stopIntro = () => {
+    cancelSpeech();
+    useAppStore.getState().setDialogue(null);
+  };
+
+  /**
+   * Sound consent. Browsers only permit audio after a real gesture, so these two
+   * buttons are the permission prompt: one starts the greeting, the other keeps
+   * the museum quiet and simply reveals the menu.
+   */
+  const handleEnableSound = () => {
+    hasIntroduced = true;
+    setStarted(true);
+    useAppStore.getState().updateSettings({ muted: false });
+    audioEngine.unlock(false);
+    audioEngine.setMuted(false);
+    audioEngine.playUiTick();
+    playIntro();
+  };
+
+  const handleStaySilent = () => {
+    hasIntroduced = true;
+    setStarted(true);
+    useAppStore.getState().updateSettings({ muted: true });
+    audioEngine.unlock(true);
+    audioEngine.setMuted(true);
+  };
 
   const handleStartTour = () => {
+    stopIntro();
     audioEngine.unlock(muted);
     audioEngine.playUiTick();
     startTour(0);
   };
 
   const handleFreeExplore = () => {
+    stopIntro();
     audioEngine.unlock(muted);
     audioEngine.playUiTick();
     enterExplore(false);
@@ -44,12 +111,6 @@ export default function IntroScreen() {
     } else {
       void cameraBus.flyOverview(8, 12, 2.55);
     }
-  };
-
-  const handlePreviewVoice = () => {
-    audioEngine.unlock(false);
-    useAppStore.getState().updateSettings({ muted: false });
-    void speakLine(isMars ? MARS_VOICE_LINE : MOON_VOICE_LINE);
   };
 
   return (
@@ -69,75 +130,94 @@ export default function IntroScreen() {
             : "20 historic landers, rovers, and science stations resting untouched across the lunar plains since 1966."}
         </p>
 
-        {/* Compact Planetary Host Badge */}
-        <div className="relative mt-5 inline-flex items-center gap-3.5 border border-loro/45 bg-space-950/90 p-2.5 pr-4 shadow-[0_18px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl">
+        {/* Host portrait — doubles as the replay button once the visitor has chosen a sound preference */}
+        <div className="relative mt-5 inline-flex border border-loro/45 bg-space-950/90 p-3 shadow-[0_18px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl">
           <span className="pointer-events-none absolute -top-px -left-px h-3 w-3 border-t-2 border-l-2 border-loro" />
           <span className="pointer-events-none absolute -top-px -right-px h-3 w-3 border-t-2 border-r-2 border-loro" />
           <span className="pointer-events-none absolute -bottom-px -left-px h-3 w-3 border-b-2 border-l-2 border-loro" />
           <span className="pointer-events-none absolute -right-px -bottom-px h-3 w-3 border-r-2 border-b-2 border-loro" />
 
-          <div
-            onClick={handlePreviewVoice}
-            className="cursor-pointer"
-            title="Click to hear Surveyor 3's voice introduction"
-          >
-            <LoRo size="md" />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-loro uppercase">
-              {isMars
-                ? "DEEP-SPACE HOST · SURVEYOR 3 RELAY"
-                : "LUNAR HOST · SURVEYOR 3"}
-            </span>
-            <div>
-              <button
-                type="button"
-                onClick={handlePreviewVoice}
-                className="inline-flex cursor-pointer items-center gap-1.5 border border-loro/35 bg-loro/10 px-2.5 py-1 font-mono text-[10px] text-loro transition hover:border-loro hover:bg-loro/20 hover:text-white"
-                title="Hear Surveyor 3's voice introduction"
-              >
-                <Volume2 className="h-3 w-3 text-loro" />
-                <span>VOICE INTRO</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Architectural Action Controls */}
-        <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
           <button
             type="button"
-            onClick={handleStartTour}
-            className="group inline-flex flex-1 cursor-pointer items-center justify-between gap-3 border border-regolith-bright bg-regolith-bright px-5 py-3.5 text-left text-space-950 transition hover:bg-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            onClick={handleEnableSound}
+            className="cursor-pointer focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            title="Hear Surveyor 3's introduction"
+            aria-label="Hear Surveyor 3's introduction"
           >
-            <div>
-              <div className="font-mono text-[10px] tracking-[0.16em] text-space-950/65 uppercase">
-                01 · NARRATED {isMars ? "MARS" : "LUNAR"} EXPEDITION
-              </div>
-              <div className="mt-0.5 font-display text-sm font-bold">
-                Start {isMars ? "Mars" : "Moon"} Tour (5 Chapters)
-              </div>
-            </div>
-            <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleFreeExplore}
-            className="group inline-flex cursor-pointer items-center justify-between gap-3 border border-white/20 bg-space-950/75 px-5 py-3.5 text-left text-regolith-bright backdrop-blur-md transition hover:border-regolith-bright hover:bg-white/8 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-          >
-            <div>
-              <div className="font-mono text-[10px] tracking-[0.16em] text-regolith/60 uppercase">
-                02 · SANDBOX
-              </div>
-              <div className="mt-0.5 font-display text-sm font-semibold">
-                Free Orbit
-              </div>
-            </div>
-            <Compass className="h-4 w-4 shrink-0 text-sunlit" />
+            <LoRo size="xl" />
           </button>
         </div>
+
+        {/* Sound permission: a click is the only "permission" browsers grant, so ask plainly. */}
+        {started ? (
+          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+            <button
+              type="button"
+              onClick={handleStartTour}
+              className="group inline-flex flex-1 cursor-pointer items-center justify-between gap-3 border border-regolith-bright bg-regolith-bright px-5 py-3.5 text-left text-space-950 transition hover:bg-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            >
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.16em] text-space-950/65 uppercase">
+                  01 · NARRATED {isMars ? "MARS" : "LUNAR"} EXPEDITION
+                </div>
+                <div className="mt-0.5 font-display text-sm font-bold">
+                  Start {isMars ? "Mars" : "Moon"} Tour (5 Chapters)
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleFreeExplore}
+              className="group inline-flex cursor-pointer items-center justify-between gap-3 border border-white/20 bg-space-950/75 px-5 py-3.5 text-left text-regolith-bright backdrop-blur-md transition hover:border-regolith-bright hover:bg-white/8 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            >
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.16em] text-regolith/60 uppercase">
+                  02 · SANDBOX
+                </div>
+                <div className="mt-0.5 font-display text-sm font-semibold">
+                  Free Orbit
+                </div>
+              </div>
+              <Compass className="h-4 w-4 shrink-0 text-sunlit" />
+            </button>
+          </div>
+        ) : (
+          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row">
+            <button
+              type="button"
+              onClick={handleEnableSound}
+              className="group inline-flex flex-1 cursor-pointer items-center justify-between gap-3 border border-regolith-bright bg-regolith-bright px-5 py-3.5 text-left text-space-950 transition hover:bg-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            >
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.16em] text-space-950/65 uppercase">
+                  SOUND ON
+                </div>
+                <div className="mt-0.5 font-display text-sm font-bold">
+                  Turn on audio
+                </div>
+              </div>
+              <Volume2 className="h-4 w-4 shrink-0" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleStaySilent}
+              className="group inline-flex cursor-pointer items-center justify-between gap-3 border border-white/20 bg-space-950/75 px-5 py-3.5 text-left text-regolith-bright backdrop-blur-md transition hover:border-regolith-bright hover:bg-white/8 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+            >
+              <div>
+                <div className="font-mono text-[10px] tracking-[0.16em] text-regolith/60 uppercase">
+                  NO SOUND
+                </div>
+                <div className="mt-0.5 font-display text-sm font-semibold">
+                  Stay silent
+                </div>
+              </div>
+              <VolumeX className="h-4 w-4 shrink-0 text-regolith/70" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

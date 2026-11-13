@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import {
   BookOpen,
   ListFilter,
@@ -63,6 +63,17 @@ export default function Hud() {
   const isMars = celestialBody === "mars";
   const sites = getSitesForBody(celestialBody);
   const siteCount = sites.length;
+
+  // Mount the Surveyor 3 stage (hidden + paused) partway through the intro so its
+  // WebGL context, mascot shaders, and lazy chunk are warm before the visitor
+  // clicks "Start Moon Tour" — otherwise that work lands on the first camera flight.
+  const [stageWarmed, setStageWarmed] = useState(false);
+  useEffect(() => {
+    if (mode !== "intro") return;
+    const timer = window.setTimeout(() => setStageWarmed(true), 1500);
+    return () => window.clearTimeout(timer);
+  }, [mode]);
+  const stageMounted = mode === "tour" || (mode === "intro" && stageWarmed);
 
   // Global Escape shortcut for layered drawers, selected planetary sites, and orbit reset
   useEffect(() => {
@@ -356,18 +367,24 @@ export default function Hud() {
       {/* Intro Welcome Screen */}
       {mode === "intro" && <IntroScreen />}
 
-      {/* Surveyor 3 Hero Storyteller Stage & Callout Arrow (hidden in Free Orbit sandbox) */}
-      {mode === "tour" && (
+      {/* Surveyor 3 Hero Storyteller Stage & Callout Arrow (hidden in Free Orbit sandbox).
+          Pre-mounted beneath the intro overlay so the click only flips visibility. */}
+      {stageMounted && (
         <div
+          aria-hidden={mode !== "tour"}
           className={`mt-auto flex flex-col items-start gap-0 transition-all ${
-            selectedSiteId
-              ? "hidden lg:flex lg:w-[300px]"
-              : "w-[272px] sm:w-[300px]"
+            mode !== "tour"
+              ? "pointer-events-none invisible opacity-0"
+              : selectedSiteId
+                ? "hidden lg:flex lg:w-[300px]"
+                : "w-[272px] sm:w-[300px]"
           }`}
         >
-          <DialogueBox
-            onAdvanceTour={() => dispatchTour({ type: "NEXT_BEAT" })}
-          />
+          {mode === "tour" && (
+            <DialogueBox
+              onAdvanceTour={() => dispatchTour({ type: "NEXT_BEAT" })}
+            />
+          )}
 
           <button
             type="button"
@@ -381,7 +398,7 @@ export default function Hud() {
             <span className="pointer-events-none absolute -bottom-px -left-px h-3 w-3 border-b-2 border-l-2 border-loro" />
             <span className="pointer-events-none absolute -right-px -bottom-px h-3 w-3 border-r-2 border-b-2 border-loro" />
 
-            <LoRo size="lg" />
+            <LoRo size="lg" active={mode === "tour"} />
 
             <div className="mt-1.5 flex items-center justify-center border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
               <span className="text-regolith-bright font-semibold">

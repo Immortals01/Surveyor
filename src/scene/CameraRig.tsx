@@ -17,6 +17,22 @@ const _interpPos = new Vector3();
 const _interpTarget = new Vector3();
 const _interpOffset = new Vector3();
 
+/** Welcome-screen framing: shifts the globe right of centre so the editorial column never covers it. */
+const INTRO_FOCAL_OFFSET_X = -0.7;
+const DESKTOP_MIN_WIDTH = 1024;
+
+/**
+ * Horizontal focal offset for the current mode. Read at call time (not captured)
+ * so body switches and home resets keep the same framing as the welcome screen.
+ */
+function framingOffsetX(): number {
+  if (typeof window === "undefined") return 0;
+  const isDesktop = window.innerWidth >= DESKTOP_MIN_WIDTH;
+  return isDesktop && useAppStore.getState().mode === "intro"
+    ? INTRO_FOCAL_OFFSET_X
+    : 0;
+}
+
 type NavAction =
   | "left"
   | "right"
@@ -358,7 +374,7 @@ export default function CameraRig() {
         await startSmoothFlight({
           endPos: home,
           endTarget: new Vector3(0, 0, 0),
-          endOffset: new Vector3(0, 0, 0),
+          endOffset: new Vector3(framingOffsetX(), 0, 0),
           minDistance: CAMERA.minDistance,
           flightMode: "toOrbit",
           instant,
@@ -511,8 +527,7 @@ export default function CameraRig() {
   useEffect(() => {
     const c = controlsRef.current;
     if (!c) return;
-    const isDesktop = size.width >= 1024;
-    const offsetX = isDesktop && mode === "intro" ? -0.48 : 0;
+    const offsetX = framingOffsetX();
     if (activeFlightRef.current) {
       activeFlightRef.current.endOffset.set(offsetX, 0, 0);
       return;

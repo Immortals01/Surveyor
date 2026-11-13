@@ -33,3 +33,4 @@ public/textures/sky/stars_8k.webp
 !.dev.vars.example
 .env*
 !.env.example
+.zcode/

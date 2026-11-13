@@ -3,12 +3,26 @@ import { preloadNarrationManifest } from "@/audio/speech";
 import {
   isHeightLoaded,
   loadLunarHeightGrid,
+  loadPlanetaryHeightGrid,
 } from "@/scene/moon/heightSampler";
-import { moonTileManager } from "@/scene/moon/tileManager";
+import { marsTileManager, moonTileManager } from "@/scene/moon/tileManager";
 
 const MIN_BOOT_MS = 420;
 const MAX_BOOT_MS = 1200;
 const FADE_OUT_MS = 320;
+const MARS_WARMUP_DELAY_MS = 1500;
+
+/**
+ * After boot settles, stream Mars L0/L1 tiles and the MOLA grid at background
+ * priority so the first switch to Mars never reveals untextured, undisplaced
+ * terrain. Only evictable L2/L3 content is skipped here; it loads on demand.
+ */
+function warmMarsAssets(): void {
+  window.setTimeout(() => {
+    void marsTileManager.init();
+    void loadPlanetaryHeightGrid("mars");
+  }, MARS_WARMUP_DELAY_MS);
+}
 
 export default function LoadingScreen() {
   const [mounted, setMounted] = useState(true);
@@ -56,6 +70,7 @@ export default function LoadingScreen() {
       if ((assetsReady && elapsed >= MIN_BOOT_MS) || elapsed >= MAX_BOOT_MS) {
         setProgress(1);
         setFadingOut(true);
+        warmMarsAssets();
         unmountTimer = window.setTimeout(() => {
           setMounted(false);
         }, FADE_OUT_MS);
