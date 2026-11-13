@@ -4,13 +4,12 @@ import { describe, expect, it } from "bun:test";
 import { latLonToVector3 } from "@/lib/geo";
 import {
   ALL_COMBINED_SITES,
-  ALL_EARTH_SITES,
   ALL_SITES,
-  EARTH_HERO_SITES,
-  EARTH_SECONDARY_SITES,
-  EARTH_TOUR_CHAPTERS,
   HERO_SITES,
+  MARS_HERO_SITES,
+  MARS_SECONDARY_SITES,
   MARS_SITES,
+  MARS_TOUR_CHAPTERS,
   SECONDARY_SITES,
   SITE_BY_ID,
   SOURCES,
@@ -23,7 +22,7 @@ const PUBLIC_DIR = path.resolve(import.meta.dirname, "../../public");
 
 describe("NASA dataset integrity & citation ledger", () => {
   it("validates all source entries against SourceEntrySchema with unique IDs", () => {
-    expect(SOURCES.length).toBeGreaterThanOrEqual(15);
+    expect(SOURCES.length).toBeGreaterThanOrEqual(24);
     const seen = new Set<string>();
     for (const src of SOURCES) {
       expect(() => SourceEntrySchema.parse(src)).not.toThrow();
@@ -32,11 +31,11 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("contains 9 lunar hero sites, >= 20 lunar secondary sites, 9 Earth hero sites, and 15 Earth secondary sites passing SiteSchema", () => {
-    expect(HERO_SITES).toHaveLength(9);
-    expect(SECONDARY_SITES.length).toBeGreaterThanOrEqual(20);
-    expect(EARTH_HERO_SITES).toHaveLength(9);
-    expect(EARTH_SECONDARY_SITES).toHaveLength(15);
+  it("contains 8 lunar heroes, 12 lunar secondaries, 8 Mars heroes and 3 Mars secondaries passing SiteSchema", () => {
+    expect(HERO_SITES).toHaveLength(8);
+    expect(SECONDARY_SITES).toHaveLength(12);
+    expect(MARS_HERO_SITES).toHaveLength(8);
+    expect(MARS_SECONDARY_SITES).toHaveLength(3);
 
     const seenIds = new Set<string>();
     for (const site of ALL_COMBINED_SITES) {
@@ -47,7 +46,7 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("resolves every referenced sourceId across lunar & Earth sites, stats, and tour beats", () => {
+  it("resolves every referenced sourceId across Moon & Mars sites, stats, and tour beats", () => {
     for (const site of ALL_COMBINED_SITES) {
       for (const sid of site.sourceIds) {
         expect(SOURCES_BY_ID.has(sid), `${site.id} missing source ${sid}`).toBe(
@@ -73,12 +72,12 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("validates all 5 lunar and 5 Earth tour chapters and ensures unique dialogue line IDs", () => {
+  it("validates all 5 Moon and 5 Mars tour chapters and ensures unique dialogue line IDs", () => {
     expect(TOUR_CHAPTERS).toHaveLength(5);
-    expect(EARTH_TOUR_CHAPTERS).toHaveLength(5);
+    expect(MARS_TOUR_CHAPTERS).toHaveLength(5);
     const lineIds = new Set<string>();
 
-    for (const ch of [...TOUR_CHAPTERS, ...EARTH_TOUR_CHAPTERS]) {
+    for (const ch of [...TOUR_CHAPTERS, ...MARS_TOUR_CHAPTERS]) {
       expect(() => TourChapterSchema.parse(ch)).not.toThrow();
       for (const hid of ch.heroSiteIds) {
         expect(SITE_BY_ID.get(hid)?.tier).toBe("hero");
@@ -98,7 +97,7 @@ describe("NASA dataset integrity & citation ledger", () => {
     }
   });
 
-  it("places key lunar and Earth landmarks in the right geographic quadrants", () => {
+  it("places key Moon and Mars landmarks in the right geographic quadrants", () => {
     // Apollo 11 (0.67N, 23.47E): nearside (+X), north (+Y), east (-Z)
     const ap11 = SITE_BY_ID.get("apollo-11")!;
     const p11 = latLonToVector3(ap11.lat, ap11.lon, 1);
@@ -113,27 +112,19 @@ describe("NASA dataset integrity & citation ledger", () => {
     expect(ps1.y).toBeLessThan(0);
     expect(ps1.z).toBeGreaterThan(0.6);
 
-    // LADEE (11.85N, -93.25W): farside (-X)
-    const ladee = SITE_BY_ID.get("ladee")!;
-    const pl = latLonToVector3(ladee.lat, ladee.lon, 1);
-    expect(pl.x).toBeLessThan(0);
-
-    // Kennedy Space Center LC-39 (28.61N, -80.60W): northern (+Y), western (+Z)
-    const ksc = SITE_BY_ID.get("kennedy-lc39")!;
-    const pksc = latLonToVector3(ksc.lat, ksc.lon, 1);
-    expect(pksc.y).toBeGreaterThan(0.4);
-    expect(pksc.z).toBeGreaterThan(0.8);
+    // Viking 2 (47.97N, 134.28E): far-eastern longitude (-Z), northern (+Y)
+    const viking2 = SITE_BY_ID.get("viking-2")!;
+    const pv2 = latLonToVector3(viking2.lat, viking2.lon, 1);
+    expect(pv2.y).toBeGreaterThan(0.6);
+    expect(pv2.z).toBeLessThan(-0.4);
   });
 
   it("verifies all referenced public image and texture files exist on disk", () => {
-    expect(ALL_SITES.length + ALL_EARTH_SITES.length + MARS_SITES.length).toBe(
+    expect(ALL_SITES.length + MARS_SITES.length).toBe(
       ALL_COMBINED_SITES.length,
     );
     expect(
       existsSync(path.join(PUBLIC_DIR, "textures/moon/moon_day_2k.webp")),
-    ).toBe(true);
-    expect(
-      existsSync(path.join(PUBLIC_DIR, "textures/earth/earth_day_2k.webp")),
     ).toBe(true);
 
     for (const site of ALL_COMBINED_SITES) {

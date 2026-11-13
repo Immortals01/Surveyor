@@ -47,39 +47,6 @@ export const CATEGORY_META = {
   },
 } as const;
 
-export const EARTH_CATEGORY_META = {
-  lander: {
-    label: "Crewed Launch Complexes",
-    shortLabel: "Crewed Pads",
-    color: "#ffcf70",
-  },
-  rover: {
-    label: "Planetary & Robotic Hubs",
-    shortLabel: "Deep Space",
-    color: "#ff9f5c",
-  },
-  experiment: {
-    label: "Mission Control & DSN",
-    shortLabel: "Control & DSN",
-    color: "#7ee787",
-  },
-  active: {
-    label: "Active Spaceports",
-    shortLabel: "Spaceports",
-    color: "#5ce1ff",
-  },
-  impact: {
-    label: "Test Stands & Recovery",
-    shortLabel: "Heritage",
-    color: "#c4a7ff",
-  },
-  future: {
-    label: "Artemis & Next-Gen",
-    shortLabel: "Artemis",
-    color: "#ffffff",
-  },
-} as const;
-
 export const MARS_CATEGORY_META = {
   lander: {
     label: "Landers & Probes",
@@ -113,8 +80,7 @@ export const MARS_CATEGORY_META = {
   },
 } as const;
 
-export function getCategoryMeta(body: "moon" | "earth" | "mars") {
-  if (body === "earth") return EARTH_CATEGORY_META;
+export function getCategoryMeta(body: "moon" | "mars") {
   if (body === "mars") return MARS_CATEGORY_META;
   return CATEGORY_META;
 }

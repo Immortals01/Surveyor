@@ -226,7 +226,7 @@ export default function CameraRig() {
 
     const bodySurfaceRadius = (lat: number, lon: number) => {
       const body = useAppStore.getState().celestialBody;
-      return body === "earth" ? 1.0 : surfaceRadius(lat, lon, body);
+      return surfaceRadius(lat, lon, body);
     };
 
     const getLocalSurfaceRadius = (c: CameraControlsImpl) => {
@@ -459,7 +459,7 @@ export default function CameraRig() {
       if (!e.repeat) {
         c.getPosition(_camPos);
         const { lat, lon } = vector3ToLatLon(_camPos);
-        const r = state.activeBody === "earth" ? 1.0 : surfaceRadius(lat, lon);
+        const r = surfaceRadius(lat, lon);
         const altitude = Math.max(CAMERA.minAltitude, _camPos.length() - r);
         const stepRad = Math.max(0.008, Math.min(0.16, altitude * 0.12));
 
@@ -607,10 +607,7 @@ export default function CameraRig() {
 
     c.getPosition(_camPos);
     const { lat, lon } = vector3ToLatLon(_camPos);
-    const localR =
-      useAppStore.getState().activeBody === "earth"
-        ? 1.0
-        : surfaceRadius(lat, lon);
+    const localR = surfaceRadius(lat, lon);
     const minDist = Math.max(CAMERA.minDistance, localR + CAMERA.minAltitude);
     c.minDistance = minDist;
     if (getEndRadius(c) < minDist - 1e-4) {

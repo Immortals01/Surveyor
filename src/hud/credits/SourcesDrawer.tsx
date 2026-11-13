@@ -6,15 +6,15 @@ import { cameraBus } from "@/engine/camera";
 import { useAppStore } from "@/store/useAppStore";
 
 const PORTAL_LABELS: Record<DatasetPortal, string> = {
-  SVS: "NASA Scientific Visualization Studio (CGI Moon Kit & Blue Marble)",
+  SVS: "NASA Scientific Visualization Studio (Moon & Mars Global Maps)",
   LROC: "Lunar Reconnaissance Orbiter Camera (LROC / ASU)",
   MOLA: "Mars Global Surveyor MOLA Altimetry & Viking MDIM 2.1 (USGS / PDS)",
   HIRISE: "Mars Reconnaissance Orbiter HiRISE Camera (JPL / UArizona)",
-  NSSDCA: "NASA Space Science Data Coordinated Archive & Spaceports",
+  NSSDCA: "NASA Space Science Data Coordinated Archive (NSSDCA)",
   ALSEP: "Apollo Lunar Surface Experiments & Seismic Archive",
   "NASA-3D": "NASA 3D Resources Official Spacecraft Models",
   "NASA-IVL": "NASA Image and Video Library",
-  LITERATURE: "Peer-Reviewed Planetary Geodesy & Heritage Studies",
+  LITERATURE: "Peer-Reviewed Planetary Geodesy & Lunar Laser Ranging",
 };
 
 const PORTAL_ORDER: DatasetPortal[] = [

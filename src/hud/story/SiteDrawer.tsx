@@ -34,7 +34,6 @@ export default function SiteDrawer() {
 
   const siteBody = getSiteBody(site.id);
   const isMars = siteBody === "mars";
-  const isEarth = siteBody === "earth";
 
   const handleClose = () => {
     audioEngine.playUiTick(660);
@@ -49,15 +48,11 @@ export default function SiteDrawer() {
     void cameraBus.goHome();
   };
 
-  const bodyCornerColor = isMars
-    ? "border-orange-400"
-    : isEarth
-      ? "border-loro"
-      : "border-sunlit";
+  const bodyCornerColor = isMars ? "border-orange-400" : "border-sunlit";
 
   return (
     <aside
-      aria-label={`${isMars ? "Martian artifact" : isEarth ? "Earth space site" : "Lunar artifact"} dossier: ${site.name}`}
+      aria-label={`${isMars ? "Martian artifact" : "Lunar artifact"} dossier: ${site.name}`}
       className="animate-hud-fade-up pointer-events-auto fixed right-0 bottom-0 left-0 z-30 flex max-h-[65dvh] flex-col overflow-hidden border-t border-white/20 bg-space-950/95 shadow-[0_-24px_70px_rgba(0,0,0,0.92)] backdrop-blur-xl lg:top-20 lg:right-5 lg:bottom-5 lg:left-auto lg:max-h-[calc(100dvh-6.25rem)] lg:w-[420px] lg:border"
     >
       {/* Architectural Corner Telemetry Brackets */}

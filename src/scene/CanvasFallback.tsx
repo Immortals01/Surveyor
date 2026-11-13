@@ -17,18 +17,14 @@ export function Fallback2DMoonMap() {
       <div className="relative aspect-[2/1] w-full max-w-5xl overflow-hidden rounded-3xl border border-white/15 bg-space-900 shadow-2xl">
         <img
           src={
-            celestialBody === "earth"
-              ? "/textures/earth/earth_day_2k.webp"
-              : celestialBody === "mars"
-                ? "/textures/mars/color/L0/0_0.webp"
-                : "/textures/moon/moon_day_2k.webp"
+            celestialBody === "mars"
+              ? "/textures/mars/color/L0/0_0.webp"
+              : "/textures/moon/moon_day_2k.webp"
           }
           alt={
-            celestialBody === "earth"
-              ? "NASA Blue Marble Global Earth Map"
-              : celestialBody === "mars"
-                ? "NASA MGS MOLA & Viking Global Mars Map"
-                : "NASA LRO WAC Global Lunar Map"
+            celestialBody === "mars"
+              ? "NASA MGS MOLA & Viking Global Mars Map"
+              : "NASA LRO WAC Global Lunar Map"
           }
           className="h-full w-full object-cover opacity-80"
         />

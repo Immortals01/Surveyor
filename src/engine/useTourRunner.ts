@@ -89,9 +89,7 @@ export function useTourRunner() {
           (line.speaker === "loro"
             ? store.celestialBody === "mars"
               ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-              : store.celestialBody === "earth"
-                ? "SURVEYOR 3 · EARTH TELEMETRY LINK"
-                : "SURVEYOR 3 (1967)"
+              : "SURVEYOR 3 (1967)"
             : "MEMORY LOG"),
         text: line.text,
         sourceIds: line.sourceIds,

@@ -54,14 +54,10 @@ describe("heightSampler", () => {
     expect(surfaceRadius(0, -180, "mars")).toBeGreaterThan(1);
   });
 
-  it("vectorizes tile geometry DEM displacement accurately and omits tangents on Earth", async () => {
+  it("vectorizes tile geometry DEM displacement accurately", async () => {
     const { applyTileDisplacement, createTileGeometry } = await import(
       "./createTileGeometry"
     );
-
-    const earthGeo = createTileGeometry(1, 4, 8, "earth");
-    expect(earthGeo.getAttribute("tangent")).toBeUndefined();
-    expect(earthGeo.getAttribute("uv")).toBeDefined();
 
     // Smooth Moon tile before DEM loads
     const moonGeo = createTileGeometry(1, 4, 8, "moon");

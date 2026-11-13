@@ -11,12 +11,7 @@ export default function ChapterCard() {
 
   if (mode !== "tour" || !visible || !chapter) return null;
 
-  const bodyLabel =
-    celestialBody === "mars"
-      ? "MARS"
-      : celestialBody === "earth"
-        ? "EARTH"
-        : "LUNAR";
+  const bodyLabel = celestialBody === "mars" ? "MARS" : "LUNAR";
 
   return (
     <div

@@ -26,7 +26,6 @@ export default function FilterBar() {
   const sites = getSitesForBody(celestialBody);
   const categoryMeta = getCategoryMeta(celestialBody);
   const isMars = celestialBody === "mars";
-  const isEarth = celestialBody === "earth";
 
   const visibleCount = sites.filter((site) => {
     if (heroOnly && site.tier !== "hero") return false;
@@ -131,39 +130,6 @@ export default function FilterBar() {
               className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
             >
               Olympus Mons
-            </button>
-          </>
-        ) : isEarth ? (
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                setSunDirection(-75, 15);
-                void cameraBus.flyOverview(28, -90, 2.75);
-              }}
-              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
-            >
-              Americas
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSunDirection(30, 18);
-                void cameraBus.flyOverview(36, 32, 2.75);
-              }}
-              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
-            >
-              Eurasia
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setSunDirection(115, 10);
-                void cameraBus.flyOverview(12, 118, 2.85);
-              }}
-              className="cursor-pointer rounded px-1.5 py-0.5 font-mono text-[10px] text-regolith/75 hover:bg-white/10 hover:text-white"
-            >
-              Asia-Pacific
             </button>
           </>
         ) : (

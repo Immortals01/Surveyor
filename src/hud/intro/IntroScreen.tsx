@@ -13,14 +13,6 @@ const MOON_VOICE_LINE = {
   sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
 };
 
-const EARTH_VOICE_LINE = {
-  id: "loro-earth-intro",
-  speaker: "loro" as const,
-  mood: "excited" as const,
-  text: "Welcome back to Earth! Explore 24 legendary launch complexes and Mission Control hubs where thousands of space missions began—and track the live International Space Station in orbit!",
-  sourceIds: ["S-BLUE-MARBLE", "S-NASA-KSC", "S-NASA-ISS"],
-};
-
 const MARS_VOICE_LINE = {
   id: "mars-viking1-intro",
   speaker: "loro" as const,
@@ -36,7 +28,6 @@ export default function IntroScreen() {
   const enterExplore = useAppStore((s) => s.enterExplore);
 
   const isMars = celestialBody === "mars";
-  const isEarth = celestialBody === "earth";
 
   const handleStartTour = () => {
     audioEngine.unlock(muted);
@@ -48,9 +39,7 @@ export default function IntroScreen() {
     audioEngine.unlock(muted);
     audioEngine.playUiTick();
     enterExplore(false);
-    if (isEarth) {
-      void cameraBus.flyOverview(20, -38, 2.75);
-    } else if (isMars) {
+    if (isMars) {
       void cameraBus.flyOverview(18, 77, 2.75);
     } else {
       void cameraBus.flyOverview(8, 12, 2.55);
@@ -60,13 +49,7 @@ export default function IntroScreen() {
   const handlePreviewVoice = () => {
     audioEngine.unlock(false);
     useAppStore.getState().updateSettings({ muted: false });
-    void speakLine(
-      isMars
-        ? MARS_VOICE_LINE
-        : isEarth
-          ? EARTH_VOICE_LINE
-          : MOON_VOICE_LINE,
-    );
+    void speakLine(isMars ? MARS_VOICE_LINE : MOON_VOICE_LINE);
   };
 
   return (
@@ -74,32 +57,19 @@ export default function IntroScreen() {
       <div className="animate-hud-fade-up pointer-events-auto w-full max-w-lg">
         {/* Editorial Headline — Clean, Solid High-Contrast Typography */}
         <h1 className="font-display text-4xl leading-[1.05] font-bold tracking-tight text-regolith-bright sm:text-5xl">
-          {isEarth ? (
-            <>
-              Where Every{" "}
-              <span className="font-normal text-regolith/85 italic">
-                Voyage Begins.
-              </span>
-            </>
-          ) : (
-            <>
-              Abandoned,{" "}
-              <span className="font-normal text-regolith/85 italic">
-                Not Forgotten.
-              </span>
-            </>
-          )}
+          Abandoned,{" "}
+          <span className="font-normal text-regolith/85 italic">
+            Not Forgotten.
+          </span>
         </h1>
 
         <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-regolith/80">
           {isMars
-            ? "29 robotic pioneers—from Viking landers to Perseverance and Ingenuity—resting across the red plains of Mars."
-            : isEarth
-              ? "24 legendary spaceports, Mission Control hubs, and Deep Space Network dishes—plus the live ISS in orbit."
-              : "29 historic landers, rovers, and laser mirrors resting untouched across the lunar plains since 1964."}
+            ? "11 robotic pioneers—from the Viking landers to Spirit, Opportunity, InSight, and Ingenuity—resting across the red plains of Mars."
+            : "20 historic landers, rovers, and science stations resting untouched across the lunar plains since 1966."}
         </p>
 
-        {/* Compact Lunar Host Badge */}
+        {/* Compact Planetary Host Badge */}
         <div className="relative mt-5 inline-flex items-center gap-3.5 border border-loro/45 bg-space-950/90 p-2.5 pr-4 shadow-[0_18px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl">
           <span className="pointer-events-none absolute -top-px -left-px h-3 w-3 border-t-2 border-l-2 border-loro" />
           <span className="pointer-events-none absolute -top-px -right-px h-3 w-3 border-t-2 border-r-2 border-loro" />
@@ -118,9 +88,7 @@ export default function IntroScreen() {
             <span className="font-mono text-[10.5px] font-bold tracking-[0.14em] text-loro uppercase">
               {isMars
                 ? "DEEP-SPACE HOST · SURVEYOR 3 RELAY"
-                : isEarth
-                  ? "MISSION HOST · SURVEYOR 3 ON EARTH"
-                  : "LUNAR HOST · SURVEYOR 3 (1967-035A)"}
+                : "LUNAR HOST · SURVEYOR 3 (1967-035A)"}
             </span>
             <div>
               <button
@@ -145,10 +113,10 @@ export default function IntroScreen() {
           >
             <div>
               <div className="font-mono text-[10px] tracking-[0.16em] text-space-950/65 uppercase">
-                01 · NARRATED {isMars ? "MARS" : isEarth ? "EARTH" : "LUNAR"} EXPEDITION
+                01 · NARRATED {isMars ? "MARS" : "LUNAR"} EXPEDITION
               </div>
               <div className="mt-0.5 font-display text-sm font-bold">
-                Start {isMars ? "Mars" : isEarth ? "Earth" : "Moon"} Tour (5 Chapters)
+                Start {isMars ? "Mars" : "Moon"} Tour (5 Chapters)
               </div>
             </div>
             <ArrowRight className="h-4 w-4 shrink-0 transition-transform group-hover:translate-x-1" />

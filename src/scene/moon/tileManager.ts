@@ -648,21 +648,18 @@ export class MoonTileManager {
 }
 
 export const moonTileManager = new MoonTileManager("/textures/moon");
-export const earthTileManager = new MoonTileManager("/textures/earth");
 export const marsTileManager = new MoonTileManager("/textures/mars");
 
 export function getTileManagerForBody(
-  body: "moon" | "earth" | "mars",
+  body: "moon" | "mars",
 ): MoonTileManager {
   if (body === "mars") return marsTileManager;
-  if (body === "earth") return earthTileManager;
   return moonTileManager;
 }
 
 export function suspendInactiveTileManagers(
-  activeBody: "moon" | "earth" | "mars",
+  activeBody: "moon" | "mars",
 ): void {
   if (activeBody !== "moon") moonTileManager.suspendBackgroundBody();
-  if (activeBody !== "earth") earthTileManager.suspendBackgroundBody();
   if (activeBody !== "mars") marsTileManager.suspendBackgroundBody();
 }

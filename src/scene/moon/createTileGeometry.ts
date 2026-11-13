@@ -308,7 +308,7 @@ export function createTileGeometry(
   const positions = new Float32Array(vertexCount * 3);
   const normals = new Float32Array(vertexCount * 3);
   // Earth's custom ShaderMaterial constructs its tangent basis analytically in fragment shader
-  const tangents = body === "earth" ? null : new Float32Array(vertexCount * 4);
+  const tangents = new Float32Array(vertexCount * 4);
 
   const hasDem = isHeightLoaded(body);
   fillPositionsAndNormals(

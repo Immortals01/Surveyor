@@ -19,7 +19,7 @@ export const LoRoMoodSchema = z.enum([
 ]);
 export type LoRoMood = z.infer<typeof LoRoMoodSchema>;
 
-export const CelestialBodySchema = z.enum(["moon", "earth", "mars"]);
+export const CelestialBodySchema = z.enum(["moon", "mars"]);
 export type CelestialBody = z.infer<typeof CelestialBodySchema>;
 
 export const DatasetPortalSchema = z.enum([

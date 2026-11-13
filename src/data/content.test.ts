@@ -24,7 +24,7 @@ import {
 
 const PUBLIC_DIR = path.resolve(import.meta.dirname, "../../public");
 
-describe("NASA Open Data & Lunar + Mars Content Integrity", () => {
+describe("NASA Open Data & Moon + Mars Content Integrity", () => {
   it("validates all source bibliography entries against SourceEntrySchema with unique IDs", () => {
     expect(SOURCES.length).toBeGreaterThanOrEqual(24);
     const seen = new Set<string>();
@@ -36,10 +36,10 @@ describe("NASA Open Data & Lunar + Mars Content Integrity", () => {
     }
   });
 
-  it("validates all 9 Moon Hero Sites and 20 Moon Secondary Sites (29 total)", () => {
-    expect(HERO_SITES.length).toBe(9);
-    expect(SECONDARY_SITES.length).toBe(20);
-    expect(ALL_SITES.length).toBe(29);
+  it("validates all 8 Moon Hero Sites and 12 Moon Secondary Sites (20 total)", () => {
+    expect(HERO_SITES.length).toBe(8);
+    expect(SECONDARY_SITES.length).toBe(12);
+    expect(ALL_SITES.length).toBe(20);
 
     for (const site of HERO_SITES) {
       const res = HeroSiteSchema.safeParse(site);
@@ -56,11 +56,11 @@ describe("NASA Open Data & Lunar + Mars Content Integrity", () => {
     }
   });
 
-  it("validates all 9 Mars Hero Sites and 20 Mars Secondary Sites (29 total)", () => {
-    expect(MARS_HERO_SITES.length).toBe(9);
-    expect(MARS_SECONDARY_SITES.length).toBe(20);
-    expect(MARS_SITES.length).toBe(29);
-    expect(EVERY_PLANETARY_SITE.length).toBe(82);
+  it("validates all 8 Mars Hero Sites and 3 Mars Secondary Sites (11 total)", () => {
+    expect(MARS_HERO_SITES.length).toBe(8);
+    expect(MARS_SECONDARY_SITES.length).toBe(3);
+    expect(MARS_SITES.length).toBe(11);
+    expect(EVERY_PLANETARY_SITE.length).toBe(31);
 
     for (const site of MARS_HERO_SITES) {
       const res = HeroSiteSchema.safeParse(site);

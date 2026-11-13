@@ -65,14 +65,9 @@ export default function Marker({ site, heightReady }: MarkerProps) {
 
   const { position, quaternion, normal } = useMemo(() => {
     void heightReady;
-    const isEarth = celestialBody === "earth";
-    const r = isEarth
-      ? 1.0032
-      : surfaceRadius(site.lat, site.lon, celestialBody) + 0.0026;
+    const r = surfaceRadius(site.lat, site.lon, celestialBody) + 0.0026;
     const pos = latLonToVector3(site.lat, site.lon, r);
-    const nrm = isEarth
-      ? latLonToVector3(site.lat, site.lon, 1).normalize()
-      : surfaceNormal(site.lat, site.lon, undefined, celestialBody);
+    const nrm = surfaceNormal(site.lat, site.lon, undefined, celestialBody);
     const quat = new Quaternion().setFromUnitVectors(UP, nrm);
     return { position: pos, quaternion: quat, normal: nrm };
   }, [celestialBody, site.lat, site.lon, heightReady]);
