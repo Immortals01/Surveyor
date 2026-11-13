@@ -370,8 +370,8 @@ export default function Hud() {
       {/* Intro Welcome Screen */}
       {mode === "intro" && <IntroScreen />}
 
-      {/* Surveyor 3 Hero Storyteller Stage & Callout Arrow */}
-      {mode !== "intro" && (
+      {/* Surveyor 3 Hero Storyteller Stage & Callout Arrow (hidden in Free Orbit sandbox) */}
+      {mode === "tour" && (
         <div
           className={`mt-auto flex flex-col items-start gap-0 transition-all ${
             selectedSiteId

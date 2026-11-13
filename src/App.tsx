@@ -24,7 +24,7 @@ export default function App() {
       ) : (
         <SceneErrorBoundary>
           <Canvas
-            className="absolute inset-0"
+            className="absolute inset-0 z-0"
             camera={{
               fov: 40,
               near: 0.005,
