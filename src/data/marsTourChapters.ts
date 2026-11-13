@@ -21,7 +21,7 @@ export const MARS_TOUR_CHAPTERS: TourChapter[] = [
     id: "mars-ch1-first-landers",
     number: 1,
     title: "Chapter 1: The First Landers",
-    shortTitle: "1 · Vikings",
+    shortTitle: "1976",
     subtitle:
       "How Viking 1 and Viking 2 sent home the first pictures from the surface of Mars",
     heroSiteIds: ["viking-1", "viking-2"],
@@ -45,7 +45,7 @@ export const MARS_TOUR_CHAPTERS: TourChapter[] = [
     id: "mars-ch2-microrover",
     number: 2,
     title: "Chapter 2: A Microrover's First Drive",
-    shortTitle: "2 · Sojourner",
+    shortTitle: "1997",
     subtitle:
       "Bouncing across Ares Vallis and watching the first rover roll down a ramp",
     heroSiteIds: ["mars-pathfinder"],
@@ -72,7 +72,7 @@ export const MARS_TOUR_CHAPTERS: TourChapter[] = [
     id: "mars-ch3-marathon-twins",
     number: 3,
     title: "Chapter 3: The Twin Marathon Rovers",
-    shortTitle: "3 · Twins",
+    shortTitle: "2004",
     subtitle:
       "Following Spirit and Opportunity across hot springs and a 45-kilometre marathon",
     heroSiteIds: ["spirit-rover", "opportunity-rover"],
@@ -96,7 +96,7 @@ export const MARS_TOUR_CHAPTERS: TourChapter[] = [
     id: "mars-ch4-ice-and-marsquakes",
     number: 4,
     title: "Chapter 4: Arctic Ice & the Heartbeat of Mars",
-    shortTitle: "4 · Quakes",
+    shortTitle: "2008–18",
     subtitle:
       "Uncovering shallow polar ice with Phoenix and feeling 1,319 marsquakes with InSight",
     heroSiteIds: ["phoenix-lander", "insight-lander"],
@@ -120,7 +120,7 @@ export const MARS_TOUR_CHAPTERS: TourChapter[] = [
     id: "mars-ch5-flying-on-another-world",
     number: 5,
     title: "Chapter 5: Flying on Another World",
-    shortTitle: "5 · Flight",
+    shortTitle: "2021",
     subtitle:
       "How a 1.8-kilogram helicopter turned a five-flight test into 72 flights over Jezero",
     heroSiteIds: ["ingenuity-helicopter"],

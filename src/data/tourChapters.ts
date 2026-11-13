@@ -21,7 +21,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
     id: "chapter-1-robot-scouts",
     number: 1,
     title: "Chapter 1: The Fearless Robot Scouts",
-    shortTitle: "1 · Scouts",
+    shortTitle: "1966–68",
     subtitle:
       "How Surveyor landers proved the Moon's dust could hold a spacecraft",
     heroSiteIds: ["surveyor-1", "surveyor-7"],
@@ -45,7 +45,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
     id: "chapter-2-tranquility-base",
     number: 2,
     title: "Chapter 2: Eagle's Base & First Footprints",
-    shortTitle: "2 · Eagle",
+    shortTitle: "1969",
     subtitle:
       "What stayed behind in the Sea of Tranquility so Neil and Buzz could fly home",
     heroSiteIds: ["apollo-11"],
@@ -62,7 +62,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
     id: "chapter-3-old-friends-and-moonquakes",
     number: 3,
     title: "Chapter 3: Old Friends & Ringing Moonquakes",
-    shortTitle: "3 · Quakes",
+    shortTitle: "1969–71",
     subtitle:
       "Visiting a sun-tanned robot neighbour and switching on the Moon's first science stations",
     heroSiteIds: ["apollo-12", "apollo-14"],
@@ -85,7 +85,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
     id: "chapter-4-parked-moon-buggies",
     number: 4,
     title: "Chapter 4: Parked Moon Buggies & Highland Labs",
-    shortTitle: "4 · Rovers",
+    shortTitle: "1971–72",
     subtitle:
       "Wire-mesh wheels, a telescope in a lander's shadow, and the last rover tracks",
     heroSiteIds: ["apollo-15", "apollo-16", "apollo-17"],
@@ -114,7 +114,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
     id: "chapter-5-still-answering-earth",
     number: 5,
     title: "Chapter 5: Still Answering Earth",
-    shortTitle: "5 · Lasers",
+    shortTitle: "NOW",
     subtitle:
       "From fifty-year-old laser mirrors to the new instruments Artemis crews will leave behind",
     heroSiteIds: ["apollo-11", "apollo-14", "apollo-15"],

@@ -101,11 +101,15 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
   if (s.celestialBody === body && s.activeBody === body) return s;
   setActiveHeightBody(body);
   suspendInactiveTileManagers(body);
+  // Each body has its own chapter list, so a tour cursor cannot be carried across
+  // bodies. Switching body mid-tour restarts that body's tour at Chapter 1 instead
+  // of dropping the visitor into Free Explore; the chapter banner explains the move.
+  const stayingInTour = s.mode === "tour";
   return {
     celestialBody: body,
     activeBody: body,
     heightReady: isHeightLoaded(body),
-    mode: s.mode === "tour" ? "explore" : s.mode,
+    mode: s.mode,
     selectedSiteId: null,
     hoveredSiteId: null,
     siteIndexOpen: false,
@@ -113,8 +117,8 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
     heroOnly: false,
     tourChapterIndex: 0,
     tourBeatIndex: 0,
-    tourPaused: true,
-    chapterBannerVisible: false,
+    tourPaused: false,
+    chapterBannerVisible: stayingInTour,
     sunLongitude: body === "mars" ? 18 : -48,
     sunLatitude: body === "mars" ? 8 : 1.5,
     loroMood: "waving",
