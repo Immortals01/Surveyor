@@ -1,31 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
-  ArrowUpRight,
+  BookOpen,
   ChevronLeft,
   ChevronRight,
   Orbit,
-  Satellite,
   X,
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
-import { DEEP_SPACE_ENTRIES, type DeepSpaceEntry } from "@/data/deepSpace";
+import {
+  DEEP_SPACE_ACCENTS,
+  DEEP_SPACE_ENTRIES,
+  type DeepSpaceEntry,
+} from "@/data/deepSpace";
 import { useAppStore } from "@/store/useAppStore";
 import DeepSpaceArt from "./DeepSpaceArt";
 import DeepSpaceStarfield from "./DeepSpaceStarfield";
+import DeepSpaceStory from "./DeepSpaceStory";
 
 const POSITIONS: Record<string, { x: number; y: number }> = {
   dawn: { x: 22, y: 30 },
   "near-shoemaker": { x: 64, y: 26 },
   pioneer: { x: 34, y: 64 },
   kepler: { x: 73, y: 61 },
-};
-
-const ACCENTS: Record<string, string> = {
-  dawn: "#5ce1ff",
-  "near-shoemaker": "#ffcf70",
-  pioneer: "#f4a261",
-  kepler: "#c4b5fd",
 };
 
 
@@ -40,7 +37,7 @@ function ObjectNode({
   onSelect: () => void;
   index: number;
 }) {
-  const accent = ACCENTS[entry.id] ?? "#5ce1ff";
+  const accent = DEEP_SPACE_ACCENTS[entry.id] ?? "#5ce1ff";
   const spot = POSITIONS[entry.id] ?? { x: 50, y: 50 };
 
   return (
@@ -140,16 +137,50 @@ function ObjectGallery({ entry }: { entry: DeepSpaceEntry }) {
 export default function DeepSpaceShelf() {
   const open = useAppStore((s) => s.deepSpaceOpen);
   const setOpen = useAppStore((s) => s.setDeepSpaceOpen);
-  const openMachine = useAppStore((s) => s.openMachine);
+  const storyEntryId = useAppStore((s) => s.deepSpaceStoryId);
+  const setStoryEntryId = useAppStore((s) => s.setDeepSpaceStoryId);
   const [selected, setSelected] = useState<DeepSpaceEntry | null>(null);
+  const storyEntry =
+    DEEP_SPACE_ENTRIES.find((entry) => entry.id === storyEntryId) ?? null;
+
+  useEffect(() => {
+    if (!open) {
+      setSelected(null);
+      setStoryEntryId(null);
+    }
+  }, [open, setStoryEntryId]);
 
   if (!open) return null;
 
   const close = () => {
     audioEngine.playUiTick();
     setSelected(null);
+    setStoryEntryId(null);
     setOpen(false);
   };
+
+  const navigateStory = (direction: number) => {
+    if (!storyEntry) return;
+    const current = DEEP_SPACE_ENTRIES.findIndex((item) => item.id === storyEntry.id);
+    const next =
+      DEEP_SPACE_ENTRIES[
+        (current + direction + DEEP_SPACE_ENTRIES.length) %
+          DEEP_SPACE_ENTRIES.length
+      ];
+    if (!next) return;
+    setStoryEntryId(next.id);
+    setSelected(next);
+  };
+
+  if (storyEntry) {
+    return (
+      <DeepSpaceStory
+        entry={storyEntry}
+        onClose={() => setStoryEntryId(null)}
+        onNavigate={navigateStory}
+      />
+    );
+  }
 
   return (
     <div
@@ -254,35 +285,18 @@ export default function DeepSpaceShelf() {
                 {selected.summary}
               </p>
 
-              <div className="mt-5 flex flex-col gap-2">
-                {selected.machineId ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      audioEngine.playUiTick();
-                      setSelected(null);
-                      setOpen(false);
-                      openMachine(selected.machineId!);
-                    }}
-                    className="inline-flex cursor-pointer items-center justify-center gap-1.5 border border-loro/50 bg-loro/15 px-3 py-2 font-mono text-[10px] font-bold tracking-[0.12em] text-regolith-bright uppercase transition hover:border-loro hover:bg-loro/25 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-                  >
-                    <Satellite className="h-3.5 w-3.5" />
-                    Open full story
-                  </button>
-                ) : (
-                  <a
-                    href={selected.url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="inline-flex items-center justify-center gap-1.5 border border-white/15 bg-white/[0.04] px-3 py-2 font-mono text-[10px] tracking-[0.12em] text-regolith uppercase transition hover:border-sunlit hover:text-sunlit focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-                  >
-                    NASA mission page
-                    <ArrowUpRight className="h-3 w-3" />
-                  </a>
-                )}
-                <p className="text-center font-mono text-[8.5px] tracking-wide text-regolith/40 uppercase">
-                  {selected.source}
-                </p>
+              <div className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    audioEngine.playUiTick(980);
+                    setStoryEntryId(selected.id);
+                  }}
+                  className="inline-flex w-full cursor-pointer items-center justify-center gap-1.5 border border-loro/50 bg-loro/15 px-3 py-2 font-mono text-[10px] font-bold tracking-[0.12em] text-regolith-bright uppercase transition hover:border-loro hover:bg-loro/25 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  Read full story
+                </button>
               </div>
             </aside>
           )}

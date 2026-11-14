@@ -57,6 +57,7 @@ export interface AppState {
   heroOnly: boolean;
   siteIndexOpen: boolean;
   deepSpaceOpen: boolean;
+  deepSpaceStoryId: string | null;
 
   // Sources & credits modal
   sourcesDrawerOpen: boolean;
@@ -95,6 +96,7 @@ export interface AppState {
   setHeroOnly: (heroOnly: boolean) => void;
   setSiteIndexOpen: (open: boolean) => void;
   setDeepSpaceOpen: (open: boolean) => void;
+  setDeepSpaceStoryId: (id: string | null) => void;
   machineAutoplay: boolean;
   setMachineAutoplay: (autoplay: boolean) => void;
   openSources: (sourceId?: string) => void;
@@ -127,6 +129,7 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
     hoveredSiteId: null,
     siteIndexOpen: false,
     deepSpaceOpen: false,
+    deepSpaceStoryId: null,
     categoryFilter: "all",
     heroOnly: false,
     tourChapterIndex: 0,
@@ -187,6 +190,7 @@ export const useAppStore = create<AppState>()(
       heroOnly: false,
       siteIndexOpen: false,
       deepSpaceOpen: false,
+      deepSpaceStoryId: null,
 
       sourcesDrawerOpen: false,
       highlightedSourceId: null,
@@ -298,6 +302,7 @@ export const useAppStore = create<AppState>()(
       setSiteIndexOpen: (siteIndexOpen) => set({ siteIndexOpen }),
 
       setDeepSpaceOpen: (deepSpaceOpen) => set({ deepSpaceOpen }),
+      setDeepSpaceStoryId: (deepSpaceStoryId) => set({ deepSpaceStoryId }),
       setMachineAutoplay: (machineAutoplay) => set({ machineAutoplay }),
 
       openSources: (sourceId) =>

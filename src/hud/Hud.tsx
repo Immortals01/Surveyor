@@ -86,6 +86,10 @@ export default function Hud() {
         state.setSiteIndexOpen(false);
         return;
       }
+      if (state.deepSpaceStoryId) {
+        state.setDeepSpaceStoryId(null);
+        return;
+      }
       if (state.deepSpaceOpen) {
         state.setDeepSpaceOpen(false);
         return;
