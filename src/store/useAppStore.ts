@@ -56,6 +56,7 @@ export interface AppState {
   categoryFilter: Category | "all";
   heroOnly: boolean;
   siteIndexOpen: boolean;
+  deepSpaceOpen: boolean;
 
   // Sources & credits modal
   sourcesDrawerOpen: boolean;
@@ -93,6 +94,7 @@ export interface AppState {
   setCategoryFilter: (cat: Category | "all") => void;
   setHeroOnly: (heroOnly: boolean) => void;
   setSiteIndexOpen: (open: boolean) => void;
+  setDeepSpaceOpen: (open: boolean) => void;
   machineAutoplay: boolean;
   setMachineAutoplay: (autoplay: boolean) => void;
   openSources: (sourceId?: string) => void;
@@ -124,6 +126,7 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
     selectedMachineId: null,
     hoveredSiteId: null,
     siteIndexOpen: false,
+    deepSpaceOpen: false,
     categoryFilter: "all",
     heroOnly: false,
     tourChapterIndex: 0,
@@ -183,6 +186,7 @@ export const useAppStore = create<AppState>()(
       categoryFilter: "all",
       heroOnly: false,
       siteIndexOpen: false,
+      deepSpaceOpen: false,
 
       sourcesDrawerOpen: false,
       highlightedSourceId: null,
@@ -243,6 +247,7 @@ export const useAppStore = create<AppState>()(
           loroMood: "waving",
           activeHostId: DEFAULT_HOST,
           siteIndexOpen: false,
+          deepSpaceOpen: false,
           sunLongitude: s.celestialBody === "mars" ? 18 : -48,
           sunLatitude: s.celestialBody === "mars" ? 8 : 1.5,
         })),
@@ -291,6 +296,8 @@ export const useAppStore = create<AppState>()(
       setHeroOnly: (heroOnly) => set({ heroOnly }),
 
       setSiteIndexOpen: (siteIndexOpen) => set({ siteIndexOpen }),
+
+      setDeepSpaceOpen: (deepSpaceOpen) => set({ deepSpaceOpen }),
       setMachineAutoplay: (machineAutoplay) => set({ machineAutoplay }),
 
       openSources: (sourceId) =>

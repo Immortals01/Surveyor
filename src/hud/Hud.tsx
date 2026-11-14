@@ -4,6 +4,7 @@ import {
   ListFilter,
   Minus,
   Moon,
+  Orbit,
   Play,
   Plus,
   RotateCcw,
@@ -29,6 +30,7 @@ import { type CelestialBody, useAppStore } from "@/store/useAppStore";
 
 const SiteDrawer = lazy(() => import("@/hud/story/SiteDrawer"));
 const SiteIndex = lazy(() => import("@/hud/explore/SiteIndex"));
+const DeepSpaceShelf = lazy(() => import("@/hud/explore/DeepSpaceShelf"));
 const SourcesDrawer = lazy(() => import("@/hud/credits/SourcesDrawer"));
 const MachineDossier = lazy(() => import("@/hud/machines/MachineDossier"));
 
@@ -49,6 +51,8 @@ export default function Hud() {
   const startTour = useAppStore((s) => s.startTour);
   const returnToIntro = useAppStore((s) => s.returnToIntro);
   const setSiteIndexOpen = useAppStore((s) => s.setSiteIndexOpen);
+  const setDeepSpaceOpen = useAppStore((s) => s.setDeepSpaceOpen);
+  const deepSpaceOpen = useAppStore((s) => s.deepSpaceOpen);
   const openSources = useAppStore((s) => s.openSources);
 
   const isMars = celestialBody === "mars";
@@ -80,6 +84,10 @@ export default function Hud() {
       }
       if (state.siteIndexOpen) {
         state.setSiteIndexOpen(false);
+        return;
+      }
+      if (state.deepSpaceOpen) {
+        state.setDeepSpaceOpen(false);
         return;
       }
       if (state.selectedMachineId) {
@@ -348,6 +356,21 @@ export default function Hud() {
             </button>
           )}
 
+          {mode !== "intro" && (
+            <button
+              type="button"
+              onClick={() => {
+                audioEngine.playUiTick();
+                setDeepSpaceOpen(true);
+              }}
+              className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] tracking-wider text-regolith uppercase backdrop-blur-md transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+              title="Hardware beyond the Moon and Mars"
+            >
+              <Orbit className="h-3.5 w-3.5 text-loro" />
+              <span className="hidden sm:inline">Deep Space</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => {
@@ -446,6 +469,13 @@ export default function Hud() {
       {siteIndexOpen && (
         <Suspense fallback={null}>
           <SiteIndex />
+        </Suspense>
+      )}
+
+      {/* Deep Space / Elsewhere Shelf */}
+      {deepSpaceOpen && (
+        <Suspense fallback={null}>
+          <DeepSpaceShelf />
         </Suspense>
       )}
 
