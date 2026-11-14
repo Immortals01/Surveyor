@@ -313,14 +313,33 @@ export default function Hud() {
               <button
                 type="button"
                 onClick={() => {
+                  if (deepSpaceOpen) return;
                   audioEngine.unlock(muted);
                   audioEngine.playUiTick();
                   startTour(0);
                 }}
-                className="inline-flex cursor-pointer items-center gap-1.5 border border-regolith-bright bg-regolith-bright px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider text-space-950 uppercase transition hover:bg-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+                disabled={deepSpaceOpen}
+                aria-disabled={deepSpaceOpen}
+                title={
+                  deepSpaceOpen
+                    ? "Guided Tour is available only on the Moon and Mars"
+                    : "Start the narrated Moon or Mars tour"
+                }
+                className={`inline-flex items-center gap-1.5 border px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                  deepSpaceOpen
+                    ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-regolith/40"
+                    : "cursor-pointer border-regolith-bright bg-regolith-bright text-space-950 hover:bg-white"
+                }`}
               >
                 <Play className="h-3 w-3 fill-current" />
-                <span>Guided Tour</span>
+                <span className="flex flex-col items-start leading-none">
+                  <span>Guided Tour</span>
+                  {deepSpaceOpen && (
+                    <span className="mt-1 font-body text-[8px] font-medium tracking-normal normal-case opacity-80">
+                      Moon &amp; Mars only
+                    </span>
+                  )}
+                </span>
               </button>
 
               <button
