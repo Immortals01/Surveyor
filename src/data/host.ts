@@ -9,7 +9,7 @@ export const HOST_INTRO_MOON: DialogueLine = {
   id: "loro-self-intro-moon",
   speaker: "loro",
   mood: "waving",
-  text: "Welcome! I'm Surveyor 3. The machines here tell their own stories — pick one from the map, or browse the Index to find them all.",
+  text: "Welcome! I'm Surveyor Three. The machines here tell their own stories — pick one from the map, or browse the Index to find them all.",
   sourceIds: ["S-NSSDCA-1967-035A", "S-NASA-SURVEYOR"],
 };
 
@@ -17,7 +17,7 @@ export const HOST_INTRO_MARS: DialogueLine = {
   id: "loro-self-intro-mars",
   speaker: "loro",
   mood: "excited",
-  text: "Welcome to Mars! I'm Surveyor 3. The machines below tell their own stories — pick one from the map, or browse the Index to find them all.",
+  text: "Welcome to Mars! I'm Surveyor Three. The machines below tell their own stories — pick one from the map, or browse the Index to find them all.",
   sourceIds: ["S-NSSDCA-1975-075C", "S-HIRISE-HARDWARE"],
 };
 
@@ -32,7 +32,7 @@ export const SECONDARY_HOST_LINES: Record<string, DialogueLine> = {
     speaker: "loro",
     speakerLabel: "SURVEYOR 3",
     mood: "nostalgic",
-    text: "I'm Surveyor 3. I landed in Surveyor Crater in 1967 and dug the first robot trenches; Apollo 12 astronauts later carried my camera home.",
+    text: "I'm Surveyor Three. I landed in Surveyor Crater in 1967 and dug the first robot trenches; Apollo 12 astronauts later carried my camera home.",
     sourceIds: ["S-NSSDCA-1967-035A", "S-NASA-SURVEYOR"],
   },
   "surveyor-5": {
@@ -40,7 +40,7 @@ export const SECONDARY_HOST_LINES: Record<string, DialogueLine> = {
     speaker: "loro",
     speakerLabel: "SURVEYOR 3",
     mood: "excited",
-    text: "I'm Surveyor 5. A helium leak nearly ended my trip, but controllers nursed me down in the Sea of Tranquility, where I tasted the soil.",
+    text: "I'm Surveyor Five. A helium leak nearly ended my trip, but controllers nursed me down in the Sea of Tranquility, where I tasted the soil.",
     sourceIds: ["S-NSSDCA-1967-084A", "S-NASA-SURVEYOR"],
   },
   "surveyor-6": {
@@ -48,7 +48,7 @@ export const SECONDARY_HOST_LINES: Record<string, DialogueLine> = {
     speaker: "loro",
     speakerLabel: "SURVEYOR 3",
     mood: "excited",
-    text: "I'm Surveyor 6. In November 1967 I became the first spacecraft to lift off from the Moon, hopping 2.4 metres and photographing my footprints.",
+    text: "I'm Surveyor Six. In November 1967 I became the first spacecraft to lift off from the Moon, hopping 2.4 metres and photographing my footprints.",
     sourceIds: ["S-NSSDCA-1967-112A", "S-NASA-SURVEYOR"],
   },
   "apollo-11-easep": {

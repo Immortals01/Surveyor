@@ -67,14 +67,14 @@ export function getSiteGallery(site: LunarSite): SiteGalleryItem[] {
   const leadCaption =
     site.tier === "hero"
       ? site.archivePlate.caption
-      : `${site.name}, NASA mission archive`;
+      : site.name;
 
   const images: SiteGalleryItem[] = [
     {
       kind: "image",
       src: leadImage,
       caption: leadCaption,
-      credit: "NASA / mission archive",
+      credit: "",
     },
   ];
 

@@ -86,4 +86,4 @@ export function getCategoryMeta(body: "moon" | "mars") {
 }
 
 /** Bump when regenerating narration MP3s so immutable CDN copies are bypassed. */
-export const NARRATION_ASSET_VERSION = "v6";
+export const NARRATION_ASSET_VERSION = "v7";

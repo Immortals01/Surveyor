@@ -76,9 +76,11 @@ export default function SiteGallery({ site }: { site: LunarSite }) {
         <span className="line-clamp-2 block text-[11.5px] leading-snug text-regolith-bright/90">
           {item.caption}
         </span>
-        <span className="mt-0.5 block font-mono text-[8px] tracking-[0.08em] text-regolith/45 uppercase">
-          {item.credit}
-        </span>
+        {item.credit ? (
+          <span className="mt-0.5 block font-mono text-[8px] tracking-[0.08em] text-regolith/45 uppercase">
+            {item.credit}
+          </span>
+        ) : null}
       </figcaption>
     </figure>
   );
