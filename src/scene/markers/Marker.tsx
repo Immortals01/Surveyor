@@ -2,13 +2,12 @@ import { useMemo, useRef } from "react";
 import { Html } from "@react-three/drei";
 import { type ThreeEvent, useFrame } from "@react-three/fiber";
 import {
-  CanvasTexture,
+  CircleGeometry,
   CylinderGeometry,
   DoubleSide,
   Group,
   Mesh,
   MeshBasicMaterial,
-  PlaneGeometry,
   Quaternion,
   RingGeometry,
   SphereGeometry,
@@ -39,34 +38,11 @@ const HIT_SPHERE_MAT = new MeshBasicMaterial({
 });
 // Marker glyphs: plain round beacons. Tier is conveyed by size and ring
 // brightness rather than by an angular outline.
-/**
- * Soft-edged beacon painted once into a canvas and shared by every marker, so
- * the dot has no hard silhouette or polygonal rim at small screen sizes.
- */
-function createGlowTexture(): CanvasTexture {
-  const size = 128;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d")!;
-  const r = size / 2;
-  const grad = ctx.createRadialGradient(r, r, 0, r, r, r);
-  grad.addColorStop(0, "rgba(255,255,255,1)");
-  grad.addColorStop(0.4, "rgba(255,255,255,0.95)");
-  grad.addColorStop(0.6, "rgba(255,255,255,0.4)");
-  grad.addColorStop(1, "rgba(255,255,255,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new CanvasTexture(canvas);
-  return tex;
-}
-
-const GLOW_TEX = createGlowTexture();
-const HERO_CORE_GEO = new PlaneGeometry(1.3, 1.3);
-const SECONDARY_CORE_GEO = new PlaneGeometry(1.02, 1.02);
+const HERO_CORE_GEO = new CircleGeometry(0.46, 32);
+const SECONDARY_CORE_GEO = new CircleGeometry(0.38, 32);
 const STEM_GEO = new CylinderGeometry(0.04, 0.04, 0.7, 8);
-const PULSE_RING_GEO = new RingGeometry(0.62, 0.76, 48);
-const RETICLE_GEO = new RingGeometry(0.92, 1.06, 48);
+const PULSE_RING_GEO = new RingGeometry(0.52, 0.66, 32);
+const RETICLE_GEO = new RingGeometry(0.82, 0.96, 24);
 
 export default function Marker({ site, heightReady }: MarkerProps) {
   const groupRef = useRef<Group>(null);
@@ -232,7 +208,7 @@ export default function Marker({ site, heightReady }: MarkerProps) {
         onClick={handleClick}
       />
 
-      {/* Surface glow core */}
+      {/* Surface disc core */}
       <mesh
         geometry={isHero ? HERO_CORE_GEO : SECONDARY_CORE_GEO}
         rotation={[-Math.PI / 2, 0, 0]}
@@ -240,11 +216,9 @@ export default function Marker({ site, heightReady }: MarkerProps) {
       >
         <meshBasicMaterial
           ref={coreMatRef}
-          map={GLOW_TEX}
           color={colorHex}
           transparent
           opacity={1}
-          depthWrite={false}
           toneMapped={false}
         />
       </mesh>
