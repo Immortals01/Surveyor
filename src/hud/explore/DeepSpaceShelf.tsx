@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { ArrowLeft, ArrowUpRight, Orbit, Satellite, X } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  Orbit,
+  Satellite,
+  X,
+} from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { DEEP_SPACE_ENTRIES, type DeepSpaceEntry } from "@/data/deepSpace";
 import { useAppStore } from "@/store/useAppStore";
@@ -66,6 +74,65 @@ function ObjectNode({
         </span>
       </span>
     </button>
+  );
+}
+
+function ObjectGallery({ entry }: { entry: DeepSpaceEntry }) {
+  const [index, setIndex] = useState(0);
+  const images = entry.images;
+  if (images.length === 0) return null;
+
+  const image = images[index];
+  if (!image) return null;
+
+  const step = (direction: number) => {
+    audioEngine.playUiTick(1100);
+    setIndex((current) => (current + direction + images.length) % images.length);
+  };
+
+  return (
+    <figure className="relative mt-4 overflow-hidden border border-white/10 bg-black">
+      <div className="aspect-[16/10] w-full">
+        <img
+          src={image.src}
+          alt={image.caption}
+          className="h-full w-full object-cover"
+          loading="eager"
+        />
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/75 to-transparent px-3 pt-10 pb-2.5">
+        <figcaption className="text-[11.5px] leading-snug text-regolith-bright/90">
+          {image.caption}
+        </figcaption>
+        <p className="mt-0.5 font-mono text-[8px] tracking-[0.08em] text-regolith/45 uppercase">
+          {image.credit}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => step(-1)}
+        className="absolute top-1/2 left-2 -translate-y-1/2 cursor-pointer border border-white/15 bg-space-950/80 p-1.5 text-regolith-bright backdrop-blur-sm transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+        aria-label="Previous image"
+        title="Previous image"
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => step(1)}
+        className="absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer border border-white/15 bg-space-950/80 p-1.5 text-regolith-bright backdrop-blur-sm transition hover:border-loro hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+        aria-label="Next image"
+        title="Next image"
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+
+      <span className="absolute top-2 right-2 border border-white/15 bg-space-950/80 px-1.5 py-0.5 font-mono text-[9px] text-regolith/80 backdrop-blur-sm">
+        {index + 1} / {images.length}
+      </span>
+    </figure>
   );
 }
 
@@ -169,6 +236,8 @@ export default function DeepSpaceShelf() {
                   <X className="h-3.5 w-3.5" />
                 </button>
               </div>
+
+              <ObjectGallery key={selected.id} entry={selected} />
 
               <dl className="mt-4 space-y-3 text-[12px]">
                 <div>
