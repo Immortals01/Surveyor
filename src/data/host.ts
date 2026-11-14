@@ -9,7 +9,7 @@ export const HOST_INTRO_MOON: DialogueLine = {
   id: "loro-self-intro-moon",
   speaker: "loro",
   mood: "waving",
-  text: "Welcome! I'm Surveyor Three. The machines here tell their own stories — pick one from the map, or browse the Index to find them all.",
+  text: "Welcome! I'm Surveyor Three. When you're ready, choose the narrated tour and I'll fly you from site to site, or take free orbit and explore the Moon on your own.",
   sourceIds: ["S-NSSDCA-1967-035A", "S-NASA-SURVEYOR"],
 };
 
@@ -17,7 +17,7 @@ export const HOST_INTRO_MARS: DialogueLine = {
   id: "loro-self-intro-mars",
   speaker: "loro",
   mood: "excited",
-  text: "Welcome to Mars! I'm Surveyor Three. The machines below tell their own stories — pick one from the map, or browse the Index to find them all.",
+  text: "Welcome to Mars! I'm Surveyor Three. Choose the narrated tour and I'll guide you across the Red Planet, or take free orbit and wander the landing sites yourself.",
   sourceIds: ["S-NSSDCA-1975-075C", "S-HIRISE-HARDWARE"],
 };
 
