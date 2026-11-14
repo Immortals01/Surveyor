@@ -137,7 +137,10 @@ export default function Hud() {
   };
 
   const handleSwitchBody = (targetBody: CelestialBody) => {
-    if (celestialBody === targetBody) return;
+    // While the Deep Space shelf is open the active body is still the last real
+    // globe, so an early return here would swallow the click that should bring
+    // the Moon (or Mars) back into view.
+    if (celestialBody === targetBody && !deepSpaceOpen) return;
     audioEngine.unlock(muted);
     audioEngine.playUiTick(840);
     cancelSpeech();

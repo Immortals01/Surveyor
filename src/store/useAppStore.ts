@@ -116,14 +116,14 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
   setActiveHeightBody(body);
   suspendInactiveTileManagers(body);
   // Each body has its own chapter list, so a tour cursor cannot be carried across
-  // bodies. Switching body mid-tour restarts that body's tour at Chapter 1 instead
-  // of dropping the visitor into Free Explore; the chapter banner explains the move.
-  const stayingInTour = s.mode === "tour";
+  // bodies. Arriving at a world always lands on its mission briefing (the
+  // Tour / Sandbox chooser) instead of dropping the visitor into whatever mode
+  // they happened to be in.
   return {
     celestialBody: body,
     activeBody: body,
     heightReady: isHeightLoaded(body),
-    mode: s.mode,
+    mode: "intro",
     selectedSiteId: null,
     selectedMachineId: null,
     hoveredSiteId: null,
@@ -135,33 +135,13 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
     tourChapterIndex: 0,
     tourBeatIndex: 0,
     tourPaused: false,
-    chapterBannerVisible: stayingInTour,
+    chapterBannerVisible: false,
     tourComplete: false,
     sunLongitude: body === "mars" ? 18 : -48,
     sunLatitude: body === "mars" ? 8 : 1.5,
     loroMood: "waving",
     activeHostId: DEFAULT_HOST,
-    dialogue:
-      s.mode === "intro"
-        ? null
-        : {
-            lineId: `switch-body-${body}`,
-            speaker: "loro",
-            speakerLabel:
-              body === "mars"
-                ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-                : "SURVEYOR 3",
-            text:
-              body === "mars"
-                ? "Deep-Space Network relay locked onto Mars! From Viking 1 and the marathon rover Opportunity to InSight's marsquake ears and Ingenuity's 72 flights—click any marker to explore 11 Red Planet pioneers!"
-                : "Back in lunar orbit above my home crater! Click any glowing beacon on the Moon to visit 20 Apollo, ALSEP, LRV, and Surveyor hardware sites.",
-            sourceIds:
-              body === "mars"
-                ? ["S-MOLA-MEGDR", "S-HIRISE-HARDWARE"]
-                : ["S-SVS-4720", "S-WAGNER-2017"],
-            isRevealing: !s.settings.reduceMotion,
-            isSpeaking: false,
-          },
+    dialogue: null,
   };
 }
 
