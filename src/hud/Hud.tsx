@@ -4,6 +4,7 @@ import {
   ListFilter,
   Minus,
   Moon,
+  Orbit,
   Play,
   Plus,
   RotateCcw,
@@ -11,10 +12,12 @@ import {
   VolumeX,
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
+import { stopMachineNarration } from "@/audio/machineNarration";
 import { cancelSpeech, speakLine } from "@/audio/speech";
 import { getSitesForBody, SITE_BY_ID } from "@/data";
 import { getHost } from "@/data/hosts";
 import type { DialogueLine } from "@/data/schema";
+import { resolveHostLine } from "./character/hostLine";
 import { cameraBus } from "@/engine/camera";
 import { useTourRunner } from "@/engine/useTourRunner";
 import DialogueBox from "@/hud/character/DialogueBox";
@@ -22,27 +25,14 @@ import LoRo from "@/hud/character/LoRo";
 import IntroScreen from "@/hud/intro/IntroScreen";
 import ChapterCard from "@/hud/tour/ChapterCard";
 import TourBar from "@/hud/tour/TourBar";
+import TourCompleteCard from "@/hud/tour/TourCompleteCard";
 import { type CelestialBody, useAppStore } from "@/store/useAppStore";
 
 const SiteDrawer = lazy(() => import("@/hud/story/SiteDrawer"));
 const SiteIndex = lazy(() => import("@/hud/explore/SiteIndex"));
+const DeepSpaceShelf = lazy(() => import("@/hud/explore/DeepSpaceShelf"));
 const SourcesDrawer = lazy(() => import("@/hud/credits/SourcesDrawer"));
-
-const DEFAULT_MOON_TIP: DialogueLine = {
-  id: "loro-tip-1",
-  speaker: "loro",
-  mood: "waving",
-  text: "Click any glowing marker on the Moon—or open 'Index (20)' above—to swoop down and hear what our left-behind spacecraft remember!",
-  sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
-};
-
-const DEFAULT_MARS_TIP: DialogueLine = {
-  id: "mars-viking1-intro",
-  speaker: "loro",
-  mood: "excited",
-  text: "Down on the Golden Plains of Chryse Planitia sits the pioneer that started it all: Viking 1! Even from MRO's orbit, its bright triangular deck and nearby discarded backshell gleam against the rusty dust.",
-  sourceIds: ["S-NSSDCA-1975-075C", "S-HIRISE-HARDWARE"],
-};
+const MachineDossier = lazy(() => import("@/hud/machines/MachineDossier"));
 
 export default function Hud() {
   const { dispatchTour } = useTourRunner();
@@ -51,6 +41,7 @@ export default function Hud() {
   const celestialBody = useAppStore((s) => s.celestialBody);
   const setCelestialBody = useAppStore((s) => s.setCelestialBody);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
+  const selectedMachineId = useAppStore((s) => s.selectedMachineId);
   const siteIndexOpen = useAppStore((s) => s.siteIndexOpen);
   const sourcesDrawerOpen = useAppStore((s) => s.sourcesDrawerOpen);
   const muted = useAppStore((s) => s.settings.muted);
@@ -60,7 +51,10 @@ export default function Hud() {
   const startTour = useAppStore((s) => s.startTour);
   const returnToIntro = useAppStore((s) => s.returnToIntro);
   const setSiteIndexOpen = useAppStore((s) => s.setSiteIndexOpen);
+  const setDeepSpaceOpen = useAppStore((s) => s.setDeepSpaceOpen);
+  const deepSpaceOpen = useAppStore((s) => s.deepSpaceOpen);
   const openSources = useAppStore((s) => s.openSources);
+  const [tourScopeHovered, setTourScopeHovered] = useState(false);
 
   const isMars = celestialBody === "mars";
   const sites = getSitesForBody(celestialBody);
@@ -91,6 +85,21 @@ export default function Hud() {
       }
       if (state.siteIndexOpen) {
         state.setSiteIndexOpen(false);
+        return;
+      }
+      if (state.deepSpaceStoryId) {
+        state.setDeepSpaceStoryId(null);
+        return;
+      }
+      if (state.deepSpaceOpen) {
+        state.setDeepSpaceOpen(false);
+        return;
+      }
+      if (state.selectedMachineId) {
+        stopMachineNarration();
+        state.setDialogue(null);
+        state.closeMachine();
+        void cameraBus.goHome();
         return;
       }
       if (state.selectedSiteId) {
@@ -132,8 +141,23 @@ export default function Hud() {
     audioEngine.unlock(muted);
     audioEngine.playUiTick(840);
     cancelSpeech();
+    stopMachineNarration();
+    useAppStore.getState().closeMachine();
+    setDeepSpaceOpen(false);
     setCelestialBody(targetBody);
     void cameraBus.goHome();
+  };
+
+  const handleOpenDeepSpace = () => {
+    audioEngine.unlock(muted);
+    audioEngine.playUiTick(900);
+    cancelSpeech();
+    stopMachineNarration();
+    const state = useAppStore.getState();
+    state.closeMachine();
+    state.selectSite(null);
+    state.enterExplore(false);
+    state.setDeepSpaceOpen(true);
   };
 
   const handleLoRoClick = () => {
@@ -145,21 +169,23 @@ export default function Hud() {
       ? SITE_BY_ID.get(state.selectedSiteId)
       : undefined;
 
-    const defaultTip =
-      state.celestialBody === "mars" ? DEFAULT_MARS_TIP : DEFAULT_MOON_TIP;
-
-    // The machine standing beside the visitor introduces itself; otherwise
-    // Surveyor 3 picks up the commentary from orbit.
-    let line: DialogueLine;
-    if (selected && selected.tier === "hero" && host.siteId === selected.id) {
-      line = host.intro;
-    } else if (selected && selected.tier === "hero") {
-      line = selected.loroIntro;
-    } else if (host.id !== "surveyor-3") {
-      line = host.intro;
-    } else {
-      line = defaultTip;
-    }
+    // If a line is already on screen, replay exactly that line. Otherwise use
+    // the same resolver as the callout box so text and audio stay identical.
+    const shown = state.dialogue;
+    const line: DialogueLine = shown
+      ? {
+          id: shown.lineId,
+          speaker: shown.speaker,
+          speakerLabel: shown.speakerLabel,
+          mood: state.loroMood,
+          text: shown.text,
+          sourceIds: shown.sourceIds,
+        }
+      : resolveHostLine(
+          selected,
+          host,
+          state.celestialBody === "mars",
+        );
 
     state.setLoRoMood(line.mood);
     state.setDialogue({
@@ -169,7 +195,7 @@ export default function Hud() {
         line.speakerLabel ??
         (state.celestialBody === "mars"
           ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-          : "SURVEYOR 3 (1967)"),
+          : "SURVEYOR 3"),
       text: line.text,
       sourceIds: line.sourceIds,
       isRevealing: !reduceMotion,
@@ -206,6 +232,8 @@ export default function Hud() {
               type="button"
               onClick={() => {
                 audioEngine.playUiTick();
+                stopMachineNarration();
+                useAppStore.getState().closeMachine();
                 returnToIntro();
                 void cameraBus.goHome();
               }}
@@ -233,13 +261,13 @@ export default function Hud() {
           {/* Celestial Body Switcher: Moon <-> Mars */}
           <div
             role="group"
-            aria-label="Select celestial body"
+            aria-label="Select destination"
             className="inline-flex items-center border border-white/15 bg-space-950/85 p-0.5 backdrop-blur-md"
           >
             <button
               type="button"
               onClick={() => handleSwitchBody("moon")}
-              aria-pressed={celestialBody === "moon"}
+              aria-pressed={!deepSpaceOpen && celestialBody === "moon"}
               className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
                 celestialBody === "moon"
                   ? "bg-sunlit text-space-950 shadow-sm"
@@ -253,7 +281,7 @@ export default function Hud() {
             <button
               type="button"
               onClick={() => handleSwitchBody("mars")}
-              aria-pressed={celestialBody === "mars"}
+              aria-pressed={!deepSpaceOpen && celestialBody === "mars"}
               className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
                 celestialBody === "mars"
                   ? "bg-orange-400 text-space-950 shadow-sm"
@@ -264,22 +292,66 @@ export default function Hud() {
               <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
               <span>Mars</span>
             </button>
+            <span className="h-4 w-px bg-white/15" />
+            <button
+              type="button"
+              onClick={handleOpenDeepSpace}
+              aria-pressed={deepSpaceOpen}
+              className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                deepSpaceOpen
+                  ? "bg-loro text-space-950 shadow-sm"
+                  : "text-regolith/75 hover:bg-white/10 hover:text-white"
+              }`}
+              title="Explore hardware beyond the Moon and Mars"
+            >
+              <Orbit className="h-3.5 w-3.5" />
+              <span>Deep Space</span>
+            </button>
           </div>
 
           {mode === "explore" && (
             <>
-              <button
-                type="button"
-                onClick={() => {
-                  audioEngine.unlock(muted);
-                  audioEngine.playUiTick();
-                  startTour(0);
-                }}
-                className="inline-flex cursor-pointer items-center gap-1.5 border border-regolith-bright bg-regolith-bright px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider text-space-950 uppercase transition hover:bg-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+              <span
+                className={`relative inline-flex ${
+                  deepSpaceOpen ? "cursor-not-allowed" : ""
+                }`}
+                onMouseEnter={() => setTourScopeHovered(true)}
+                onMouseLeave={() => setTourScopeHovered(false)}
               >
-                <Play className="h-3 w-3 fill-current" />
-                <span>Guided Tour</span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (deepSpaceOpen) return;
+                    audioEngine.unlock(muted);
+                    audioEngine.playUiTick();
+                    startTour(0);
+                  }}
+                  disabled={deepSpaceOpen}
+                  aria-disabled={deepSpaceOpen}
+                  aria-describedby={
+                    deepSpaceOpen ? "guided-tour-scope" : undefined
+                  }
+                  className={`inline-flex items-center gap-1.5 border px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                    deepSpaceOpen
+                      ? "pointer-events-none border-white/10 bg-white/[0.04] text-regolith/40"
+                      : "cursor-pointer border-regolith-bright bg-regolith-bright text-space-950 hover:bg-white"
+                  }`}
+                >
+                  <Play className="h-3 w-3 fill-current" />
+                  <span>Guided Tour</span>
+                </button>
+                {deepSpaceOpen && (
+                  <span
+                    id="guided-tour-scope"
+                    role="tooltip"
+                    className={`pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 border border-loro/40 bg-space-950/97 px-2.5 py-1.5 font-mono text-[9px] tracking-[0.12em] whitespace-nowrap text-regolith-bright uppercase shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md transition-opacity duration-150 ${
+                      tourScopeHovered ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    Moon &amp; Mars only
+                  </span>
+                )}
+              </span>
 
               <button
                 type="button"
@@ -378,6 +450,9 @@ export default function Hud() {
       {/* Tour Chapter Title Banner */}
       <ChapterCard />
 
+      {/* Cross-body hand-off when the Moon or Mars guide ends */}
+      <TourCompleteCard />
+
       {/* Intro Welcome Screen */}
       {mode === "intro" && <IntroScreen />}
 
@@ -416,13 +491,18 @@ export default function Hud() {
 
             <div className="mt-1.5 flex items-center justify-center border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
               <span className="text-regolith-bright font-semibold">
-                {isMars
-                  ? "SURVEYOR 3 · MARS RELAY"
-                  : activeHost.name.toUpperCase()}
+                {activeHost.name.toUpperCase()}
               </span>
             </div>
           </button>
         </div>
+      )}
+
+      {/* Machine story dossier */}
+      {selectedMachineId && (
+        <Suspense fallback={null}>
+          <MachineDossier />
+        </Suspense>
       )}
 
       {/* Selected Site Exhibit Drawer */}
@@ -436,6 +516,13 @@ export default function Hud() {
       {siteIndexOpen && (
         <Suspense fallback={null}>
           <SiteIndex />
+        </Suspense>
+      )}
+
+      {/* Deep Space / Elsewhere Shelf */}
+      {deepSpaceOpen && (
+        <Suspense fallback={null}>
+          <DeepSpaceShelf />
         </Suspense>
       )}
 

@@ -3,17 +3,12 @@ import { Radio, Satellite, Volume2, VolumeX } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { SITE_BY_ID } from "@/data";
 import { getHost } from "@/data/hosts";
+import { resolveHostLine } from "./hostLine";
 import { useAppStore } from "@/store/useAppStore";
 
 interface DialogueBoxProps {
   onAdvanceTour?: () => void;
 }
-
-const DEFAULT_MOON_MESSAGE =
-  "Click any glowing marker on the Moon—or open 'Index (20)' above—to swoop down and hear what our left-behind spacecraft remember!";
-
-const DEFAULT_MARS_MESSAGE =
-  "Click any glowing marker on Mars—or open 'Index (11)' above—to swoop down to Viking, Pathfinder, Sojourner, Spirit, Opportunity, Phoenix, InSight, and Ingenuity!";
 
 export default function DialogueBox({
   onAdvanceTour,
@@ -34,22 +29,22 @@ export default function DialogueBox({
     count: number;
   }>({ lineId: "", count: 0 });
 
-  // Derive fallback host commentary when no explicit dialogue is active in Explore mode
+  // The callout shows the exact line the host will speak when clicked.
   const selectedSite = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
-  const defaultMsg =
-    activeBody === "mars" ? DEFAULT_MARS_MESSAGE : DEFAULT_MOON_MESSAGE;
-  const fallbackText = selectedSite
-    ? selectedSite.tier === "hero"
-      ? selectedSite.loroIntro.text
-      : `${selectedSite.name} (${selectedSite.year}) — ${selectedSite.summary}`
-    : defaultMsg;
+  const fallbackLine = resolveHostLine(
+    selectedSite,
+    activeHost,
+    activeBody === "mars",
+  );
 
-  const fullText = dialogue?.text ?? fallbackText;
-  const lineId = dialogue?.lineId ?? `fallback-${selectedSiteId ?? "home"}`;
+  const fullText = dialogue?.text ?? fallbackLine.text;
+  const lineId = dialogue?.lineId ?? fallbackLine.id;
   const isRevealing = Boolean(dialogue?.isRevealing);
-  const isEquipment = dialogue?.speaker === "equipment";
+  const isEquipment =
+    (dialogue?.speaker ?? fallbackLine.speaker) === "equipment";
   const speakerLabel =
     dialogue?.speakerLabel ??
+    fallbackLine.speakerLabel ??
     (selectedSite
       ? `${activeHost.name.toUpperCase()} · ON ${selectedSite.mission.toUpperCase()}`
       : activeHost.callSign);

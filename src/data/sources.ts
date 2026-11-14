@@ -115,6 +115,14 @@ export const SOURCES: SourceEntry[] = [
     creditLine: "NASA Science — Surveyor Program Mission Pages.",
   },
   {
+    id: "S-NSSDCA-1969-059A",
+    title: "Apollo 11 Command and Service Module Columbia Record (1969-059A)",
+    agencyOrAuthor: "NASA / NSSDCA",
+    dataset: "NSSDCA",
+    url: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A",
+    creditLine: "NASA / NSSDCA (Apollo 11 Command and Service Module 1969-059A).",
+  },
+  {
     id: "S-NSSDCA-1969-059C",
     title: "Apollo 11 Lunar Module Eagle & EASEP Record (1969-059C)",
     agencyOrAuthor: "NASA / NSSDCA",
@@ -332,6 +340,22 @@ export const SOURCES: SourceEntry[] = [
     dataset: "NASA-3D",
     url: "https://science.nasa.gov/3d-resources/",
     creditLine: "Courtesy NASA / JPL-Caltech 3D Resources Catalog (Public Domain).",
+  },
+  {
+    id: "S-NASA-DAWN",
+    title: "NASA Science — Dawn Mission",
+    agencyOrAuthor: "NASA Science Mission Directorate / JPL-Caltech",
+    dataset: "LITERATURE",
+    url: "https://science.nasa.gov/mission/dawn/",
+    creditLine: "NASA Science — Dawn mission pages (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA).",
+  },
+  {
+    id: "S-NSSDCA-DAWN",
+    title: "Dawn Mission Record (2007-043A)",
+    agencyOrAuthor: "NASA / JPL / NSSDCA",
+    dataset: "NSSDCA",
+    url: "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-043A",
+    creditLine: "NASA / Jet Propulsion Laboratory / NSSDCA (Dawn, 2007-043A).",
   },
   {
     id: "S-IVL-ARCHIVE",

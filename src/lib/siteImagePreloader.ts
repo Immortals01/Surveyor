@@ -1,4 +1,5 @@
 import { getSitesForBody } from "@/data";
+import { getSiteGallery } from "@/data/siteGalleries";
 import type { CelestialBody, LunarSite } from "@/data/schema";
 
 const requestedUrls = new Set<string>();
@@ -26,6 +27,17 @@ export function preloadSiteImage(site: LunarSite): void {
     decodedUrls.add(url);
   };
   img.src = url;
+}
+
+/** Warm every image in the selected site's carousel as soon as it opens. */
+export function preloadSiteGallery(site: LunarSite): void {
+  for (const item of getSiteGallery(site)) {
+    if (item.kind !== "image" || requestedUrls.has(item.src)) continue;
+    requestedUrls.add(item.src);
+    const img = new Image();
+    img.decoding = "async";
+    img.src = item.src;
+  }
 }
 
 export function preloadBodySiteImages(body: CelestialBody): void {

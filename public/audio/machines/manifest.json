@@ -1,0 +1,476 @@
+[
+  {
+    "id": "apollo-11-s1",
+    "machineId": "apollo-11",
+    "voice": "en-US-ChristopherNeural",
+    "audio": "/audio/machines/apollo-11-s1.mp3"
+  },
+  {
+    "id": "apollo-11-s2",
+    "machineId": "apollo-11",
+    "voice": "en-US-ChristopherNeural",
+    "audio": "/audio/machines/apollo-11-s2.mp3"
+  },
+  {
+    "id": "apollo-11-s3",
+    "machineId": "apollo-11",
+    "voice": "en-US-ChristopherNeural",
+    "audio": "/audio/machines/apollo-11-s3.mp3"
+  },
+  {
+    "id": "apollo-11-s4",
+    "machineId": "apollo-11",
+    "voice": "en-US-ChristopherNeural",
+    "audio": "/audio/machines/apollo-11-s4.mp3"
+  },
+  {
+    "id": "apollo-11-s5",
+    "machineId": "apollo-11",
+    "voice": "en-US-ChristopherNeural",
+    "audio": "/audio/machines/apollo-11-s5.mp3"
+  },
+  {
+    "id": "apollo-11-s6",
+    "machineId": "apollo-11",
+    "voice": "en-US-ChristopherNeural",
+    "audio": "/audio/machines/apollo-11-s6.mp3"
+  },
+  {
+    "id": "apollo-11-s7",
+    "machineId": "apollo-11",
+    "voice": "en-US-ChristopherNeural",
+    "audio": "/audio/machines/apollo-11-s7.mp3"
+  },
+  {
+    "id": "apollo-15-s1",
+    "machineId": "apollo-15",
+    "voice": "en-NZ-MitchellNeural",
+    "audio": "/audio/machines/apollo-15-s1.mp3"
+  },
+  {
+    "id": "apollo-15-s2",
+    "machineId": "apollo-15",
+    "voice": "en-NZ-MitchellNeural",
+    "audio": "/audio/machines/apollo-15-s2.mp3"
+  },
+  {
+    "id": "apollo-15-s3",
+    "machineId": "apollo-15",
+    "voice": "en-NZ-MitchellNeural",
+    "audio": "/audio/machines/apollo-15-s3.mp3"
+  },
+  {
+    "id": "apollo-15-s4",
+    "machineId": "apollo-15",
+    "voice": "en-NZ-MitchellNeural",
+    "audio": "/audio/machines/apollo-15-s4.mp3"
+  },
+  {
+    "id": "apollo-15-s5",
+    "machineId": "apollo-15",
+    "voice": "en-NZ-MitchellNeural",
+    "audio": "/audio/machines/apollo-15-s5.mp3"
+  },
+  {
+    "id": "apollo-15-s6",
+    "machineId": "apollo-15",
+    "voice": "en-NZ-MitchellNeural",
+    "audio": "/audio/machines/apollo-15-s6.mp3"
+  },
+  {
+    "id": "apollo-15-s7",
+    "machineId": "apollo-15",
+    "voice": "en-NZ-MitchellNeural",
+    "audio": "/audio/machines/apollo-15-s7.mp3"
+  },
+  {
+    "id": "dawn-s1",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s1.mp3"
+  },
+  {
+    "id": "dawn-s2",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s2.mp3"
+  },
+  {
+    "id": "dawn-s3",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s3.mp3"
+  },
+  {
+    "id": "dawn-s4",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s4.mp3"
+  },
+  {
+    "id": "dawn-s5",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s5.mp3"
+  },
+  {
+    "id": "dawn-s6",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s6.mp3"
+  },
+  {
+    "id": "dawn-s7",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s7.mp3"
+  },
+  {
+    "id": "dawn-s8",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s8.mp3"
+  },
+  {
+    "id": "dawn-s9",
+    "machineId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "audio": "/audio/machines/dawn-s9.mp3"
+  },
+  {
+    "id": "ingenuity-s1",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s1.mp3"
+  },
+  {
+    "id": "ingenuity-s10",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s10.mp3"
+  },
+  {
+    "id": "ingenuity-s2",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s2.mp3"
+  },
+  {
+    "id": "ingenuity-s3",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s3.mp3"
+  },
+  {
+    "id": "ingenuity-s4",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s4.mp3"
+  },
+  {
+    "id": "ingenuity-s5",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s5.mp3"
+  },
+  {
+    "id": "ingenuity-s6",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s6.mp3"
+  },
+  {
+    "id": "ingenuity-s7",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s7.mp3"
+  },
+  {
+    "id": "ingenuity-s8",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s8.mp3"
+  },
+  {
+    "id": "ingenuity-s9",
+    "machineId": "ingenuity",
+    "voice": "en-US-AnaNeural",
+    "audio": "/audio/machines/ingenuity-s9.mp3"
+  },
+  {
+    "id": "insight-s1",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s1.mp3"
+  },
+  {
+    "id": "insight-s2",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s2.mp3"
+  },
+  {
+    "id": "insight-s3",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s3.mp3"
+  },
+  {
+    "id": "insight-s4",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s4.mp3"
+  },
+  {
+    "id": "insight-s5",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s5.mp3"
+  },
+  {
+    "id": "insight-s6",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s6.mp3"
+  },
+  {
+    "id": "insight-s7",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s7.mp3"
+  },
+  {
+    "id": "insight-s8",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s8.mp3"
+  },
+  {
+    "id": "insight-s9",
+    "machineId": "insight",
+    "voice": "en-GB-SoniaNeural",
+    "audio": "/audio/machines/insight-s9.mp3"
+  },
+  {
+    "id": "opportunity-s1",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s1.mp3"
+  },
+  {
+    "id": "opportunity-s2",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s2.mp3"
+  },
+  {
+    "id": "opportunity-s3",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s3.mp3"
+  },
+  {
+    "id": "opportunity-s4",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s4.mp3"
+  },
+  {
+    "id": "opportunity-s5",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s5.mp3"
+  },
+  {
+    "id": "opportunity-s6",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s6.mp3"
+  },
+  {
+    "id": "opportunity-s7",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s7.mp3"
+  },
+  {
+    "id": "opportunity-s8",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s8.mp3"
+  },
+  {
+    "id": "opportunity-s9",
+    "machineId": "opportunity",
+    "voice": "en-AU-NatashaNeural",
+    "audio": "/audio/machines/opportunity-s9.mp3"
+  },
+  {
+    "id": "sojourner-s1",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s1.mp3"
+  },
+  {
+    "id": "sojourner-s2",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s2.mp3"
+  },
+  {
+    "id": "sojourner-s3",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s3.mp3"
+  },
+  {
+    "id": "sojourner-s4",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s4.mp3"
+  },
+  {
+    "id": "sojourner-s5",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s5.mp3"
+  },
+  {
+    "id": "sojourner-s6",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s6.mp3"
+  },
+  {
+    "id": "sojourner-s7",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s7.mp3"
+  },
+  {
+    "id": "sojourner-s8",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s8.mp3"
+  },
+  {
+    "id": "sojourner-s9",
+    "machineId": "sojourner",
+    "voice": "en-GB-MaisieNeural",
+    "audio": "/audio/machines/sojourner-s9.mp3"
+  },
+  {
+    "id": "spirit-s1",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s1.mp3"
+  },
+  {
+    "id": "spirit-s10",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s10.mp3"
+  },
+  {
+    "id": "spirit-s2",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s2.mp3"
+  },
+  {
+    "id": "spirit-s3",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s3.mp3"
+  },
+  {
+    "id": "spirit-s4",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s4.mp3"
+  },
+  {
+    "id": "spirit-s5",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s5.mp3"
+  },
+  {
+    "id": "spirit-s6",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s6.mp3"
+  },
+  {
+    "id": "spirit-s7",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s7.mp3"
+  },
+  {
+    "id": "spirit-s8",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s8.mp3"
+  },
+  {
+    "id": "spirit-s9",
+    "machineId": "spirit",
+    "voice": "en-US-AriaNeural",
+    "audio": "/audio/machines/spirit-s9.mp3"
+  },
+  {
+    "id": "viking-1-s1",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s1.mp3"
+  },
+  {
+    "id": "viking-1-s2",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s2.mp3"
+  },
+  {
+    "id": "viking-1-s3",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s3.mp3"
+  },
+  {
+    "id": "viking-1-s4",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s4.mp3"
+  },
+  {
+    "id": "viking-1-s5",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s5.mp3"
+  },
+  {
+    "id": "viking-1-s6",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s6.mp3"
+  },
+  {
+    "id": "viking-1-s7",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s7.mp3"
+  },
+  {
+    "id": "viking-1-s8",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s8.mp3"
+  },
+  {
+    "id": "viking-1-s9",
+    "machineId": "viking-1",
+    "voice": "en-US-GuyNeural",
+    "audio": "/audio/machines/viking-1-s9.mp3"
+  }
+]

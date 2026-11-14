@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import { getSitesForBody, isNearside } from "@/data";
+import { getMachineForSite } from "@/data/machines";
 import { cameraBus } from "@/engine/camera";
 import { formatLatLon, normalizeLon } from "@/lib/geo";
 import { useAppStore } from "@/store/useAppStore";
@@ -62,7 +63,6 @@ export default function SiteIndex() {
         className="flex max-h-full w-full max-w-xl flex-col overflow-hidden border border-white/12 bg-space-950 shadow-[0_32px_80px_rgba(0,0,0,0.6)]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header — quiet, typographic */}
         <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-4">
           <div>
             <p className="font-mono text-[10px] tracking-[0.22em] text-regolith/55 uppercase">
@@ -86,7 +86,6 @@ export default function SiteIndex() {
           </button>
         </div>
 
-        {/* Search — single hairline rule instead of a boxed input */}
         <div className="border-b border-white/10 px-6">
           <div className="relative">
             <Search className="pointer-events-none absolute top-1/2 left-0 h-4 w-4 -translate-y-1/2 text-regolith/40" />
@@ -105,9 +104,9 @@ export default function SiteIndex() {
           </div>
         </div>
 
-        {/* List — rows separated by hairlines, no pills or glow */}
         <div className="hud-scroll flex-1 overflow-y-auto">
           {filtered.map((site, i) => {
+            const machine = getMachineForSite(site.id);
             return (
               <button
                 key={site.id}
@@ -117,18 +116,24 @@ export default function SiteIndex() {
                   i > 0 ? "border-t border-white/8" : ""
                 }`}
               >
-                {/* Year column */}
                 <span className="w-10 shrink-0 font-mono text-[11px] text-regolith/55 tabular-nums">
                   {site.year}
                 </span>
 
-                {/* Name + subtitle */}
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
                     <span className="truncate font-display text-[15px] font-semibold text-regolith-bright">
                       {site.name}
                     </span>
-                    {site.tier === "hero" && (
+                    {machine && (
+                      <span
+                        className="shrink-0 border px-1.5 py-px font-mono text-[8.5px] tracking-[0.14em] uppercase"
+                        style={{ borderColor: `${machine.accent}66`, color: machine.accent }}
+                      >
+                        Speaks
+                      </span>
+                    )}
+                    {site.tier === "hero" && !machine && (
                       <span className="shrink-0 font-mono text-[9px] tracking-[0.18em] text-sunlit/90 uppercase">
                         Hero
                       </span>
@@ -144,7 +149,6 @@ export default function SiteIndex() {
                   </span>
                 </span>
 
-                {/* Coordinates */}
                 <span className="shrink-0 text-right font-mono text-[11px] text-regolith/55 tabular-nums">
                   {formatLatLon(site.lat, site.lon)}
                 </span>
@@ -169,7 +173,6 @@ export default function SiteIndex() {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

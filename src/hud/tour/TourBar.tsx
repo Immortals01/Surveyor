@@ -23,6 +23,9 @@ export default function TourBar({ dispatchTour }: TourBarProps) {
 
   const chapters = getTourChaptersForBody(celestialBody);
   const activeChapter = chapters[chapterIndex];
+  const activeBeat = activeChapter?.beats[beatIndex];
+  const isReprise =
+    activeBeat?.kind === "flySite" && activeBeat.reprise === true;
 
   return (
     <div className="pointer-events-auto flex flex-wrap items-center gap-2 border border-white/15 bg-space-950/88 px-3 py-1.5 backdrop-blur-md">
@@ -60,6 +63,15 @@ export default function TourBar({ dispatchTour }: TourBarProps) {
           );
         })}
       </div>
+
+      {isReprise && (
+        <span
+          className="border border-loro/40 bg-loro/10 px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wider text-loro uppercase"
+          title="Previously visited site"
+        >
+          Legacy stop
+        </span>
+      )}
 
       <span className="hidden h-4 w-px bg-white/15 md:inline-block" />
 

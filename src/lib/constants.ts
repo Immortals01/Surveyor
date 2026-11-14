@@ -84,3 +84,6 @@ export function getCategoryMeta(body: "moon" | "mars") {
   if (body === "mars") return MARS_CATEGORY_META;
   return CATEGORY_META;
 }
+
+/** Bump when regenerating narration MP3s so immutable CDN copies are bypassed. */
+export const NARRATION_ASSET_VERSION = "v7";

@@ -89,3 +89,27 @@
 .animate-hud-fade-down {
   animation: hud-fade-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+@keyframes deep-float {
+  0%,
+  100% {
+    transform: translateY(-4px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+.animate-deep-float {
+  animation: deep-float 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-deep-float {
+    animation: none;
+  }
+}
+
+
+
+

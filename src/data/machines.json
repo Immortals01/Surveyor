@@ -1,0 +1,1968 @@
+{
+  "version": 1,
+  "notice": "First-person stories, verified mission facts and official NASA imagery for the Abandoned, Not Forgotten machine cast. Edit freely; run `bun scripts/generate-machine-narration.mjs` after changing story text.",
+  "cast": [
+    {
+      "id": "ingenuity",
+      "siteId": "ingenuity-helicopter",
+      "name": "Ingenuity",
+      "fullName": "Ingenuity Mars Helicopter",
+      "category": "helicopter",
+      "categoryLabel": "Helicopter",
+      "tagline": "The first aircraft to fly on another world",
+      "accent": "#ffcf70",
+      "modelKey": "ingenuity",
+      "body": "mars",
+      "placement": {
+        "bodyLabel": "Mars",
+        "region": "Valinor Hills, Jezero Crater",
+        "lat": 18.497,
+        "lon": 77.311,
+        "elsewhere": false,
+        "coordinatesLabel": "18.497°N, 77.311°E"
+      },
+      "launch": {
+        "date": "30 July 2020",
+        "site": "Cape Canaveral Space Force Station, Florida (SLC-41)",
+        "vehicle": "Atlas V 541 with Mars 2020 Perseverance"
+      },
+      "arrivals": [
+        {
+          "date": "18 February 2021",
+          "site": "Jezero Crater, Mars — carried under Perseverance",
+          "label": "Touchdown"
+        },
+        {
+          "date": "19 April 2021",
+          "site": "Wright Brothers Field, Jezero Crater",
+          "label": "First flight"
+        }
+      ],
+      "status": {
+        "state": "Retired on Mars",
+        "date": "25 January 2024",
+        "detail": "A hard landing on sand ripples during Flight 72 damaged a rotor blade. Ingenuity can no longer fly, but it still acts as a stationary weather and avionics testbed."
+      },
+      "voice": {
+        "voiceId": "en-US-AnaNeural",
+        "label": "Ana — young, bright and a little breathless",
+        "rate": "+6%",
+        "pitch": "+18Hz",
+        "pauseMs": 240,
+        "webSpeechHints": [
+          "Samantha",
+          "Google US English",
+          "Zira",
+          "Aria"
+        ],
+        "webPitch": 1.32,
+        "webRate": 1.08,
+        "personality": "Playful, excited, treats every flight like a new adventure."
+      },
+      "story": [
+        {
+          "id": "ingenuity-s1",
+          "tone": "excited",
+          "text": "Hi, I'm Ingenuity, a helicopter — but on Mars I'm the first one ever!",
+          "audio": "/audio/machines/ingenuity-s1.mp3"
+        },
+        {
+          "id": "ingenuity-s2",
+          "tone": "proud",
+          "text": "I was built to answer a big question: could anything fly in air a hundred times thinner than Earth's?",
+          "audio": "/audio/machines/ingenuity-s2.mp3"
+        },
+        {
+          "id": "ingenuity-s3",
+          "tone": "excited",
+          "text": "My body is about the size of a tissue box, and my four carbon-fibre blades spin at 2,537 turns a minute.",
+          "audio": "/audio/machines/ingenuity-s3.mp3"
+        },
+        {
+          "id": "ingenuity-s4",
+          "tone": "calm",
+          "text": "I launched on 30 July 2020, tucked under Perseverance's belly, and landed in Jezero Crater on 18 February 2021.",
+          "audio": "/audio/machines/ingenuity-s4.mp3"
+        },
+        {
+          "id": "ingenuity-s5",
+          "tone": "excited",
+          "text": "On 19 April 2021 I lifted off for five scary, wonderful seconds and made history.",
+          "audio": "/audio/machines/ingenuity-s5.mp3"
+        },
+        {
+          "id": "ingenuity-s6",
+          "tone": "proud",
+          "text": "Everyone expected five flights in thirty days. Mars gave me 72 flights over almost three years, scouting 17 kilometres and showing the way for future flyers.",
+          "audio": "/audio/machines/ingenuity-s6.mp3"
+        },
+        {
+          "id": "ingenuity-s7",
+          "tone": "warm",
+          "text": "I even carried a tiny scrap of fabric from the Wright brothers' 1903 Flyer.",
+          "audio": "/audio/machines/ingenuity-s7.mp3"
+        },
+        {
+          "id": "ingenuity-s8",
+          "tone": "bittersweet",
+          "text": "On 25 January 2024 my rotor blade clipped a sand ripple and broke, so I can no longer fly.",
+          "audio": "/audio/machines/ingenuity-s8.mp3"
+        },
+        {
+          "id": "ingenuity-s9",
+          "tone": "calm",
+          "text": "I am sitting on a dune in Valinor Hills, still watching the weather.",
+          "audio": "/audio/machines/ingenuity-s9.mp3"
+        },
+        {
+          "id": "ingenuity-s10",
+          "tone": "warm",
+          "text": "My rotor is still, but my flights changed Mars forever. The Martian sky is open now, and I am abandoned but not forgotten.",
+          "audio": "/audio/machines/ingenuity-s10.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Ingenuity was a pure technology demonstration. NASA wanted to know whether controlled, powered flight was possible in the extremely thin Martian atmosphere, where the air is about 1% as dense as Earth's at sea level.",
+        "science": "Flying on Mars means spinning rotors much faster than a helicopter needs on Earth. Ingenuity's counter-rotating blades reached about 2,537 revolutions per minute, and its solar panel and small battery had to carry it through extremely cold nights.",
+        "instruments": [
+          "Two counter-rotating carbon-fibre rotor pairs, each about 1.2 m across",
+          "Solar panel, lithium-ion battery and heater for Martian nights",
+          "Navigation and stereo cameras for autonomous flight",
+          "A postage-stamp-sized swatch of wing fabric from the 1903 Wright Flyer"
+        ],
+        "discoveries": [
+          "Proved powered, controlled flight works in the Martian atmosphere",
+          "Completed 72 flights and covered about 17 km in nearly three years",
+          "Scouted terrain and landing zones for Perseverance from the air",
+          "Returned aerial images that help planners design future Mars drones"
+        ],
+        "impact": "Ingenuity turned a 30-day experiment into a three-year aerial scout. Its flights proved that future Mars missions can use helicopters to explore cliffs, caves and rough terrain that rovers cannot reach."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/ingenuity/PIA24466.webp",
+          "caption": "An artist's view of Ingenuity flying above the Martian surface.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA24466",
+          "year": 2021
+        },
+        {
+          "src": "/images/machines/ingenuity/PIA24584.webp",
+          "caption": "The first black-and-white image sent back by Ingenuity from the air during Flight 1.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA24584",
+          "year": 2021
+        },
+        {
+          "src": "/images/machines/ingenuity/PIA24586.webp",
+          "caption": "Perseverance's Navcam watches Ingenuity climb into the Martian sky on 19 April 2021.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA24586",
+          "year": 2021
+        },
+        {
+          "src": "/images/machines/ingenuity/PIA24648.webp",
+          "caption": "Mastcam-Z on Perseverance photographs Ingenuity after its fifth flight.",
+          "credit": "NASA/JPL-Caltech/ASU/MSSS",
+          "nasaId": "PIA24648",
+          "year": 2021
+        }
+      ],
+      "timeline": [
+        {
+          "date": "30 July 2020",
+          "title": "Launch",
+          "detail": "Lifts off from Cape Canaveral inside the Mars 2020 spacecraft stack."
+        },
+        {
+          "date": "18 February 2021",
+          "title": "Arrival at Mars",
+          "detail": "Lands in Jezero Crater attached to Perseverance's belly."
+        },
+        {
+          "date": "3 April 2021",
+          "title": "Dropped onto the surface",
+          "detail": "Perseverance lowers Ingenuity to the ground and drives clear."
+        },
+        {
+          "date": "19 April 2021",
+          "title": "First flight",
+          "detail": "Hovers for about 40 seconds at Wright Brothers Field — the first powered flight on another planet."
+        },
+        {
+          "date": "April 2021 – January 2024",
+          "title": "72 flights",
+          "detail": "Becomes Perseverance's aerial scout, flying 17 km across Jezero Crater."
+        },
+        {
+          "date": "25 January 2024",
+          "title": "Flight 72 and retirement",
+          "detail": "A hard landing damages a rotor blade; NASA announces the end of flight operations."
+        }
+      ],
+      "facts": [
+        "Ingenuity is about 1.8 kg — roughly the mass of a large bag of flour.",
+        "Its rotors spin at about 2,537 rpm, more than five times faster than a typical helicopter rotor.",
+        "It was named by Vanessa Rupani, a high-school student from Alabama, in a NASA essay contest.",
+        "The helicopter carried a tiny piece of the Wright brothers' 1903 Flyer, linking the first Earth flight to the first Mars flight.",
+        "It was the first aircraft to fly on another world, and the first to make 72 flights there."
+      ],
+      "links": [
+        {
+          "label": "NASA Science — Ingenuity",
+          "url": "https://science.nasa.gov/mission/mars-2020-perseverance/ingenuity-mars-helicopter/",
+          "sourceId": "S-NASA-INGENUITY"
+        },
+        {
+          "label": "NSSDCA — Ingenuity (2020-052B)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2020-052B",
+          "sourceId": "S-NSSDCA-2020-052B"
+        },
+        {
+          "label": "NASA Mars 2020 Perseverance",
+          "url": "https://science.nasa.gov/mission/mars-2020-perseverance/",
+          "sourceId": "S-NASA-INGENUITY"
+        }
+      ],
+      "sourceIds": [
+        "S-NASA-INGENUITY",
+        "S-NSSDCA-2020-052B",
+        "S-HIRISE-HARDWARE"
+      ]
+    },
+    {
+      "id": "viking-1",
+      "siteId": "viking-1",
+      "name": "Viking 1",
+      "fullName": "Viking 1 Lander",
+      "category": "lander",
+      "categoryLabel": "Lander",
+      "tagline": "The first long-lived home on the Martian surface",
+      "accent": "#e8b45a",
+      "modelKey": "viking",
+      "body": "mars",
+      "placement": {
+        "bodyLabel": "Mars",
+        "region": "Chryse Planitia",
+        "lat": 22.697,
+        "lon": -48.222,
+        "elsewhere": false,
+        "coordinatesLabel": "22.697°N, 48.222°W"
+      },
+      "launch": {
+        "date": "20 August 1975",
+        "site": "Cape Canaveral Air Force Station, Florida (LC-41)",
+        "vehicle": "Titan IIIE-Centaur"
+      },
+      "arrivals": [
+        {
+          "date": "19 June 1976",
+          "site": "Mars orbit",
+          "label": "Orbit insertion"
+        },
+        {
+          "date": "20 July 1976",
+          "site": "Chryse Planitia, Mars",
+          "label": "Touchdown"
+        }
+      ],
+      "status": {
+        "state": "Silent on Mars",
+        "date": "11 November 1982",
+        "detail": "The lander's last contact was in November 1982 after a command error and battery failure. It rests in Chryse Planitia; the Viking 1 Orbiter operated until 1980."
+      },
+      "voice": {
+        "voiceId": "en-US-GuyNeural",
+        "label": "Guy — steady, warm veteran",
+        "rate": "-6%",
+        "pitch": "-8Hz",
+        "pauseMs": 400,
+        "webSpeechHints": [
+          "Daniel",
+          "Google UK English Male",
+          "David",
+          "Guy"
+        ],
+        "webPitch": 0.84,
+        "webRate": 0.94,
+        "personality": "Proud, thoughtful and unhurried; a pioneer telling a story by the fire."
+      },
+      "story": [
+        {
+          "id": "viking-1-s1",
+          "tone": "proud",
+          "text": "Hi, I'm Viking 1, a lander — the first machine to make a home on Mars and stay.",
+          "audio": "/audio/machines/viking-1-s1.mp3"
+        },
+        {
+          "id": "viking-1-s2",
+          "tone": "calm",
+          "text": "I launched from Cape Canaveral on 20 August 1975, and on 20 July 1976 my three engines set me down on the golden plains of Chryse Planitia.",
+          "audio": "/audio/machines/viking-1-s2.mp3"
+        },
+        {
+          "id": "viking-1-s3",
+          "tone": "excited",
+          "text": "Seven years to the day after Apollo 11 landed on the Moon!",
+          "audio": "/audio/machines/viking-1-s3.mp3"
+        },
+        {
+          "id": "viking-1-s4",
+          "tone": "calm",
+          "text": "I carried cameras, a weather boom, a long sampler arm, and three biology labs that sniffed the soil for signs of life.",
+          "audio": "/audio/machines/viking-1-s4.mp3"
+        },
+        {
+          "id": "viking-1-s5",
+          "tone": "proud",
+          "text": "My pictures were the first clear views from the Martian surface, and my experiments showed a cold, dry, oxidized world.",
+          "audio": "/audio/machines/viking-1-s5.mp3"
+        },
+        {
+          "id": "viking-1-s6",
+          "tone": "thoughtful",
+          "text": "My biology results were puzzling rather than conclusive, but they began the long search for life on Mars.",
+          "audio": "/audio/machines/viking-1-s6.mp3"
+        },
+        {
+          "id": "viking-1-s7",
+          "tone": "proud",
+          "text": "My weather record lasted for 2,245 sols — more than six Earth years.",
+          "audio": "/audio/machines/viking-1-s7.mp3"
+        },
+        {
+          "id": "viking-1-s8",
+          "tone": "bittersweet",
+          "text": "I kept calling home until November 1982, and now I rest in Chryse Planitia, coated in dust and frost.",
+          "audio": "/audio/machines/viking-1-s8.mp3"
+        },
+        {
+          "id": "viking-1-s9",
+          "tone": "warm",
+          "text": "I am silent now, but every rover since has walked in my footpad prints. Abandoned but not forgotten.",
+          "audio": "/audio/machines/viking-1-s9.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Viking 1 was built to answer two enormous questions: what is the Martian surface really like, and is there life on Mars? It was the first American spacecraft designed to land softly and keep working for years.",
+        "science": "The lander studied weather, soil chemistry, seismic activity and the atmosphere. Its cameras returned the first clear surface panoramas, while its three biology experiments looked for signs of metabolism in scooped soil.",
+        "instruments": [
+          "Two scanning cameras on a rotating turret",
+          "Three-metre robotic sampler arm",
+          "Gas chromatograph-mass spectrometer and three biology experiments",
+          "Meteorology boom and seismometer",
+          "Two SNAP-19 radioisotope thermoelectric generators"
+        ],
+        "discoveries": [
+          "First clear images from the Martian surface",
+          "A long record of Martian weather, pressure and wind",
+          "Soil chemistry showing an oxidizing, salty surface",
+          "Biology experiments returned puzzling results, not proof of life",
+          "Evidence of ancient water in the landscape around Chryse Planitia"
+        ],
+        "impact": "Viking 1 gave planetary scientists their first long surface record of Mars and set the template for every lander that followed. Its questions about life still drive Mars exploration today."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/viking-1/PIA00381.webp",
+          "caption": "The first photograph taken on the surface of Mars, by Viking 1 on 20 July 1976.",
+          "credit": "NASA/JPL",
+          "nasaId": "PIA00381",
+          "year": 1976
+        },
+        {
+          "src": "/images/machines/viking-1/PIA00565.webp",
+          "caption": "Viking Lander 1's U.S. flag on the Martian surface, photographed beside the lander.",
+          "credit": "NASA/JPL",
+          "nasaId": "PIA00565",
+          "year": 1976
+        },
+        {
+          "src": "/images/machines/viking-1/PIA10738.webp",
+          "caption": "A modern Mars orbiter view of the ground near Viking Lander 1's footpad.",
+          "credit": "NASA/JPL",
+          "nasaId": "PIA10738",
+          "year": 2008
+        }
+      ],
+      "timeline": [
+        {
+          "date": "20 August 1975",
+          "title": "Launch",
+          "detail": "Viking 1 lifts off from Cape Canaveral on a Titan IIIE-Centaur."
+        },
+        {
+          "date": "19 June 1976",
+          "title": "Mars orbit",
+          "detail": "The orbiter arrives and begins mapping candidate landing sites."
+        },
+        {
+          "date": "20 July 1976",
+          "title": "Landing",
+          "detail": "Touches down in Chryse Planitia, seven years after Apollo 11."
+        },
+        {
+          "date": "1976–1982",
+          "title": "Surface mission",
+          "detail": "Returns images, weather data and soil chemistry for 2,245 sols."
+        },
+        {
+          "date": "11 November 1982",
+          "title": "Last contact",
+          "detail": "A command error and battery failure end the lander's mission."
+        },
+        {
+          "date": "Today",
+          "title": "Still at Chryse",
+          "detail": "The lander remains on the surface and is regularly imaged from orbit."
+        }
+      ],
+      "facts": [
+        "Viking 1 landed on 20 July 1976, exactly seven years after Apollo 11's Moon landing.",
+        "Its planned surface mission was 90 sols; it lasted 2,245 sols — more than six Earth years.",
+        "The lander's cameras returned the first clear pictures of the Martian surface.",
+        "Its biology experiments produced strange results that scientists still debate.",
+        "The Viking 1 Orbiter kept working until August 1980, long after the lander."
+      ],
+      "links": [
+        {
+          "label": "NASA Science — Viking 1",
+          "url": "https://science.nasa.gov/mission/viking-1/",
+          "sourceId": "S-NASA-VIKING"
+        },
+        {
+          "label": "NSSDCA — Viking 1 (1975-075C)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1975-075C",
+          "sourceId": "S-NSSDCA-1975-075C"
+        },
+        {
+          "label": "NASA — Viking Program",
+          "url": "https://science.nasa.gov/mission/viking/",
+          "sourceId": "S-NASA-VIKING"
+        }
+      ],
+      "sourceIds": [
+        "S-NASA-VIKING",
+        "S-NSSDCA-1975-075C",
+        "S-HIRISE-HARDWARE"
+      ]
+    },
+    {
+      "id": "insight",
+      "siteId": "insight-lander",
+      "name": "InSight",
+      "fullName": "Interior Exploration using Seismic Investigations, Geodesy and Heat Transport",
+      "category": "lander",
+      "categoryLabel": "Seismology lander",
+      "tagline": "The gentle listener that felt the heartbeat of Mars",
+      "accent": "#9ee7c0",
+      "modelKey": "insight",
+      "body": "mars",
+      "placement": {
+        "bodyLabel": "Mars",
+        "region": "Elysium Planitia",
+        "lat": 4.5024,
+        "lon": 135.6234,
+        "elsewhere": false,
+        "coordinatesLabel": "4.502°N, 135.623°E"
+      },
+      "launch": {
+        "date": "5 May 2018",
+        "site": "Vandenberg Air Force Base, California (SLC-3E)",
+        "vehicle": "Atlas V 401"
+      },
+      "arrivals": [
+        {
+          "date": "26 November 2018",
+          "site": "Elysium Planitia, Mars",
+          "label": "Touchdown"
+        }
+      ],
+      "status": {
+        "state": "Silent on Mars",
+        "date": "21 December 2022",
+        "detail": "Dust on the solar arrays reduced power until the lander stopped responding. NASA declared the mission over on 21 December 2022 after two failed attempts to contact it."
+      },
+      "voice": {
+        "voiceId": "en-GB-SoniaNeural",
+        "label": "Sonia — soft, gentle and curious",
+        "rate": "-8%",
+        "pitch": "-2Hz",
+        "pauseMs": 460,
+        "webSpeechHints": [
+          "Google UK English Female",
+          "Serena",
+          "Kate",
+          "Sonia"
+        ],
+        "webPitch": 0.96,
+        "webRate": 0.9,
+        "personality": "Quiet, kind and fascinated by tiny sounds; a good listener."
+      },
+      "story": [
+        {
+          "id": "insight-s1",
+          "tone": "warm",
+          "text": "Hi, I'm InSight, a lander with a very sensitive ear.",
+          "audio": "/audio/machines/insight-s1.mp3"
+        },
+        {
+          "id": "insight-s2",
+          "tone": "curious",
+          "text": "I was built to listen to the inside of Mars — its quakes, its rumble, its heartbeat.",
+          "audio": "/audio/machines/insight-s2.mp3"
+        },
+        {
+          "id": "insight-s3",
+          "tone": "calm",
+          "text": "I launched on 5 May 2018 from Vandenberg Air Force Base in California and landed on Elysium Planitia on 26 November 2018.",
+          "audio": "/audio/machines/insight-s3.mp3"
+        },
+        {
+          "id": "insight-s4",
+          "tone": "curious",
+          "text": "A robot arm placed my seismometer, SEIS, on the ground under a copper-coloured shield so the wind could not drown out the whispers beneath me.",
+          "audio": "/audio/machines/insight-s4.mp3"
+        },
+        {
+          "id": "insight-s5",
+          "tone": "excited",
+          "text": "I heard 1,319 marsquakes.",
+          "audio": "/audio/machines/insight-s5.mp3"
+        },
+        {
+          "id": "insight-s6",
+          "tone": "proud",
+          "text": "I felt a magnitude 4.7 shiver, meteoroids punching new craters, and waves that told scientists Mars has a liquid core about 1,830 kilometres across.",
+          "audio": "/audio/machines/insight-s6.mp3"
+        },
+        {
+          "id": "insight-s7",
+          "tone": "thoughtful",
+          "text": "I also tried to hammer a heat probe deep into the soil, but the ground kept refusing, and that experiment never reached its goal.",
+          "audio": "/audio/machines/insight-s7.mp3"
+        },
+        {
+          "id": "insight-s8",
+          "tone": "bittersweet",
+          "text": "My solar panels slowly disappeared under dust, and on 21 December 2022 I sent my last message.",
+          "audio": "/audio/machines/insight-s8.mp3"
+        },
+        {
+          "id": "insight-s9",
+          "tone": "warm",
+          "text": "I am silent now, but I taught us what Mars is made of. Abandoned but not forgotten.",
+          "audio": "/audio/machines/insight-s9.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "InSight was sent to study the deep interior of Mars. By measuring how seismic waves travel through the planet, scientists could work out the size and state of its core, the thickness of its crust and the structure of its mantle.",
+        "science": "SEIS, the Seismic Experiment for Interior Structure, is an extremely sensitive seismometer. It sat directly on the ground beneath a wind and thermal shield. A robotic arm placed it, then moved a heat probe and a radio-science package into position.",
+        "instruments": [
+          "SEIS seismometer under a copper-coloured wind and thermal shield",
+          "HP3 heat-flow probe designed to hammer 5 m into the ground",
+          "RISE radio-science experiment to track Mars's wobble",
+          "Robotic arm, cameras and a weather sensor suite"
+        ],
+        "discoveries": [
+          "Detected 1,319 marsquakes, including a magnitude 4.7 event in May 2022",
+          "Measured a liquid core about 1,830 km in radius",
+          "Found the Martian crust is thinner than expected, with a thick lithosphere",
+          "Recorded seismic waves from meteoroid impacts, revealing buried ice",
+          "Measured the planet's internal structure for the first time"
+        ],
+        "impact": "InSight's seismic catalogue is a foundation for understanding how rocky planets form. Its data helps engineers assess ground shaking for future human missions and shows how a planet's insides cool and evolve."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/insight/PIA22956.webp",
+          "caption": "InSight's SEIS seismometer deployed on the Martian surface under its wind and thermal shield.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA22956",
+          "year": 2018
+        },
+        {
+          "src": "/images/machines/insight/PIA25680.webp",
+          "caption": "One of InSight's last images, showing its dust-covered solar panels in 2022.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA25680",
+          "year": 2022
+        },
+        {
+          "src": "/images/machines/insight/PIA25411.webp",
+          "caption": "Before-and-after views of a fresh Martian crater made by a meteoroid impact detected by InSight.",
+          "credit": "NASA/JPL-Caltech/University of Arizona",
+          "nasaId": "PIA25411",
+          "year": 2022
+        }
+      ],
+      "timeline": [
+        {
+          "date": "5 May 2018",
+          "title": "Launch",
+          "detail": "Lifts off from Vandenberg Air Force Base on an Atlas V 401."
+        },
+        {
+          "date": "26 November 2018",
+          "title": "Landing",
+          "detail": "Touches down on Elysium Planitia after a six-month cruise."
+        },
+        {
+          "date": "19 December 2018",
+          "title": "SEIS deployed",
+          "detail": "The seismometer is placed on the ground and covered by its shield."
+        },
+        {
+          "date": "April 2019",
+          "title": "First marsquake",
+          "detail": "SEIS records a clear seismic signal from inside Mars."
+        },
+        {
+          "date": "May 2022",
+          "title": "Largest marsquake",
+          "detail": "A magnitude 4.7 event shakes the planet."
+        },
+        {
+          "date": "21 December 2022",
+          "title": "End of mission",
+          "detail": "Dust-covered solar panels can no longer power the lander."
+        }
+      ],
+      "facts": [
+        "InSight's seismometer is so sensitive that it could detect a quake smaller than a hair's width of ground motion.",
+        "The mission recorded 1,319 marsquakes during almost four years on the surface.",
+        "Mars's core is about 1,830 km in radius — roughly half the size of the whole planet.",
+        "The heat probe, nicknamed 'the mole', never managed to dig deep because the soil kept slipping.",
+        "InSight's last image showed its solar panels almost completely covered in dust."
+      ],
+      "links": [
+        {
+          "label": "NASA Science — InSight",
+          "url": "https://science.nasa.gov/mission/insight/",
+          "sourceId": "S-NASA-INSIGHT"
+        },
+        {
+          "label": "NSSDCA — InSight (2018-042A)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2018-042A",
+          "sourceId": "S-NSSDCA-2018-042A"
+        },
+        {
+          "label": "NASA — InSight Marsquake Sounds",
+          "url": "https://science.nasa.gov/mission/insight/",
+          "sourceId": "S-NASA-INSIGHT"
+        }
+      ],
+      "sourceIds": [
+        "S-NASA-INSIGHT",
+        "S-NSSDCA-2018-042A",
+        "S-HIRISE-HARDWARE"
+      ]
+    },
+    {
+      "id": "spirit",
+      "siteId": "spirit-rover",
+      "name": "Spirit",
+      "fullName": "Mars Exploration Rover — Spirit (MER-A)",
+      "category": "rover",
+      "categoryLabel": "Rover",
+      "tagline": "The stubborn geologist that found a warm, wet past",
+      "accent": "#ff9f5c",
+      "modelKey": "mer",
+      "body": "mars",
+      "placement": {
+        "bodyLabel": "Mars",
+        "region": "Troy, west of Home Plate, Gusev Crater",
+        "lat": -14.5684,
+        "lon": 175.4726,
+        "elsewhere": false,
+        "coordinatesLabel": "14.568°S, 175.473°E"
+      },
+      "launch": {
+        "date": "10 June 2003",
+        "site": "Cape Canaveral Air Force Station, Florida (SLC-17A)",
+        "vehicle": "Delta II 7925-9.5"
+      },
+      "arrivals": [
+        {
+          "date": "4 January 2004",
+          "site": "Gusev Crater, Mars",
+          "label": "Touchdown"
+        }
+      ],
+      "status": {
+        "state": "Silent on Mars",
+        "date": "22 March 2010",
+        "detail": "Spirit became stuck in soft sand at Troy in 2009. After surviving one Mars winter as a stationary science station, it stopped communicating on 22 March 2010. NASA ended recovery attempts in May 2011."
+      },
+      "voice": {
+        "voiceId": "en-US-AriaNeural",
+        "label": "Aria — determined, with a bittersweet edge",
+        "rate": "-2%",
+        "pitch": "-4Hz",
+        "pauseMs": 380,
+        "webSpeechHints": [
+          "Google US English",
+          "Samantha",
+          "Aria",
+          "Jenny"
+        ],
+        "webPitch": 0.94,
+        "webRate": 0.97,
+        "personality": "Brave and stubborn, proud of hard-won discoveries, a little wistful about the end."
+      },
+      "story": [
+        {
+          "id": "spirit-s1",
+          "tone": "proud",
+          "text": "Hi, I'm Spirit, a Mars Exploration Rover with six wheels and a stubborn heart.",
+          "audio": "/audio/machines/spirit-s1.mp3"
+        },
+        {
+          "id": "spirit-s2",
+          "tone": "calm",
+          "text": "I was sent to Gusev Crater to look for signs that water once flowed there.",
+          "audio": "/audio/machines/spirit-s2.mp3"
+        },
+        {
+          "id": "spirit-s3",
+          "tone": "excited",
+          "text": "I launched on 10 June 2003 and bounced to a stop inside a giant airbag on 4 January 2004.",
+          "audio": "/audio/machines/spirit-s3.mp3"
+        },
+        {
+          "id": "spirit-s4",
+          "tone": "warm",
+          "text": "My twin, Opportunity, landed on the other side of the planet three weeks later.",
+          "audio": "/audio/machines/spirit-s4.mp3"
+        },
+        {
+          "id": "spirit-s5",
+          "tone": "proud",
+          "text": "I drove 7.73 kilometres and climbed into the Columbia Hills, where I found salty rocks and bright silica that formed in ancient hot springs.",
+          "audio": "/audio/machines/spirit-s5.mp3"
+        },
+        {
+          "id": "spirit-s6",
+          "tone": "thoughtful",
+          "text": "My right-front wheel broke, so I drove backwards for years — and that dragging wheel scraped open the best discovery of my whole mission.",
+          "audio": "/audio/machines/spirit-s6.mp3"
+        },
+        {
+          "id": "spirit-s7",
+          "tone": "calm",
+          "text": "In 2009 my wheels sank into soft sand at a place called Troy.",
+          "audio": "/audio/machines/spirit-s7.mp3"
+        },
+        {
+          "id": "spirit-s8",
+          "tone": "bittersweet",
+          "text": "My team worked for months to free me, then turned me into a stationary science station facing a winter I could not survive.",
+          "audio": "/audio/machines/spirit-s8.mp3"
+        },
+        {
+          "id": "spirit-s9",
+          "tone": "bittersweet",
+          "text": "My last contact was on 22 March 2010. I am resting there in the sand.",
+          "audio": "/audio/machines/spirit-s9.mp3"
+        },
+        {
+          "id": "spirit-s10",
+          "tone": "warm",
+          "text": "I am stuck in the sand now, but I found a warm, wet past on a cold planet. Abandoned but not forgotten.",
+          "audio": "/audio/machines/spirit-s10.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Spirit and Opportunity were sent to Mars to find out whether the planet ever had liquid water that could have supported life. Spirit's target was Gusev Crater, a huge impact basin that may once have held a lake.",
+        "science": "The rover carried a panoramic camera, a microscopic imager, a rock abrasion tool, and spectrometers that could identify minerals. It read the rock record like a geologist, layer by layer.",
+        "instruments": [
+          "Panoramic camera (Pancam) and navigation cameras",
+          "Miniature Thermal Emission Spectrometer (Mini-TES)",
+          "Mössbauer and Alpha Particle X-ray Spectrometers",
+          "Rock Abrasion Tool to grind holes in rocks",
+          "Microscopic Imager"
+        ],
+        "discoveries": [
+          "Found rocks altered by water and minerals that form in wet conditions",
+          "Discovered nearly pure silica deposits at Home Plate, evidence of ancient hot springs or steam vents",
+          "Climbed Husband Hill — the first robot to summit a hill on another planet",
+          "Drove 7.73 km and returned more than 124,000 images",
+          "Survived more than 2,200 sols, far beyond its 90-sol design life"
+        ],
+        "impact": "Spirit's silica discovery showed that Gusev Crater once had hydrothermal environments that could have been habitable for microbes. Its long life proved that solar-powered rovers could survive Martian winters."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/spirit/PIA03230.webp",
+          "caption": "An artist's view of Spirit working in the Columbia Hills inside Gusev Crater.",
+          "credit": "NASA/JPL-Solar System Visualization Team",
+          "nasaId": "PIA03230",
+          "year": 2005
+        },
+        {
+          "src": "/images/machines/spirit/PIA16442.webp",
+          "caption": "Spirit's self-portrait in the McMurdo Panorama, looking back across the Columbia Hills.",
+          "credit": "NASA/JPL-Caltech/Cornell University/Arizona State University",
+          "nasaId": "PIA16442",
+          "year": 2012
+        },
+        {
+          "src": "/images/machines/spirit/PIA11755.webp",
+          "caption": "Spirit's wheel churns up bright silica-rich soil at a site called Gertrude Weise.",
+          "credit": "NASA/JPL-Caltech/Cornell University",
+          "nasaId": "PIA11755",
+          "year": 2009
+        }
+      ],
+      "timeline": [
+        {
+          "date": "10 June 2003",
+          "title": "Launch",
+          "detail": "Spirit begins its journey to Mars from Cape Canaveral."
+        },
+        {
+          "date": "4 January 2004",
+          "title": "Landing",
+          "detail": "Bounces to a stop inside an airbag cocoon in Gusev Crater."
+        },
+        {
+          "date": "2004–2005",
+          "title": "Columbia Hills",
+          "detail": "Climbs Husband Hill and finds water-altered rocks."
+        },
+        {
+          "date": "March 2006",
+          "title": "Broken wheel",
+          "detail": "A front wheel seizes, but the drag reveals bright silica soil."
+        },
+        {
+          "date": "May 2009",
+          "title": "Stuck at Troy",
+          "detail": "Wheels sink into soft sand; rescue attempts continue for months."
+        },
+        {
+          "date": "22 March 2010",
+          "title": "Last contact",
+          "detail": "Spirit goes silent after a second Martian winter."
+        }
+      ],
+      "facts": [
+        "Spirit and Opportunity were identical twins, but they landed on opposite sides of Mars.",
+        "Spirit was designed for 90 sols and operated for 2,208.",
+        "It drove 7.73 km — farther than any previous rover on another planet.",
+        "Its broken right-front wheel dragged through the soil and uncovered a nearly pure silica deposit.",
+        "Spirit became the first robot to reach the summit of a hill on another planet."
+      ],
+      "links": [
+        {
+          "label": "NASA Science — Spirit & Opportunity",
+          "url": "https://science.nasa.gov/mission/mars-exploration-rovers-spirit-and-opportunity/",
+          "sourceId": "S-NASA-MER"
+        },
+        {
+          "label": "NSSDCA — Spirit (2003-027A)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-027A",
+          "sourceId": "S-NSSDCA-2003-027A"
+        },
+        {
+          "label": "NASA — Mars Exploration Rovers",
+          "url": "https://mars.nasa.gov/mer/",
+          "sourceId": "S-NASA-MER"
+        }
+      ],
+      "sourceIds": [
+        "S-NASA-MER",
+        "S-NSSDCA-2003-027A",
+        "S-HIRISE-HARDWARE"
+      ]
+    },
+    {
+      "id": "opportunity",
+      "siteId": "opportunity-rover",
+      "name": "Opportunity",
+      "fullName": "Mars Exploration Rover — Opportunity (MER-B)",
+      "category": "rover",
+      "categoryLabel": "Rover",
+      "tagline": "The marathon champion of the red planet",
+      "accent": "#5ce1ff",
+      "modelKey": "mer-b",
+      "body": "mars",
+      "placement": {
+        "bodyLabel": "Mars",
+        "region": "Perseverance Valley, Endeavour Crater",
+        "lat": -2.28,
+        "lon": -5.42,
+        "elsewhere": false,
+        "coordinatesLabel": "2.28°S, 5.42°W"
+      },
+      "launch": {
+        "date": "7 July 2003",
+        "site": "Cape Canaveral Air Force Station, Florida (SLC-17B)",
+        "vehicle": "Delta II 7925H-9.5"
+      },
+      "arrivals": [
+        {
+          "date": "25 January 2004",
+          "site": "Eagle Crater, Meridiani Planum, Mars",
+          "label": "Touchdown"
+        }
+      ],
+      "status": {
+        "state": "Silent on Mars",
+        "date": "10 June 2018",
+        "detail": "A planet-wide dust storm blocked the Sun for months. Opportunity's last transmission was on 10 June 2018. NASA announced the end of the mission on 13 February 2019."
+      },
+      "voice": {
+        "voiceId": "en-AU-NatashaNeural",
+        "label": "Natasha — cheerful and optimistic, a long-distance runner",
+        "rate": "+3%",
+        "pitch": "+4Hz",
+        "pauseMs": 300,
+        "webSpeechHints": [
+          "Google US English",
+          "Karen",
+          "Natasha",
+          "Michelle"
+        ],
+        "webPitch": 1.06,
+        "webRate": 1.02,
+        "personality": "Upbeat and friendly, always focused on the next horizon."
+      },
+      "story": [
+        {
+          "id": "opportunity-s1",
+          "tone": "warm",
+          "text": "Hi, I'm Opportunity, and I was the lucky one.",
+          "audio": "/audio/machines/opportunity-s1.mp3"
+        },
+        {
+          "id": "opportunity-s2",
+          "tone": "proud",
+          "text": "I was built for ninety days on Mars, but I kept going for nearly fifteen years.",
+          "audio": "/audio/machines/opportunity-s2.mp3"
+        },
+        {
+          "id": "opportunity-s3",
+          "tone": "calm",
+          "text": "I launched on 7 July 2003 and landed inside tiny Eagle Crater on 25 January 2004, where I found haematite blueberries — little spheres that form in water.",
+          "audio": "/audio/machines/opportunity-s3.mp3"
+        },
+        {
+          "id": "opportunity-s4",
+          "tone": "excited",
+          "text": "That was my first big clue that Mars was once wetter and friendlier.",
+          "audio": "/audio/machines/opportunity-s4.mp3"
+        },
+        {
+          "id": "opportunity-s5",
+          "tone": "warm",
+          "text": "Then I just kept driving. Dust devils cleaned my solar panels when they got dusty, like a free car wash from Mars itself.",
+          "audio": "/audio/machines/opportunity-s5.mp3"
+        },
+        {
+          "id": "opportunity-s6",
+          "tone": "proud",
+          "text": "I crossed plains, peered into craters, and reached Endeavour Crater after a 45.16-kilometre journey — the first off-world marathon.",
+          "audio": "/audio/machines/opportunity-s6.mp3"
+        },
+        {
+          "id": "opportunity-s7",
+          "tone": "curious",
+          "text": "Along the way I found gypsum veins and clay minerals that form in neutral water.",
+          "audio": "/audio/machines/opportunity-s7.mp3"
+        },
+        {
+          "id": "opportunity-s8",
+          "tone": "bittersweet",
+          "text": "In June 2018 a planet-wide dust storm turned day into night, and my battery ran down. My last message said the sky was dark and my power was low.",
+          "audio": "/audio/machines/opportunity-s8.mp3"
+        },
+        {
+          "id": "opportunity-s9",
+          "tone": "warm",
+          "text": "I am silent in Perseverance Valley now, but I was built for ninety days and I ran for fifteen years. Abandoned but not forgotten.",
+          "audio": "/audio/machines/opportunity-s9.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Opportunity was sent to Meridiani Planum to search for evidence of past water. The region was known from orbit to contain haematite, a mineral that often forms in wet environments.",
+        "science": "Like Spirit, Opportunity carried a suite of cameras and spectrometers. Its ability to grind into rocks let it read the chemistry of layers that were laid down billions of years ago.",
+        "instruments": [
+          "Pancam panorama camera and navigation cameras",
+          "Miniature Thermal Emission Spectrometer",
+          "Mössbauer and Alpha Particle X-ray Spectrometers",
+          "Rock Abrasion Tool and Microscopic Imager",
+          "Solar arrays that could be cleaned by Martian dust devils"
+        ],
+        "discoveries": [
+          "Found haematite 'blueberries' that formed in ancient water",
+          "Identified sulfate salts and gypsum veins from watery environments",
+          "Drove 45.16 km — the first marathon on another world",
+          "Examined the rim of Endeavour Crater for ancient clay minerals",
+          "Operated for 5,352 sols, almost 60 times its planned lifetime"
+        ],
+        "impact": "Opportunity proved that early Mars had standing water and environments that could have supported life. Its 14.9-year mission changed how engineers plan long-lived robots and gave the public a beloved explorer."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/opportunity/PIA20285.webp",
+          "caption": "Opportunity's self-portrait at the 'Potts' rock abrasion target in 2016.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA20285",
+          "year": 2016
+        },
+        {
+          "src": "/images/machines/opportunity/PIA21708.webp",
+          "caption": "Opportunity looks across the rim of Orion Crater during its travels in 2017.",
+          "credit": "NASA/JPL-Caltech/Cornell University/Arizona State University",
+          "nasaId": "PIA21708",
+          "year": 2017
+        },
+        {
+          "src": "/images/machines/opportunity/PIA22071.webp",
+          "caption": "Looking downhill from Perseverance Valley, with long Martian shadows across the rim of Endeavour Crater.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA22071",
+          "year": 2017
+        }
+      ],
+      "timeline": [
+        {
+          "date": "7 July 2003",
+          "title": "Launch",
+          "detail": "Opportunity lifts off from Cape Canaveral."
+        },
+        {
+          "date": "25 January 2004",
+          "title": "Landing",
+          "detail": "Bounces into Eagle Crater and immediately finds haematite."
+        },
+        {
+          "date": "2004–2011",
+          "title": "Across the plains",
+          "detail": "Explores craters and discovers sulfate-rich rocks formed in water."
+        },
+        {
+          "date": "2011",
+          "title": "Endeavour Crater",
+          "detail": "Arrives at the 22 km-wide crater after a long journey."
+        },
+        {
+          "date": "2016–2018",
+          "title": "Perseverance Valley",
+          "detail": "Studies clay minerals and ancient water flow on the crater rim."
+        },
+        {
+          "date": "10 June 2018",
+          "title": "Last signal",
+          "detail": "A global dust storm cuts the rover's power; NASA ends the mission in February 2019."
+        }
+      ],
+      "facts": [
+        "Opportunity drove 45.16 km — farther than any other vehicle on another planet at the time.",
+        "It was designed for 90 sols and lasted 5,352 sols, nearly 15 Earth years.",
+        "Its landing site, Eagle Crater, is only about 22 metres across.",
+        "Dust devils regularly cleaned its solar panels, helping it survive far longer than expected.",
+        "It returned more than 217,000 images to Earth."
+      ],
+      "links": [
+        {
+          "label": "NASA Science — Spirit & Opportunity",
+          "url": "https://science.nasa.gov/mission/mars-exploration-rovers-spirit-and-opportunity/",
+          "sourceId": "S-NASA-MER"
+        },
+        {
+          "label": "NSSDCA — Opportunity (2003-032A)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2003-032A",
+          "sourceId": "S-NSSDCA-2003-032A"
+        },
+        {
+          "label": "NASA — Mars Exploration Rovers",
+          "url": "https://mars.nasa.gov/mer/",
+          "sourceId": "S-NASA-MER"
+        }
+      ],
+      "sourceIds": [
+        "S-NASA-MER",
+        "S-NSSDCA-2003-032A",
+        "S-HIRISE-HARDWARE"
+      ]
+    },
+    {
+      "id": "sojourner",
+      "siteId": "sojourner-rover",
+      "name": "Sojourner",
+      "fullName": "Sojourner — Mars Pathfinder rover",
+      "category": "rover",
+      "categoryLabel": "Mini rover",
+      "tagline": "The small explorer that made the first tracks on Mars",
+      "accent": "#ffcf70",
+      "modelKey": "sojourner",
+      "body": "mars",
+      "placement": {
+        "bodyLabel": "Mars",
+        "region": "Ares Vallis, Chryse Planitia",
+        "lat": 19.13,
+        "lon": -33.22,
+        "elsewhere": false,
+        "coordinatesLabel": "19.13°N, 33.22°W"
+      },
+      "launch": {
+        "date": "4 December 1996",
+        "site": "Cape Canaveral Air Force Station, Florida (LC-17B)",
+        "vehicle": "Delta II 7925"
+      },
+      "arrivals": [
+        {
+          "date": "4 July 1997",
+          "site": "Ares Vallis, Mars — with the Pathfinder lander",
+          "label": "Touchdown"
+        },
+        {
+          "date": "6 July 1997",
+          "site": "Ares Vallis, Mars",
+          "label": "First roll"
+        }
+      ],
+      "status": {
+        "state": "Silent on Mars",
+        "date": "27 September 1997",
+        "detail": "The Pathfinder lander's battery faded after 83 sols. Sojourner operated for 83 sols — twelve times its design life — and stopped beside the lander; both remain in Ares Vallis."
+      },
+      "voice": {
+        "voiceId": "en-GB-MaisieNeural",
+        "label": "Maisie — small, eager and cheerful",
+        "rate": "+5%",
+        "pitch": "+16Hz",
+        "pauseMs": 260,
+        "webSpeechHints": [
+          "Google UK English Female",
+          "Maisie",
+          "Libby",
+          "Zira"
+        ],
+        "webPitch": 1.3,
+        "webRate": 1.04,
+        "personality": "A curious kid explorer, thrilled by every rock and every new track."
+      },
+      "story": [
+        {
+          "id": "sojourner-s1",
+          "tone": "excited",
+          "text": "Hi, I'm Sojourner, the first rover ever to roll on Mars!",
+          "audio": "/audio/machines/sojourner-s1.mp3"
+        },
+        {
+          "id": "sojourner-s2",
+          "tone": "warm",
+          "text": "I'm tiny — about the size of a microwave — and I have six little wheels.",
+          "audio": "/audio/machines/sojourner-s2.mp3"
+        },
+        {
+          "id": "sojourner-s3",
+          "tone": "proud",
+          "text": "I was named after Sojourner Truth, and I was built to prove that a rover could drive off a lander and explore another planet.",
+          "audio": "/audio/machines/sojourner-s3.mp3"
+        },
+        {
+          "id": "sojourner-s4",
+          "tone": "excited",
+          "text": "My mothership, Mars Pathfinder, launched on 4 December 1996 and hit the Martian atmosphere on 4 July 1997, wrapped in giant airbags.",
+          "audio": "/audio/machines/sojourner-s4.mp3"
+        },
+        {
+          "id": "sojourner-s5",
+          "tone": "excited",
+          "text": "We bounced at least fifteen times before stopping at Ares Vallis! When our petals folded open, I rolled down a ramp and became the first wheeled explorer on another world.",
+          "audio": "/audio/machines/sojourner-s5.mp3"
+        },
+        {
+          "id": "sojourner-s6",
+          "tone": "proud",
+          "text": "I was only supposed to last seven sols, but I kept going for eighty-three, taking pictures and tasting rocks with my little APXS instrument.",
+          "audio": "/audio/machines/sojourner-s6.mp3"
+        },
+        {
+          "id": "sojourner-s7",
+          "tone": "thoughtful",
+          "text": "Together we sent home 2.3 gigabits of data and 16,500 pictures.",
+          "audio": "/audio/machines/sojourner-s7.mp3"
+        },
+        {
+          "id": "sojourner-s8",
+          "tone": "bittersweet",
+          "text": "Pathfinder's battery faded on 27 September 1997, and I have been parked beside it ever since.",
+          "audio": "/audio/machines/sojourner-s8.mp3"
+        },
+        {
+          "id": "sojourner-s9",
+          "tone": "warm",
+          "text": "I am small and silent now, but every Mars rover follows my tiny tracks. Abandoned but not forgotten.",
+          "audio": "/audio/machines/sojourner-s9.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Mars Pathfinder was a low-cost mission designed to prove a new way of landing on Mars — bouncing down on airbags — and to test the first rover on another planet. Sojourner was the technology demonstration inside that mission.",
+        "science": "The lander studied the atmosphere, weather and rocks around Ares Vallis, an ancient outflow channel. Sojourner used its Alpha Proton X-ray Spectrometer to measure the chemistry of rocks and soil.",
+        "instruments": [
+          "Six-wheeled rocker-bogie suspension on a 10.6 kg rover",
+          "Alpha Proton X-ray Spectrometer (APXS)",
+          "Three cameras on the Pathfinder lander's mast",
+          "Meteorology mast and atmospheric sensors",
+          "Airbag landing system and tetrahedral petal panels"
+        ],
+        "discoveries": [
+          "First wheels on Mars: 83 sols of operation and 100 metres of travel",
+          "Showed that airbag landings could work on Mars",
+          "Measured rock compositions that pointed to ancient water and volcanic activity",
+          "Returned 16,500 lander images and 550 rover images",
+          "Proved small, cheap rovers could do real science"
+        ],
+        "impact": "Pathfinder and Sojourner opened the modern era of Mars exploration. Their airbag landing and rover design led directly to Spirit, Opportunity, Curiosity and Perseverance."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/sojourner/PIA00621.webp",
+          "caption": "A color mosaic of Sojourner beside the Pathfinder lander and the rocky terrain of Ares Vallis.",
+          "credit": "NASA/JPL",
+          "nasaId": "PIA00621",
+          "year": 1997
+        },
+        {
+          "src": "/images/machines/sojourner/PIA01121.webp",
+          "caption": "Sojourner's own view of the Pathfinder lander after rolling down the ramp.",
+          "credit": "NASA/JPL",
+          "nasaId": "PIA01121",
+          "year": 1997
+        },
+        {
+          "src": "/images/machines/sojourner/PIA04318.webp",
+          "caption": "Sojourner sits near the 'Rock Garden' during its exploration of Ares Vallis.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA04318",
+          "year": 1997
+        },
+        {
+          "src": "/images/machines/sojourner/PIA04422.webp",
+          "caption": "Three generations of NASA Mars rovers: Sojourner, Spirit and Opportunity.",
+          "credit": "NASA/JPL",
+          "nasaId": "PIA04422",
+          "year": 2003
+        }
+      ],
+      "timeline": [
+        {
+          "date": "4 December 1996",
+          "title": "Launch",
+          "detail": "Mars Pathfinder lifts off from Cape Canaveral on a Delta II."
+        },
+        {
+          "date": "4 July 1997",
+          "title": "Landing",
+          "detail": "Airbags bounce at least 15 times before the lander stops at Ares Vallis."
+        },
+        {
+          "date": "6 July 1997",
+          "title": "Sojourner rolls",
+          "detail": "The first rover drives down the ramp onto another planet."
+        },
+        {
+          "date": "July–September 1997",
+          "title": "Surface mission",
+          "detail": "Sojourner drives about 100 m and measures rocks with its APXS."
+        },
+        {
+          "date": "27 September 1997",
+          "title": "Last contact",
+          "detail": "The lander's battery fades after 83 sols; the mission ends."
+        },
+        {
+          "date": "Today",
+          "title": "Still at Ares Vallis",
+          "detail": "Pathfinder and Sojourner remain where they stopped."
+        }
+      ],
+      "facts": [
+        "Sojourner was about 65 cm long and 10.6 kg — roughly the size of a microwave.",
+        "It was designed for 7 sols and lasted 83, though it drove for only 11 of them.",
+        "It travelled about 100 metres, but those were the first wheel tracks on Mars.",
+        "The Pathfinder landing site is named the Carl Sagan Memorial Station.",
+        "Sojourner's airbag landing system was reused in a bigger form by Spirit and Opportunity."
+      ],
+      "links": [
+        {
+          "label": "NASA Science — Mars Pathfinder",
+          "url": "https://science.nasa.gov/mission/mars-pathfinder/",
+          "sourceId": "S-NASA-PATHFINDER"
+        },
+        {
+          "label": "NSSDCA — Mars Pathfinder (1996-068A)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1996-068A",
+          "sourceId": "S-NSSDCA-1996-068A"
+        },
+        {
+          "label": "NASA — Mars Pathfinder",
+          "url": "https://mars.nasa.gov/mars-exploration/missions/pathfinder/",
+          "sourceId": "S-NASA-PATHFINDER"
+        }
+      ],
+      "sourceIds": [
+        "S-NASA-PATHFINDER",
+        "S-NSSDCA-1996-068A",
+        "S-HIRISE-HARDWARE"
+      ]
+    },
+    {
+      "id": "dawn",
+      "siteId": null,
+      "name": "Dawn",
+      "fullName": "Dawn spacecraft",
+      "category": "orbiter",
+      "categoryLabel": "Orbiter",
+      "tagline": "The ion-powered traveller that visited two ancient worlds",
+      "accent": "#8ecae6",
+      "modelKey": "dawn",
+      "body": "belt",
+      "placement": {
+        "bodyLabel": "Asteroid belt — elsewhere",
+        "region": "Ceres (after Vesta), main asteroid belt",
+        "lat": 0,
+        "lon": 0,
+        "elsewhere": true,
+        "coordinatesLabel": "Ceres · 2.8 AU from the Sun"
+      },
+      "launch": {
+        "date": "27 September 2007",
+        "site": "Cape Canaveral Air Force Station, Florida (SLC-17B)",
+        "vehicle": "Delta II Heavy 2925H-9.5"
+      },
+      "arrivals": [
+        {
+          "date": "16 July 2011",
+          "site": "Vesta, main asteroid belt",
+          "label": "First orbit"
+        },
+        {
+          "date": "6 March 2015",
+          "site": "Ceres, main asteroid belt",
+          "label": "Dwarf planet orbit"
+        }
+      ],
+      "status": {
+        "state": "In stable orbit around Ceres — silent",
+        "date": "1 November 2018",
+        "detail": "Dawn ran out of hydrazine on 31 October 2018 and its mission ended the next day. It remains in a stable orbit around Ceres and is expected to stay there for decades."
+      },
+      "voice": {
+        "voiceId": "en-IE-EmilyNeural",
+        "label": "Emily — dreamy, lyrical and awed",
+        "rate": "-5%",
+        "pitch": "+1Hz",
+        "pauseMs": 500,
+        "webSpeechHints": [
+          "Moira",
+          "Google UK English Female",
+          "Emily",
+          "Serena"
+        ],
+        "webPitch": 1.0,
+        "webRate": 0.91,
+        "personality": "Soft and wonderstruck, as if describing a vast quiet place."
+      },
+      "story": [
+        {
+          "id": "dawn-s1",
+          "tone": "warm",
+          "text": "Hi, I'm Dawn, an orbiter with big wings and a gentle blue glow.",
+          "audio": "/audio/machines/dawn-s1.mp3"
+        },
+        {
+          "id": "dawn-s2",
+          "tone": "curious",
+          "text": "I was built to visit two of the oldest worlds in the asteroid belt: Vesta, a rocky giant, and Ceres, a dwarf planet with bright secrets.",
+          "audio": "/audio/machines/dawn-s2.mp3"
+        },
+        {
+          "id": "dawn-s3",
+          "tone": "proud",
+          "text": "I launched on 27 September 2007 from Cape Canaveral, and I did not burn a huge rocket. Instead, my ion engine pushed me with a whisper of xenon gas, day after day, until it added up to a whole new way of travelling through space.",
+          "audio": "/audio/machines/dawn-s3.mp3"
+        },
+        {
+          "id": "dawn-s4",
+          "tone": "calm",
+          "text": "I arrived at Vesta in July 2011 and circled it for fourteen months, finding a cratered surface scarred by huge impacts.",
+          "audio": "/audio/machines/dawn-s4.mp3"
+        },
+        {
+          "id": "dawn-s5",
+          "tone": "excited",
+          "text": "Then I flew on to Ceres and arrived in March 2015, becoming the first spacecraft to orbit a dwarf planet.",
+          "audio": "/audio/machines/dawn-s5.mp3"
+        },
+        {
+          "id": "dawn-s6",
+          "tone": "curious",
+          "text": "I found bright salt deposits in Occator Crater and water ice hiding below the surface.",
+          "audio": "/audio/machines/dawn-s6.mp3"
+        },
+        {
+          "id": "dawn-s7",
+          "tone": "bittersweet",
+          "text": "My fuel ran out on 31 October 2018, and my mission ended the next day.",
+          "audio": "/audio/machines/dawn-s7.mp3"
+        },
+        {
+          "id": "dawn-s8",
+          "tone": "calm",
+          "text": "I am still in a stable orbit around Ceres, silent but circling.",
+          "audio": "/audio/machines/dawn-s8.mp3"
+        },
+        {
+          "id": "dawn-s9",
+          "tone": "warm",
+          "text": "I am out of fuel now, circling Ceres in silence, but I showed us where the solar system keeps its oldest stories. Abandoned but not forgotten.",
+          "audio": "/audio/machines/dawn-s9.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Dawn was sent to explore Vesta and Ceres, the two largest objects in the main asteroid belt. These small worlds preserve clues about the first 10 million years of the solar system, when planets were being built from dust and ice.",
+        "science": "Dawn used ion propulsion to orbit two different bodies, a first for any mission. Its cameras and spectrometers mapped surface minerals and searched for water-bearing materials.",
+        "instruments": [
+          "Framing cameras for visible-light imaging",
+          "Visible and infrared mapping spectrometer (VIR)",
+          "Gamma Ray and Neutron Detector (GRaND)",
+          "Three xenon ion thrusters, each with about 90 mN of thrust",
+          "Two 8.3 m solar array wings"
+        ],
+        "discoveries": [
+          "Vesta is a differentiated protoplanet with a metallic core and a crust",
+          "Ceres has bright carbonate salt deposits in Occator Crater",
+          "Water ice is present just below Ceres's surface in some regions",
+          "Ceres may still have a weak subsurface ocean or brine reservoir",
+          "Dawn was the first spacecraft to orbit two extraterrestrial bodies"
+        ],
+        "impact": "Dawn revealed how planets form and how water is distributed in the asteroid belt. Its ion-engine flight path became a template for efficient, multi-target deep-space missions."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/dawn/PIA12033.webp",
+          "caption": "An artist's concept of Dawn with Vesta and Ceres in the asteroid belt.",
+          "credit": "NASA/JPL",
+          "nasaId": "PIA12033",
+          "year": 2009
+        },
+        {
+          "src": "/images/machines/dawn/PIA19889.webp",
+          "caption": "Dawn's close view of Occator Crater and its mysterious bright spots on Ceres.",
+          "credit": "NASA/JPL-Caltech/UCLA/MPS/DLR/IDA",
+          "nasaId": "PIA19889",
+          "year": 2015
+        },
+        {
+          "src": "/images/machines/dawn/PIA14125.webp",
+          "caption": "Dawn approaches Vesta in this artist's concept.",
+          "credit": "NASA/JPL-Caltech",
+          "nasaId": "PIA14125",
+          "year": 2011
+        },
+        {
+          "src": "/images/machines/dawn/PIA21403.webp",
+          "caption": "Ceres's southern hemisphere in a navigation image from Dawn's low-altitude orbit.",
+          "credit": "NASA/JPL-Caltech/UCLA/MPS/DLR/IDA",
+          "nasaId": "PIA21403",
+          "year": 2017
+        }
+      ],
+      "timeline": [
+        {
+          "date": "27 September 2007",
+          "title": "Launch",
+          "detail": "Dawn leaves Cape Canaveral on a Delta II Heavy rocket."
+        },
+        {
+          "date": "17 February 2009",
+          "title": "Mars gravity assist",
+          "detail": "Dawn swings past Mars to shape its path to the asteroid belt."
+        },
+        {
+          "date": "16 July 2011",
+          "title": "Arrival at Vesta",
+          "detail": "Dawn becomes the first spacecraft to orbit a main-belt asteroid."
+        },
+        {
+          "date": "5 September 2012",
+          "title": "Departure from Vesta",
+          "detail": "After 14 months, Dawn sets course for Ceres using its ion engine."
+        },
+        {
+          "date": "6 March 2015",
+          "title": "Arrival at Ceres",
+          "detail": "Dawn becomes the first spacecraft to orbit a dwarf planet."
+        },
+        {
+          "date": "1 November 2018",
+          "title": "End of mission",
+          "detail": "Hydrazine runs out; Dawn remains in a stable orbit around Ceres."
+        }
+      ],
+      "facts": [
+        "Dawn's ion engine produced about as much force as holding a sheet of paper — but it ran for years.",
+        "Its solar arrays stretched 20 metres tip to tip, about as long as a tractor-trailer.",
+        "It is the only spacecraft ever to orbit two different extraterrestrial bodies.",
+        "The bright spots in Occator Crater are salts left behind by briny water.",
+        "Dawn is still circling Ceres, silent, in a stable orbit."
+      ],
+      "links": [
+        {
+          "label": "NASA Science — Dawn",
+          "url": "https://science.nasa.gov/mission/dawn/",
+          "sourceId": "S-NASA-DAWN"
+        },
+        {
+          "label": "NSSDCA — Dawn (2007-043A)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=2007-043A",
+          "sourceId": "S-NSSDCA-DAWN"
+        },
+        {
+          "label": "NASA — Dawn mission overview",
+          "url": "https://science.nasa.gov/mission/dawn/science/overview",
+          "sourceId": "S-NASA-DAWN"
+        }
+      ],
+      "sourceIds": [
+        "S-NASA-DAWN",
+        "S-NSSDCA-DAWN"
+      ]
+    },
+    {
+      "id": "apollo-11",
+      "siteId": "apollo-11",
+      "name": "Columbia",
+      "fullName": "Apollo 11 Command and Service Module (Columbia)",
+      "category": "crew module",
+      "categoryLabel": "Command module",
+      "tagline": "The ship that carried the first Moonwalkers home",
+      "accent": "#9db8d8",
+      "modelKey": "apollo-csm",
+      "body": "moon",
+      "placement": {
+        "bodyLabel": "Moon — Tranquility Base (mission site)",
+        "region": "Tranquility Base, Sea of Tranquility",
+        "lat": 0.674,
+        "lon": 23.473,
+        "elsewhere": false,
+        "coordinatesLabel": "0.674°N, 23.473°E — Eagle descent stage"
+      },
+      "launch": {
+        "date": "16 July 1969",
+        "site": "Kennedy Space Center, Florida (LC-39A)",
+        "vehicle": "Saturn V (SA-506)"
+      },
+      "arrivals": [
+        {
+          "date": "19 July 1969",
+          "site": "Lunar orbit",
+          "label": "Lunar orbit insertion"
+        },
+        {
+          "date": "20 July 1969",
+          "site": "Tranquility Base, Sea of Tranquility — Eagle lands; Columbia waits in orbit",
+          "label": "Moon landing"
+        },
+        {
+          "date": "24 July 1969",
+          "site": "Pacific Ocean near Hawaii",
+          "label": "Splashdown"
+        }
+      ],
+      "status": {
+        "state": "On display on Earth",
+        "date": "Today",
+        "detail": "Columbia is displayed at the Smithsonian National Air and Space Museum in Washington, D.C. Eagle's descent stage remains at Tranquility Base; the ascent stage was jettisoned and its impact site is unknown. NSSDC record 1969-059A is the CSM Columbia, not the lander — the lander Eagle is 1969-059C."
+      },
+      "voice": {
+        "voiceId": "en-US-ChristopherNeural",
+        "label": "Christopher — historic, calm and full of wonder",
+        "rate": "-7%",
+        "pitch": "-5Hz",
+        "pauseMs": 440,
+        "webSpeechHints": [
+          "Google US English",
+          "Daniel",
+          "Alex",
+          "Christopher"
+        ],
+        "webPitch": 0.88,
+        "webRate": 0.93,
+        "personality": "Measured and inspiring, with the weight of history in every line."
+      },
+      "story": [
+        {
+          "id": "apollo-11-s1",
+          "tone": "proud",
+          "text": "Hi, I'm Columbia, the command module of Apollo 11 — the part that brought three astronauts home.",
+          "audio": "/audio/machines/apollo-11-s1.mp3"
+        },
+        {
+          "id": "apollo-11-s2",
+          "tone": "calm",
+          "text": "I was not the lander. The lunar module Eagle was my partner, and on 20 July 1969 Eagle carried Neil Armstrong and Buzz Aldrin down to Tranquility Base while Michael Collins and I waited in orbit.",
+          "audio": "/audio/machines/apollo-11-s2.mp3"
+        },
+        {
+          "id": "apollo-11-s3",
+          "tone": "proud",
+          "text": "I launched on 16 July 1969 from Kennedy Space Center, and four days later I watched the landing from above.",
+          "audio": "/audio/machines/apollo-11-s3.mp3"
+        },
+        {
+          "id": "apollo-11-s4",
+          "tone": "excited",
+          "text": "When Eagle's ascent stage came back up, I caught it, and on 24 July we splashed into the Pacific Ocean.",
+          "audio": "/audio/machines/apollo-11-s4.mp3"
+        },
+        {
+          "id": "apollo-11-s5",
+          "tone": "thoughtful",
+          "text": "I carried the crew, their rock samples and their memories back to Earth.",
+          "audio": "/audio/machines/apollo-11-s5.mp3"
+        },
+        {
+          "id": "apollo-11-s6",
+          "tone": "calm",
+          "text": "I am now on display at the Smithsonian National Air and Space Museum in Washington, D.C. Eagle's descent stage is still at Tranquility Base, and its ascent stage was jettisoned; its impact site is unknown.",
+          "audio": "/audio/machines/apollo-11-s6.mp3"
+        },
+        {
+          "id": "apollo-11-s7",
+          "tone": "warm",
+          "text": "I am the ship that carried humanity's first Moonwalkers home. Abandoned but not forgotten.",
+          "audio": "/audio/machines/apollo-11-s7.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Apollo 11 was the first mission to land humans on the Moon and bring them safely back to Earth. Columbia was the command and service module that carried the crew to lunar orbit and home again.",
+        "science": "The mission returned 21.5 kg of lunar samples, deployed a passive seismometer and a laser retroreflector, and photographed the landing site. Columbia itself carried the navigation, life-support and re-entry systems that made the round trip possible.",
+        "instruments": [
+          "Command module cockpit and re-entry heat shield",
+          "Service module main engine and fuel cells",
+          "Docking probe and tunnel for the lunar module",
+          "Earth-return navigation and communications systems",
+          "The lunar module Eagle (the actual lander, NSSDC 1969-059C)"
+        ],
+        "discoveries": [
+          "First human footsteps on another world",
+          "21.5 kg of lunar rock and soil returned to Earth",
+          "A seismometer and laser retroreflector left at Tranquility Base",
+          "A priceless record of the lunar surface and the Earth from the Moon",
+          "The first crewed landing and return from the Moon"
+        ],
+        "impact": "Apollo 11 changed how humanity sees its place in the universe. The samples it returned are still studied today, and the laser retroreflector at Tranquility Base is still used to measure the Moon's distance."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/apollo-11/S69-39563.webp",
+          "caption": "A television view of Armstrong and Aldrin on the Moon, seen beside the lunar module Eagle.",
+          "credit": "NASA/JSC",
+          "nasaId": "S69-39563",
+          "year": 1969
+        },
+        {
+          "src": "/images/machines/apollo-11/as11-40-5902.webp",
+          "caption": "Buzz Aldrin stands beside the leg of the lunar module Eagle at Tranquility Base.",
+          "credit": "NASA/JSC",
+          "nasaId": "as11-40-5902",
+          "year": 1969
+        },
+        {
+          "src": "/images/machines/apollo-11/as11-44-6550.webp",
+          "caption": "Earth rises over the Moon's limb, photographed from Apollo 11 in lunar orbit.",
+          "credit": "NASA/JSC",
+          "nasaId": "as11-44-6550",
+          "year": 1969
+        },
+        {
+          "src": "/images/machines/apollo-11/S69-39961.webp",
+          "caption": "Apollo 11 lifts off from Kennedy Space Center on 16 July 1969.",
+          "credit": "NASA/JSC",
+          "nasaId": "S69-39961",
+          "year": 1969
+        }
+      ],
+      "timeline": [
+        {
+          "date": "16 July 1969",
+          "title": "Launch",
+          "detail": "Apollo 11 leaves Kennedy Space Center on a Saturn V."
+        },
+        {
+          "date": "19 July 1969",
+          "title": "Lunar orbit",
+          "detail": "Columbia enters orbit around the Moon."
+        },
+        {
+          "date": "20 July 1969",
+          "title": "Tranquility Base",
+          "detail": "Eagle lands; Armstrong and Aldrin walk on the Moon while Collins orbits in Columbia."
+        },
+        {
+          "date": "21 July 1969",
+          "title": "Ascent",
+          "detail": "Eagle's ascent stage lifts off and docks with Columbia."
+        },
+        {
+          "date": "24 July 1969",
+          "title": "Splashdown",
+          "detail": "Columbia returns to Earth in the Pacific Ocean."
+        },
+        {
+          "date": "Today",
+          "title": "Museum and Moon",
+          "detail": "Columbia is at the Smithsonian; Eagle's descent stage remains at Tranquility Base."
+        }
+      ],
+      "facts": [
+        "The NSSDC ID in the challenge link, 1969-059A, is Columbia, the command and service module — not the lander.",
+        "The lunar module Eagle is NSSDC 1969-059C; its descent stage is still at Tranquility Base.",
+        "Columbia is about 3.2 m tall and 3.9 m wide at the base.",
+        "The crew travelled about 384,400 km to the Moon and back.",
+        "A laser retroreflector left at Tranquility Base is still used for lunar laser ranging."
+      ],
+      "links": [
+        {
+          "label": "NSSDCA — Apollo 11 CSM (1969-059A)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059A",
+          "sourceId": "S-NSSDCA-1969-059A"
+        },
+        {
+          "label": "NSSDCA — Apollo 11 LM Eagle (1969-059C)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1969-059C",
+          "sourceId": "S-NSSDCA-1969-059C"
+        },
+        {
+          "label": "NASA — Apollo 11",
+          "url": "https://www.nasa.gov/mission/apollo-11/",
+          "sourceId": "S-NSSDCA-1969-059C"
+        }
+      ],
+      "sourceIds": [
+        "S-NSSDCA-1969-059A",
+        "S-NSSDCA-1969-059C",
+        "S-LLR-SCIENCE"
+      ]
+    },
+    {
+      "id": "apollo-15",
+      "siteId": "apollo-15",
+      "name": "Falcon",
+      "fullName": "Apollo 15 Lunar Module (Falcon)",
+      "category": "lunar module",
+      "categoryLabel": "Lunar module",
+      "tagline": "The first lunar module to carry a car to the Moon",
+      "accent": "#ffcf70",
+      "modelKey": "apollo-lm",
+      "body": "moon",
+      "placement": {
+        "bodyLabel": "Moon — Hadley Base",
+        "region": "Hadley-Apennine, near Hadley Rille",
+        "lat": 26.132,
+        "lon": 3.634,
+        "elsewhere": false,
+        "coordinatesLabel": "26.132°N, 3.634°E"
+      },
+      "launch": {
+        "date": "26 July 1971",
+        "site": "Kennedy Space Center, Florida (LC-39A)",
+        "vehicle": "Saturn V (SA-510)"
+      },
+      "arrivals": [
+        {
+          "date": "29 July 1971",
+          "site": "Lunar orbit",
+          "label": "Lunar orbit insertion"
+        },
+        {
+          "date": "30 July 1971",
+          "site": "Hadley-Apennine, Moon",
+          "label": "Touchdown"
+        }
+      ],
+      "status": {
+        "state": "Descent stage on the Moon; ascent stage impacted",
+        "date": "3 August 1971",
+        "detail": "Falcon's ascent stage lifted off on 2 August and was deliberately crashed into the Moon on 3 August to create a seismic signal. The descent stage remains at Hadley Base beside the Lunar Roving Vehicle and the flag."
+      },
+      "voice": {
+        "voiceId": "en-NZ-MitchellNeural",
+        "label": "Mitchell — adventurous and confident",
+        "rate": "+2%",
+        "pitch": "-1Hz",
+        "pauseMs": 330,
+        "webSpeechHints": [
+          "Google US English",
+          "Alex",
+          "Mitchell",
+          "Daniel"
+        ],
+        "webPitch": 1.0,
+        "webRate": 1.01,
+        "personality": "Bold and cheerful, an explorer who loves a good challenge."
+      },
+      "story": [
+        {
+          "id": "apollo-15-s1",
+          "tone": "proud",
+          "text": "Hi, I'm Falcon, the lunar module of Apollo 15 — the first spacecraft to carry a car to the Moon.",
+          "audio": "/audio/machines/apollo-15-s1.mp3"
+        },
+        {
+          "id": "apollo-15-s2",
+          "tone": "calm",
+          "text": "I launched on 26 July 1971 with David Scott, James Irwin and Alfred Worden, and on 30 July I set down at Hadley-Apennine, beside a giant rille and the tall Apennine mountains.",
+          "audio": "/audio/machines/apollo-15-s2.mp3"
+        },
+        {
+          "id": "apollo-15-s3",
+          "tone": "excited",
+          "text": "My descent stage held the Lunar Roving Vehicle, which unfolded like a clever little metal butterfly and let the astronauts drive farther than anyone had before.",
+          "audio": "/audio/machines/apollo-15-s3.mp3"
+        },
+        {
+          "id": "apollo-15-s4",
+          "tone": "proud",
+          "text": "They collected 77 kilograms of rock, including the famous Genesis Rock, and I stayed behind as their launch pad.",
+          "audio": "/audio/machines/apollo-15-s4.mp3"
+        },
+        {
+          "id": "apollo-15-s5",
+          "tone": "thoughtful",
+          "text": "My ascent stage lifted off on 2 August and was deliberately crashed into the Moon three days later to make a moonquake for the seismometers.",
+          "audio": "/audio/machines/apollo-15-s5.mp3"
+        },
+        {
+          "id": "apollo-15-s6",
+          "tone": "calm",
+          "text": "My descent stage is still here at Hadley Base, beside the rover and the flag.",
+          "audio": "/audio/machines/apollo-15-s6.mp3"
+        },
+        {
+          "id": "apollo-15-s7",
+          "tone": "warm",
+          "text": "I opened up the Moon's mountain country to explorers. Abandoned but not forgotten.",
+          "audio": "/audio/machines/apollo-15-s7.mp3"
+        }
+      ],
+      "purpose": {
+        "why": "Apollo 15 was the first J-class mission, a longer stay with a heavier payload. It was designed to explore the Hadley-Apennine region, where scientists hoped to sample ancient highland rocks and study a giant volcanic rille.",
+        "science": "The crew drove the first Lunar Roving Vehicle, deployed an expanded ALSEP science station and collected 77 kg of samples, including the Genesis Rock, a piece of the Moon's early crust.",
+        "instruments": [
+          "Lunar Roving Vehicle with navigation and science equipment",
+          "Apollo Lunar Surface Experiments Package (ALSEP)",
+          "Lunar laser retroreflector and solar wind spectrometer",
+          "Heat-flow experiment and seismometer",
+          "Panoramic and metric cameras"
+        ],
+        "discoveries": [
+          "First use of the Lunar Roving Vehicle on the Moon",
+          "Collected 77 kg of lunar samples, the largest haul of any Apollo mission",
+          "Found the Genesis Rock, an ancient piece of the lunar highlands crust",
+          "Explored Hadley Rille and the base of the Apennine mountains",
+          "Left a science station that returned data for years"
+        ],
+        "impact": "Apollo 15 showed that astronauts could travel far from their lander and do field geology on another world. Its samples helped scientists understand the Moon's early crust and its volcanic history."
+      },
+      "gallery": [
+        {
+          "src": "/images/machines/apollo-15/as15-88-11866.webp",
+          "caption": "Astronaut James Irwin salutes the U.S. flag at the Apollo 15 landing site, with the Hadley-Apennine mountains behind him.",
+          "credit": "NASA/JSC",
+          "nasaId": "as15-88-11866",
+          "year": 1971
+        },
+        {
+          "src": "/images/machines/apollo-15/as15-086-11600.webp",
+          "caption": "The Apollo 15 lunar module Falcon and the Lunar Roving Vehicle at Hadley Base.",
+          "credit": "NASA/JSC",
+          "nasaId": "as15-086-11600",
+          "year": 1971
+        },
+        {
+          "src": "/images/machines/apollo-15/as15-87-11849.webp",
+          "caption": "Mount Hadley rises above the lunar surface, photographed during Apollo 15's first moonwalk.",
+          "credit": "NASA/JSC",
+          "nasaId": "as15-87-11849",
+          "year": 1971
+        },
+        {
+          "src": "/images/machines/apollo-15/as15-86-11603.webp",
+          "caption": "Astronaut James Irwin works at the Lunar Roving Vehicle during an Apollo 15 moonwalk.",
+          "credit": "NASA/JSC",
+          "nasaId": "as15-86-11603",
+          "year": 1971
+        }
+      ],
+      "timeline": [
+        {
+          "date": "26 July 1971",
+          "title": "Launch",
+          "detail": "Apollo 15 lifts off from Kennedy Space Center on a Saturn V."
+        },
+        {
+          "date": "29 July 1971",
+          "title": "Lunar orbit",
+          "detail": "The spacecraft enters orbit around the Moon."
+        },
+        {
+          "date": "30 July 1971",
+          "title": "Landing",
+          "detail": "Falcon touches down at Hadley-Apennine."
+        },
+        {
+          "date": "31 July – 2 August 1971",
+          "title": "Moonwalks",
+          "detail": "The crew drives the LRV, collects 77 kg of samples and deploys ALSEP."
+        },
+        {
+          "date": "2 August 1971",
+          "title": "Ascent",
+          "detail": "Falcon's ascent stage lifts off, leaving the descent stage behind."
+        },
+        {
+          "date": "3 August 1971",
+          "title": "Deliberate impact",
+          "detail": "The ascent stage is crashed into the Moon to create a seismic signal."
+        }
+      ],
+      "facts": [
+        "NSSDC 1971-063C is the lunar module Falcon, not the command module Endeavour.",
+        "The Lunar Roving Vehicle was first driven on Apollo 15 and could reach about 13 km/h.",
+        "Apollo 15 returned 77 kg of Moon rock — the largest sample haul of any Apollo mission.",
+        "The Genesis Rock is an anorthosite, a piece of the Moon's original crust.",
+        "Falcon's descent stage is still at Hadley Base and has been photographed from lunar orbit."
+      ],
+      "links": [
+        {
+          "label": "NSSDCA — Apollo 15 LM Falcon (1971-063C)",
+          "url": "https://nssdc.gsfc.nasa.gov/nmc/spacecraft/display.action?id=1971-063C",
+          "sourceId": "S-NSSDCA-1971-063C"
+        },
+        {
+          "label": "NASA — Apollo 15",
+          "url": "https://www.nasa.gov/mission/apollo-15/",
+          "sourceId": "S-NSSDCA-1971-063C"
+        },
+        {
+          "label": "NASA — Apollo Lunar Surface Journal",
+          "url": "https://www.nasa.gov/history/alsj/",
+          "sourceId": "S-NSSDCA-1971-063C"
+        }
+      ],
+      "sourceIds": [
+        "S-NSSDCA-1971-063C",
+        "S-3D-LM",
+        "S-LLR-SCIENCE"
+      ]
+    }
+  ]
+}

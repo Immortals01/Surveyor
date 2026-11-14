@@ -1,0 +1,183 @@
+{
+  "source": "NASA Image and Video Library (images.nasa.gov)",
+  "credits": {
+    "ingenuity": [
+      {
+        "nasaId": "PIA24466",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "An artist's view of Ingenuity flying above the Martian surface."
+      },
+      {
+        "nasaId": "PIA24584",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "The first black-and-white image sent back by Ingenuity from the air during Flight 1."
+      },
+      {
+        "nasaId": "PIA24586",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "Perseverance's Navcam watches Ingenuity climb into the Martian sky on 19 April 2021."
+      },
+      {
+        "nasaId": "PIA24648",
+        "credit": "NASA/JPL-Caltech/ASU/MSSS",
+        "caption": "Mastcam-Z on Perseverance photographs Ingenuity after its fifth flight."
+      }
+    ],
+    "viking-1": [
+      {
+        "nasaId": "PIA00381",
+        "credit": "NASA/JPL",
+        "caption": "The first photograph taken on the surface of Mars, by Viking 1 on 20 July 1976."
+      },
+      {
+        "nasaId": "PIA00565",
+        "credit": "NASA/JPL",
+        "caption": "Viking Lander 1's U.S. flag on the Martian surface, photographed beside the lander."
+      },
+      {
+        "nasaId": "PIA10738",
+        "credit": "NASA/JPL",
+        "caption": "A modern Mars orbiter view of the ground near Viking Lander 1's footpad."
+      }
+    ],
+    "insight": [
+      {
+        "nasaId": "PIA22956",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "InSight's SEIS seismometer deployed on the Martian surface under its wind and thermal shield."
+      },
+      {
+        "nasaId": "PIA25680",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "One of InSight's last images, showing its dust-covered solar panels in 2022."
+      },
+      {
+        "nasaId": "PIA25411",
+        "credit": "NASA/JPL-Caltech/University of Arizona",
+        "caption": "Before-and-after views of a fresh Martian crater made by a meteoroid impact detected by InSight."
+      }
+    ],
+    "spirit": [
+      {
+        "nasaId": "PIA03230",
+        "credit": "NASA/JPL-Solar System Visualization Team",
+        "caption": "An artist's view of Spirit working in the Columbia Hills inside Gusev Crater."
+      },
+      {
+        "nasaId": "PIA16442",
+        "credit": "NASA/JPL-Caltech/Cornell University/Arizona State University",
+        "caption": "Spirit's self-portrait in the McMurdo Panorama, looking back across the Columbia Hills."
+      },
+      {
+        "nasaId": "PIA11755",
+        "credit": "NASA/JPL-Caltech/Cornell University",
+        "caption": "Spirit's wheel churns up bright silica-rich soil at a site called Gertrude Weise."
+      }
+    ],
+    "opportunity": [
+      {
+        "nasaId": "PIA20285",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "Opportunity's self-portrait at the 'Potts' rock abrasion target in 2016."
+      },
+      {
+        "nasaId": "PIA21708",
+        "credit": "NASA/JPL-Caltech/Cornell University/Arizona State University",
+        "caption": "Opportunity looks across the rim of Orion Crater during its travels in 2017."
+      },
+      {
+        "nasaId": "PIA22071",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "Looking downhill from Perseverance Valley, with long Martian shadows across the rim of Endeavour Crater."
+      }
+    ],
+    "sojourner": [
+      {
+        "nasaId": "PIA00621",
+        "credit": "NASA/JPL",
+        "caption": "A color mosaic of Sojourner beside the Pathfinder lander and the rocky terrain of Ares Vallis."
+      },
+      {
+        "nasaId": "PIA01121",
+        "credit": "NASA/JPL",
+        "caption": "Sojourner's own view of the Pathfinder lander after rolling down the ramp."
+      },
+      {
+        "nasaId": "PIA04318",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "Sojourner sits near the 'Rock Garden' during its exploration of Ares Vallis."
+      },
+      {
+        "nasaId": "PIA04422",
+        "credit": "NASA/JPL",
+        "caption": "Three generations of NASA Mars rovers: Sojourner, Spirit and Opportunity."
+      }
+    ],
+    "dawn": [
+      {
+        "nasaId": "PIA12033",
+        "credit": "NASA/JPL",
+        "caption": "An artist's concept of Dawn with Vesta and Ceres in the asteroid belt."
+      },
+      {
+        "nasaId": "PIA19889",
+        "credit": "NASA/JPL-Caltech/UCLA/MPS/DLR/IDA",
+        "caption": "Dawn's close view of Occator Crater and its mysterious bright spots on Ceres."
+      },
+      {
+        "nasaId": "PIA14125",
+        "credit": "NASA/JPL-Caltech",
+        "caption": "Dawn approaches Vesta in this artist's concept."
+      },
+      {
+        "nasaId": "PIA21403",
+        "credit": "NASA/JPL-Caltech/UCLA/MPS/DLR/IDA",
+        "caption": "Ceres's southern hemisphere in a navigation image from Dawn's low-altitude orbit."
+      }
+    ],
+    "apollo-11": [
+      {
+        "nasaId": "S69-39563",
+        "credit": "NASA/JSC",
+        "caption": "A television view of Armstrong and Aldrin on the Moon, seen beside the lunar module Eagle."
+      },
+      {
+        "nasaId": "as11-40-5902",
+        "credit": "NASA/JSC",
+        "caption": "Buzz Aldrin stands beside the leg of the lunar module Eagle at Tranquility Base."
+      },
+      {
+        "nasaId": "as11-44-6550",
+        "credit": "NASA/JSC",
+        "caption": "Earth rises over the Moon's limb, photographed from Apollo 11 in lunar orbit."
+      },
+      {
+        "nasaId": "S69-39961",
+        "credit": "NASA/JSC",
+        "caption": "Apollo 11 lifts off from Kennedy Space Center on 16 July 1969."
+      }
+    ],
+    "apollo-15": [
+      {
+        "nasaId": "as15-88-11866",
+        "credit": "NASA/JSC",
+        "caption": "Astronaut James Irwin salutes the U.S. flag at the Apollo 15 landing site, with the Hadley-Apennine mountains behind him."
+      },
+      {
+        "nasaId": "as15-086-11600",
+        "credit": "NASA/JSC",
+        "caption": "The Apollo 15 lunar module Falcon and the Lunar Roving Vehicle at Hadley Base."
+      },
+      {
+        "nasaId": "as15-87-11849",
+        "credit": "NASA/JSC",
+        "caption": "Mount Hadley rises above the lunar surface, photographed during Apollo 15's first moonwalk."
+      },
+      {
+        "nasaId": "as15-86-11603",
+        "credit": "NASA/JSC",
+        "caption": "Astronaut James Irwin works at the Lunar Roving Vehicle during an Apollo 15 moonwalk."
+      }
+    ]
+  }
+}

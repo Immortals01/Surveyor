@@ -133,6 +133,7 @@ export const TourBeatSchema = z.discriminatedUnion("kind", [
     sunLon: z.number().min(-180).max(180).optional(),
     sunLat: z.number().min(-90).max(90).optional(),
     announce: DialogueLineSchema.optional(),
+    reprise: z.boolean().optional(),
   }),
   z.object({
     kind: z.literal("flyOverview"),

@@ -1,5 +1,6 @@
 import type { DialogueLine } from "@/data/schema";
 import { useAppStore } from "@/store/useAppStore";
+import { NARRATION_ASSET_VERSION } from "@/lib/constants";
 import { audioEngine } from "./AudioEngine";
 
 let activeCancel: (() => void) | null = null;
@@ -11,7 +12,7 @@ export function preloadNarrationManifest(): Promise<Set<string>> {
   if (manifestPromise) return manifestPromise;
   manifestPromise = (async () => {
     try {
-      const res = await fetch("/audio/narration/manifest.json");
+      const res = await fetch("/audio/narration/manifest.json", { cache: "no-store" });
       if (res.ok) {
         const list = (await res.json()) as string[];
         cachedManifest = new Set(list);
@@ -24,10 +25,6 @@ export function preloadNarrationManifest(): Promise<Set<string>> {
     return cachedManifest;
   })();
   return manifestPromise;
-}
-
-function getNarrationManifest(): Promise<Set<string>> {
-  return preloadNarrationManifest();
 }
 
 export function cancelSpeech(): void {
@@ -80,20 +77,18 @@ export async function speakLine(
     cancelled = true;
   };
   try {
-    const manifest = await getNarrationManifest();
-    if (signal?.aborted || cancelled) {
+    // Try the pre-generated clip first even when the cached manifest is stale
+    // (for example after a deploy adds new host lines). A 404 falls through to
+    // Web Speech, so this is safe for lines that have no recording yet.
+    const res = await playMp3(
+      `/audio/narration/${line.id}-${NARRATION_ASSET_VERSION}.mp3`,
+      signal,
+    );
+    if (res === "cancelled" || signal?.aborted) {
       cancelled = true;
       return false;
     }
-
-    if (manifest.has(line.id)) {
-      const res = await playMp3(`/audio/narration/${line.id}.mp3`, signal);
-      if (res === "cancelled" || signal?.aborted) {
-        cancelled = true;
-        return false;
-      }
-      if (res === "played") return true;
-    }
+    if (res === "played") return true;
 
     const ttsRes = await tryWebSpeech(line, wordCount, signal);
     if (ttsRes === "cancelled" || signal?.aborted) {

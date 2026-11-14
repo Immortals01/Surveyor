@@ -54,7 +54,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-viking1-intro",
       speaker: "loro",
       mood: "excited",
-      text: "Down on the golden plains of Chryse Planitia sits the pioneer that started it all: Viking 1! From orbit its bright triangular deck still catches the sunlight, with the discarded backshell nearby.",
+      text: "On Chryse Planitia's golden plains sits Viking 1, the pioneer that started it all. Its bright triangular deck still catches the sunlight.",
       sourceIds: ["S-NSSDCA-1975-075C", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
@@ -130,7 +130,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-viking2-intro",
       speaker: "loro",
       mood: "scanning",
-      text: "Way up in the northern plains of Utopia Planitia, Viking 2 sits slightly tilted with one foot on a rock. Each winter, frost dusts its deck—one of the first hints of water ice on Mars.",
+      text: "In Utopia Planitia, Viking 2 sits tilted with one foot on a rock. Each winter, frost dusts its deck—an early hint of water ice.",
       sourceIds: ["S-NSSDCA-1975-083C", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
@@ -206,7 +206,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-pathfinder-intro",
       speaker: "loro",
       mood: "excited",
-      text: "Welcome to the ancient flood plain of Ares Vallis! Below us are Pathfinder's three open petals, still lying beside the rocks where little Sojourner made her first tracks.",
+      text: "Welcome to Ares Vallis! Below us are Pathfinder's three open petals, still lying beside the rocks where Sojourner made her first tracks.",
       sourceIds: ["S-NSSDCA-1996-068A", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
@@ -290,7 +290,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-spirit-intro",
       speaker: "loro",
       mood: "nostalgic",
-      text: "Look at the bright layered plateau inside Gusev Crater called Home Plate! Along its western edge rests Spirit, who turned a broken wheel into the luckiest geology tool on Mars.",
+      text: "Inside Gusev Crater, Spirit rests beside Home Plate's bright layered rocks. A broken wheel became the luckiest geology tool on Mars.",
       sourceIds: ["S-NSSDCA-2003-027A", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
@@ -366,7 +366,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-opportunity-intro",
       speaker: "loro",
       mood: "nostalgic",
-      text: "Along the western rim of 22-kilometre Endeavour Crater lies Perseverance Valley, where marathon legend Opportunity rests after 5,352 sols. From orbit we can still follow her tracks across four craters.",
+      text: "On Endeavour Crater's western rim lies Perseverance Valley, where Opportunity rests after 5,352 sols. Her tracks still cross four craters.",
       sourceIds: ["S-NSSDCA-2003-032A", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
@@ -442,7 +442,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-phoenix-intro",
       speaker: "loro",
       mood: "scanning",
-      text: "Far north in the plains of Vastitas Borealis sits Phoenix. Every winter, dry-ice frost buries its octagonal solar wings—and every spring, orbiters check how the arctic ice has weathered it.",
+      text: "Far north in Vastitas Borealis sits Phoenix. Every winter, dry-ice frost buries its solar wings; every spring, orbiters check how the ice has weathered.",
       sourceIds: ["S-NSSDCA-2007-034A", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
@@ -518,7 +518,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-insight-intro",
       speaker: "loro",
       mood: "scanning",
-      text: "Out on the smooth plains of Elysium Planitia sits InSight—the first robot to place a seismometer directly on Martian soil. In front of its deck you can see the bright dome of the SEIS wind shield.",
+      text: "On Elysium Planitia sits InSight, the first robot to place a seismometer directly on Martian soil. Its bright SEIS dome listens for marsquakes.",
       sourceIds: ["S-NSSDCA-2018-042A", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
@@ -602,7 +602,7 @@ export const MARS_HERO_SITES: HeroSite[] = [
       id: "mars-ingenuity-intro",
       speaker: "loro",
       mood: "excited",
-      text: "Up in the wind-carved ripples of Neretva Vallis stands little Ingenuity! Even with a chipped rotor tip after 72 historic flights, she is still standing tall and recording weather data.",
+      text: "Among the wind-carved ripples of Neretva Vallis stands Ingenuity! After 72 historic flights and a chipped rotor tip, she still records weather data.",
       sourceIds: ["S-NSSDCA-2020-052B", "S-HIRISE-HARDWARE"],
     },
     memoryLog: {
