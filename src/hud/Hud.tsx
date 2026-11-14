@@ -310,37 +310,39 @@ export default function Hud() {
 
           {mode === "explore" && (
             <>
-              <button
-                type="button"
-                onClick={() => {
-                  if (deepSpaceOpen) return;
-                  audioEngine.unlock(muted);
-                  audioEngine.playUiTick();
-                  startTour(0);
-                }}
-                disabled={deepSpaceOpen}
-                aria-disabled={deepSpaceOpen}
-                title={
-                  deepSpaceOpen
-                    ? "Guided Tour is available only on the Moon and Mars"
-                    : "Start the narrated Moon or Mars tour"
-                }
-                className={`inline-flex items-center gap-1.5 border px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
-                  deepSpaceOpen
-                    ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-regolith/40"
-                    : "cursor-pointer border-regolith-bright bg-regolith-bright text-space-950 hover:bg-white"
-                }`}
-              >
-                <Play className="h-3 w-3 fill-current" />
-                <span className="flex flex-col items-start leading-none">
+              <span className="group relative inline-flex">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (deepSpaceOpen) return;
+                    audioEngine.unlock(muted);
+                    audioEngine.playUiTick();
+                    startTour(0);
+                  }}
+                  disabled={deepSpaceOpen}
+                  aria-disabled={deepSpaceOpen}
+                  aria-describedby={
+                    deepSpaceOpen ? "guided-tour-scope" : undefined
+                  }
+                  className={`inline-flex items-center gap-1.5 border px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                    deepSpaceOpen
+                      ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-regolith/40"
+                      : "cursor-pointer border-regolith-bright bg-regolith-bright text-space-950 hover:bg-white"
+                  }`}
+                >
+                  <Play className="h-3 w-3 fill-current" />
                   <span>Guided Tour</span>
-                  {deepSpaceOpen && (
-                    <span className="mt-1 font-body text-[8px] font-medium tracking-normal normal-case opacity-80">
-                      Moon &amp; Mars only
-                    </span>
-                  )}
-                </span>
-              </button>
+                </button>
+                {deepSpaceOpen && (
+                  <span
+                    id="guided-tour-scope"
+                    role="tooltip"
+                    className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 border border-loro/40 bg-space-950/97 px-2.5 py-1.5 font-mono text-[9px] tracking-[0.12em] whitespace-nowrap text-regolith-bright uppercase opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+                  >
+                    Moon &amp; Mars only
+                  </span>
+                )}
+              </span>
 
               <button
                 type="button"
