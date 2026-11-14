@@ -112,23 +112,23 @@
 
 @keyframes deep-space-drift {
   0% {
-    transform: translate3d(-1.8%, -1.2%, 0) scale(1.08);
+    transform: translate3d(-2.6%, -1.6%, 0) scale(1.1);
   }
   50% {
-    transform: translate3d(1.8%, 1.2%, 0) scale(1.13);
+    transform: translate3d(2.6%, 1.6%, 0) scale(1.16);
   }
   100% {
-    transform: translate3d(-1.8%, -1.2%, 0) scale(1.08);
+    transform: translate3d(-2.6%, -1.6%, 0) scale(1.1);
   }
 }
 
 .deep-space-stars {
-  animation: deep-space-drift 140s ease-in-out infinite;
+  animation: deep-space-drift 38s ease-in-out infinite;
   will-change: transform;
 }
 
 .deep-space-stars-slow {
-  animation: deep-space-drift 220s ease-in-out infinite reverse;
+  animation: deep-space-drift 72s ease-in-out infinite reverse;
   will-change: transform;
 }
 
