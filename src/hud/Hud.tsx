@@ -11,10 +11,12 @@ import {
   VolumeX,
 } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
+import { stopMachineNarration } from "@/audio/machineNarration";
 import { cancelSpeech, speakLine } from "@/audio/speech";
 import { getSitesForBody, SITE_BY_ID } from "@/data";
 import { getHost } from "@/data/hosts";
 import type { DialogueLine } from "@/data/schema";
+import { resolveHostLine } from "./character/hostLine";
 import { cameraBus } from "@/engine/camera";
 import { useTourRunner } from "@/engine/useTourRunner";
 import DialogueBox from "@/hud/character/DialogueBox";
@@ -22,27 +24,13 @@ import LoRo from "@/hud/character/LoRo";
 import IntroScreen from "@/hud/intro/IntroScreen";
 import ChapterCard from "@/hud/tour/ChapterCard";
 import TourBar from "@/hud/tour/TourBar";
+import TourCompleteCard from "@/hud/tour/TourCompleteCard";
 import { type CelestialBody, useAppStore } from "@/store/useAppStore";
 
 const SiteDrawer = lazy(() => import("@/hud/story/SiteDrawer"));
 const SiteIndex = lazy(() => import("@/hud/explore/SiteIndex"));
 const SourcesDrawer = lazy(() => import("@/hud/credits/SourcesDrawer"));
-
-const DEFAULT_MOON_TIP: DialogueLine = {
-  id: "loro-tip-1",
-  speaker: "loro",
-  mood: "waving",
-  text: "Click any glowing marker on the Moon—or open 'Index (20)' above—to swoop down and hear what our left-behind spacecraft remember!",
-  sourceIds: ["S-SVS-4720", "S-WAGNER-2017"],
-};
-
-const DEFAULT_MARS_TIP: DialogueLine = {
-  id: "mars-viking1-intro",
-  speaker: "loro",
-  mood: "excited",
-  text: "Down on the Golden Plains of Chryse Planitia sits the pioneer that started it all: Viking 1! Even from MRO's orbit, its bright triangular deck and nearby discarded backshell gleam against the rusty dust.",
-  sourceIds: ["S-NSSDCA-1975-075C", "S-HIRISE-HARDWARE"],
-};
+const MachineDossier = lazy(() => import("@/hud/machines/MachineDossier"));
 
 export default function Hud() {
   const { dispatchTour } = useTourRunner();
@@ -51,6 +39,7 @@ export default function Hud() {
   const celestialBody = useAppStore((s) => s.celestialBody);
   const setCelestialBody = useAppStore((s) => s.setCelestialBody);
   const selectedSiteId = useAppStore((s) => s.selectedSiteId);
+  const selectedMachineId = useAppStore((s) => s.selectedMachineId);
   const siteIndexOpen = useAppStore((s) => s.siteIndexOpen);
   const sourcesDrawerOpen = useAppStore((s) => s.sourcesDrawerOpen);
   const muted = useAppStore((s) => s.settings.muted);
@@ -93,6 +82,13 @@ export default function Hud() {
         state.setSiteIndexOpen(false);
         return;
       }
+      if (state.selectedMachineId) {
+        stopMachineNarration();
+        state.setDialogue(null);
+        state.closeMachine();
+        void cameraBus.goHome();
+        return;
+      }
       if (state.selectedSiteId) {
         cancelSpeech();
         state.setDialogue(null);
@@ -132,6 +128,8 @@ export default function Hud() {
     audioEngine.unlock(muted);
     audioEngine.playUiTick(840);
     cancelSpeech();
+    stopMachineNarration();
+    useAppStore.getState().closeMachine();
     setCelestialBody(targetBody);
     void cameraBus.goHome();
   };
@@ -145,21 +143,23 @@ export default function Hud() {
       ? SITE_BY_ID.get(state.selectedSiteId)
       : undefined;
 
-    const defaultTip =
-      state.celestialBody === "mars" ? DEFAULT_MARS_TIP : DEFAULT_MOON_TIP;
-
-    // The machine standing beside the visitor introduces itself; otherwise
-    // Surveyor 3 picks up the commentary from orbit.
-    let line: DialogueLine;
-    if (selected && selected.tier === "hero" && host.siteId === selected.id) {
-      line = host.intro;
-    } else if (selected && selected.tier === "hero") {
-      line = selected.loroIntro;
-    } else if (host.id !== "surveyor-3") {
-      line = host.intro;
-    } else {
-      line = defaultTip;
-    }
+    // If a line is already on screen, replay exactly that line. Otherwise use
+    // the same resolver as the callout box so text and audio stay identical.
+    const shown = state.dialogue;
+    const line: DialogueLine = shown
+      ? {
+          id: shown.lineId,
+          speaker: shown.speaker,
+          speakerLabel: shown.speakerLabel,
+          mood: state.loroMood,
+          text: shown.text,
+          sourceIds: shown.sourceIds,
+        }
+      : resolveHostLine(
+          selected,
+          host,
+          state.celestialBody === "mars",
+        );
 
     state.setLoRoMood(line.mood);
     state.setDialogue({
@@ -169,7 +169,7 @@ export default function Hud() {
         line.speakerLabel ??
         (state.celestialBody === "mars"
           ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-          : "SURVEYOR 3 (1967)"),
+          : "SURVEYOR 3"),
       text: line.text,
       sourceIds: line.sourceIds,
       isRevealing: !reduceMotion,
@@ -206,6 +206,8 @@ export default function Hud() {
               type="button"
               onClick={() => {
                 audioEngine.playUiTick();
+                stopMachineNarration();
+                useAppStore.getState().closeMachine();
                 returnToIntro();
                 void cameraBus.goHome();
               }}
@@ -378,6 +380,9 @@ export default function Hud() {
       {/* Tour Chapter Title Banner */}
       <ChapterCard />
 
+      {/* Cross-body hand-off when the Moon or Mars guide ends */}
+      <TourCompleteCard />
+
       {/* Intro Welcome Screen */}
       {mode === "intro" && <IntroScreen />}
 
@@ -416,13 +421,18 @@ export default function Hud() {
 
             <div className="mt-1.5 flex items-center justify-center border-t border-white/15 pt-1.5 px-1 font-mono text-[9.5px] tracking-[0.14em] uppercase">
               <span className="text-regolith-bright font-semibold">
-                {isMars
-                  ? "SURVEYOR 3 · MARS RELAY"
-                  : activeHost.name.toUpperCase()}
+                {activeHost.name.toUpperCase()}
               </span>
             </div>
           </button>
         </div>
+      )}
+
+      {/* Machine story dossier */}
+      {selectedMachineId && (
+        <Suspense fallback={null}>
+          <MachineDossier />
+        </Suspense>
       )}
 
       {/* Selected Site Exhibit Drawer */}

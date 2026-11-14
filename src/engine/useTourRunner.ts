@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { cancelSpeech, speakLine } from "@/audio/speech";
 import { getTourChaptersForBody, SITE_BY_ID } from "@/data";
-import { resolveHostForSite } from "@/data/hosts";
+import { resolveHostLine } from "@/data/host";
+import { getHost, resolveHostForSite } from "@/data/hosts";
 import type { DialogueLine } from "@/data/schema";
 import { useAppStore } from "@/store/useAppStore";
 import { cameraBus } from "./camera";
@@ -37,7 +38,12 @@ export function useTourRunner() {
 
     if (!next.active) {
       cancelSpeech();
-      store.enterExplore(true);
+      if (next.completed) {
+        store.setTourComplete(true);
+        store.enterExplore(false);
+      } else {
+        store.enterExplore(true);
+      }
       return;
     }
 
@@ -90,7 +96,7 @@ export function useTourRunner() {
           (line.speaker === "loro"
             ? store.celestialBody === "mars"
               ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-              : "SURVEYOR 3 (1967)"
+              : "SURVEYOR 3"
             : "MEMORY LOG"),
         text: line.text,
         sourceIds: line.sourceIds,
@@ -110,18 +116,36 @@ export function useTourRunner() {
           store.setSunDirection(beat.sunLon, beat.sunLat);
         }
         store.setLoRoMood("scanning");
-        store.selectSite(site.id);
+        if (beat.reprise) {
+          // Legacy stop: return to the site without reopening its dossier.
+          store.selectSite(null);
+        } else {
+          store.selectSite(site.id);
+        }
         store.setActiveHost(resolveHostForSite(site.id));
 
-        if (beat.announce) {
-          activateLine(beat.announce);
-          await Promise.all([
-            cameraBus.flyToLatLon(site.lat, site.lon),
-            speakLine(beat.announce, signal),
-          ]);
-        } else {
-          await cameraBus.flyToLatLon(site.lat, site.lon);
-        }
+        // Every site gets a voice. When the site has its own host character,
+        // prefer that character's first-person intro over Surveyor 3's
+        // third-person site line, so the text and the speaking host agree.
+        const siteHost = getHost(resolveHostForSite(site.id));
+        const isOwnHost = siteHost.siteId === site.id;
+        const isDefaultSiteIntro =
+          site.tier === "hero" &&
+          beat.announce?.id === site.loroIntro.id;
+        const hostLine =
+          isOwnHost && isDefaultSiteIntro
+            ? siteHost.intro
+            : (beat.announce ??
+              resolveHostLine(
+                site,
+                siteHost,
+                store.celestialBody === "mars",
+              ));
+        activateLine(hostLine);
+        await Promise.all([
+          cameraBus.flyToLatLon(site.lat, site.lon),
+          speakLine(hostLine, signal),
+        ]);
 
         if (signal.aborted) return;
         store.patchDialogue({ isSpeaking: false, isRevealing: false });

@@ -431,7 +431,7 @@ export const HERO_SITES: HeroSite[] = [
       id: "ap16-loro-intro",
       speaker: "loro",
       mood: "narrating",
-      text: "Up in the bright highlands sits humanity's first telescope on another world. John and Charlie tucked it into Orion's shadow so the blinding lunar Sun would not wash out the ultraviolet sky.",
+      text: "High in the Descartes hills sits the first telescope on another world. John and Charlie tucked it in Orion's shadow to study the ultraviolet sky.",
       sourceIds: ["S-LROC-FEATURED", "S-NSSDCA-1972-031C"],
     },
     memoryLog: {
@@ -507,7 +507,7 @@ export const HERO_SITES: HeroSite[] = [
       id: "ap17-loro-intro",
       speaker: "loro",
       mood: "nostalgic",
-      text: "This is where humans last stood on the Moon. Challenger rests in a valley cut through ancient highlands, surrounded by the tracks of the final rover expedition.",
+      text: "This is where humans last stood on the Moon. Challenger rests in Taurus-Littrow, surrounded by tracks from the final rover expedition.",
       sourceIds: ["S-LROC-FEATURED", "S-WAGNER-2017"],
     },
     memoryLog: {

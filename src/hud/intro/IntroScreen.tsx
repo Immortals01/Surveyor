@@ -52,7 +52,7 @@ export default function IntroScreen() {
     state.setDialogue({
       lineId: introLine.id,
       speaker: "loro",
-      speakerLabel: isMars ? "SURVEYOR 3 · MARS RELAY" : "SURVEYOR 3 (1967)",
+      speakerLabel: "SURVEYOR 3",
       text: introLine.text,
       sourceIds: introLine.sourceIds,
       isRevealing: !settings.reduceMotion,
@@ -64,7 +64,7 @@ export default function IntroScreen() {
         .getState()
         .patchDialogue({ isSpeaking: false, isRevealing: false });
     });
-  }, [introLine, isMars]);
+  }, [introLine]);
 
   const stopIntro = () => {
     cancelSpeech();
@@ -126,8 +126,8 @@ export default function IntroScreen() {
 
         <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-regolith/80">
           {isMars
-            ? "11 robotic pioneers—from the Viking landers to Spirit, Opportunity, InSight, and Ingenuity—resting across the red plains of Mars."
-            : "20 historic landers, rovers, and science stations resting untouched across the lunar plains since 1966."}
+            ? "11 robotic pioneers—from the Viking landers to Spirit, Opportunity, InSight, and Ingenuity—resting across the red plains of Mars. Six of them now tell their own stories."
+            : "20 historic landers, rovers, and science stations resting untouched across the lunar plains since 1966. Columbia, Falcon, and friends now speak for themselves."}
         </p>
 
         {/* Host portrait — doubles as the replay button once the visitor has chosen a sound preference */}

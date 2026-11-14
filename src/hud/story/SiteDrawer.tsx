@@ -3,6 +3,8 @@ import { ExternalLink, X } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech } from "@/audio/speech";
 import { getSiteBody, SITE_BY_ID } from "@/data";
+import { getMachineForSite } from "@/data/machines";
+import MachineDossier from "@/hud/machines/MachineDossier";
 import { cameraBus } from "@/engine/camera";
 import {
   getSiteImageUrl,
@@ -19,6 +21,7 @@ export default function SiteDrawer() {
   const celestialBody = useAppStore((s) => s.celestialBody);
   const selectSite = useAppStore((s) => s.selectSite);
   const openSources = useAppStore((s) => s.openSources);
+  const machineAutoplay = useAppStore((s) => s.machineAutoplay);
 
   // Warm the image cache for the active planet/moon
   useEffect(() => {
@@ -35,6 +38,7 @@ export default function SiteDrawer() {
 
   const siteBody = getSiteBody(site.id);
   const isMars = siteBody === "mars";
+  const machine = getMachineForSite(site.id);
 
   const handleClose = () => {
     audioEngine.playUiTick(660);
@@ -117,6 +121,12 @@ export default function SiteDrawer() {
 
       {/* Scrollable Editorial Body */}
       <div className="hud-scroll flex-1 space-y-4 overflow-y-auto p-5">
+        {machine && (
+          <div className="border-b border-white/15 pb-4">
+            <MachineDossier machineId={machine.id} embedded autoPlay={machineAutoplay} />
+          </div>
+        )}
+
         {site.tier === "hero" ? (
           <>
             {/* Archival Photographic Plate */}

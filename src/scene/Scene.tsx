@@ -2,6 +2,7 @@ import { useAppStore } from "@/store/useAppStore";
 import CameraRig from "./CameraRig";
 import Earth from "./Earth";
 import LunarHorizonGlow from "./LunarHorizonGlow";
+import MachineCastMarkers from "./markers/MachineCastMarkers";
 import SiteMarkers from "./markers/SiteMarkers";
 import MoonGlobe from "./moon/MoonGlobe";
 import Starfield from "./Starfield";
@@ -18,6 +19,7 @@ export default function Scene() {
       <MoonGlobe />
       <LunarHorizonGlow />
       <SiteMarkers />
+      <MachineCastMarkers />
       <CameraRig />
     </>
   );

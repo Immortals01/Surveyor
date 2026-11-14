@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { MachineTab } from "@/data/machines";
 import type { Category, CelestialBody, LoRoMood } from "@/data/schema";
 import { DEFAULT_HOST, resolveHostForSite, type HostId } from "@/data/hosts";
 import type { QualityTier } from "@/lib/quality";
@@ -40,6 +41,8 @@ export interface AppState {
   // Primary experience state
   mode: AppMode;
   selectedSiteId: string | null;
+  selectedMachineId: string | null;
+  machineTab: MachineTab;
   hoveredSiteId: string | null;
 
   // Guided Tour cursor
@@ -47,6 +50,7 @@ export interface AppState {
   tourBeatIndex: number;
   tourPaused: boolean;
   chapterBannerVisible: boolean;
+  tourComplete: boolean;
 
   // Explore filter state
   categoryFilter: Category | "all";
@@ -80,11 +84,17 @@ export interface AppState {
   setTourCursor: (chapterIndex: number, beatIndex: number) => void;
   setTourPaused: (paused: boolean) => void;
   setChapterBannerVisible: (visible: boolean) => void;
+  setTourComplete: (complete: boolean) => void;
   selectSite: (siteId: string | null) => void;
+  openMachine: (machineId: string) => void;
+  closeMachine: () => void;
+  setMachineTab: (tab: MachineTab) => void;
   setHoveredSite: (siteId: string | null) => void;
   setCategoryFilter: (cat: Category | "all") => void;
   setHeroOnly: (heroOnly: boolean) => void;
   setSiteIndexOpen: (open: boolean) => void;
+  machineAutoplay: boolean;
+  setMachineAutoplay: (autoplay: boolean) => void;
   openSources: (sourceId?: string) => void;
   closeSources: () => void;
   setLoRoMood: (mood: LoRoMood) => void;
@@ -111,6 +121,7 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
     heightReady: isHeightLoaded(body),
     mode: s.mode,
     selectedSiteId: null,
+    selectedMachineId: null,
     hoveredSiteId: null,
     siteIndexOpen: false,
     categoryFilter: "all",
@@ -119,6 +130,7 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
     tourBeatIndex: 0,
     tourPaused: false,
     chapterBannerVisible: stayingInTour,
+    tourComplete: false,
     sunLongitude: body === "mars" ? 18 : -48,
     sunLatitude: body === "mars" ? 8 : 1.5,
     loroMood: "waving",
@@ -132,7 +144,7 @@ function applyBodySwitch(s: AppState, body: CelestialBody): Partial<AppState> {
             speakerLabel:
               body === "mars"
                 ? "SURVEYOR 3 · DEEP-SPACE MARS RELAY"
-                : "SURVEYOR 3 (1967)",
+                : "SURVEYOR 3",
             text:
               body === "mars"
                 ? "Deep-Space Network relay locked onto Mars! From Viking 1 and the marathon rover Opportunity to InSight's marsquake ears and Ingenuity's 72 flights—click any marker to explore 11 Red Planet pioneers!"
@@ -157,12 +169,16 @@ export const useAppStore = create<AppState>()(
 
       mode: "intro",
       selectedSiteId: null,
+      selectedMachineId: null,
+      machineTab: "story",
+      machineAutoplay: false,
       hoveredSiteId: null,
 
       tourChapterIndex: 0,
       tourBeatIndex: 0,
       tourPaused: false,
       chapterBannerVisible: false,
+      tourComplete: false,
 
       categoryFilter: "all",
       heroOnly: false,
@@ -198,6 +214,8 @@ export const useAppStore = create<AppState>()(
           tourPaused: false,
           siteIndexOpen: false,
           chapterBannerVisible: true,
+          tourComplete: false,
+          dialogue: null,
           categoryFilter: "all",
           heroOnly: false,
         }),
@@ -208,6 +226,7 @@ export const useAppStore = create<AppState>()(
           tourPaused: true,
           chapterBannerVisible: false,
           selectedSiteId: keepSelection ? s.selectedSiteId : null,
+          selectedMachineId: null,
           loroMood: "waving",
         })),
 
@@ -216,7 +235,9 @@ export const useAppStore = create<AppState>()(
           mode: "intro",
           tourPaused: true,
           chapterBannerVisible: false,
+          tourComplete: false,
           selectedSiteId: null,
+          selectedMachineId: null,
           hoveredSiteId: null,
           dialogue: null,
           loroMood: "waving",
@@ -234,12 +255,34 @@ export const useAppStore = create<AppState>()(
       setChapterBannerVisible: (chapterBannerVisible) =>
         set({ chapterBannerVisible }),
 
+      setTourComplete: (tourComplete) => set({ tourComplete }),
+
       selectSite: (siteId) =>
         set({
           selectedSiteId: siteId,
+          selectedMachineId: null,
+          machineAutoplay: false,
           activeHostId: resolveHostForSite(siteId),
           dialogue: null,
         }),
+
+      openMachine: (machineId) =>
+        set((s) => ({
+          mode: s.mode === "intro" ? "explore" : s.mode,
+          selectedMachineId: machineId,
+          machineTab: "story",
+          selectedSiteId: null,
+          hoveredSiteId: null,
+          siteIndexOpen: false,
+          chapterBannerVisible: false,
+          dialogue: null,
+          loroMood: "waving",
+          activeHostId: DEFAULT_HOST,
+        })),
+
+      closeMachine: () => set({ selectedMachineId: null, machineTab: "story" }),
+
+      setMachineTab: (machineTab) => set({ machineTab }),
 
       setHoveredSite: (hoveredSiteId) => set({ hoveredSiteId }),
 
@@ -248,6 +291,7 @@ export const useAppStore = create<AppState>()(
       setHeroOnly: (heroOnly) => set({ heroOnly }),
 
       setSiteIndexOpen: (siteIndexOpen) => set({ siteIndexOpen }),
+      setMachineAutoplay: (machineAutoplay) => set({ machineAutoplay }),
 
       openSources: (sourceId) =>
         set({
