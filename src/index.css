@@ -125,12 +125,7 @@
 }
 
 .deep-space-backdrop {
-  animation: deep-space-backdrop-drift 72s ease-in-out infinite;
+  animation: deep-space-backdrop-drift 26s ease-in-out infinite;
   will-change: transform;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .deep-space-backdrop {
-    animation: none;
-  }
-}

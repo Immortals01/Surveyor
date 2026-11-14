@@ -31,13 +31,13 @@ export default function DeepSpaceStarfield() {
     const tints = ["255,255,255", "220,235,255", "255,240,215", "205,225,255"];
 
     const seed = () => {
-      const count = Math.max(110, Math.round((width * height) / 6500));
+      const count = Math.max(160, Math.round((width * height) / 4800));
       stars = Array.from({ length: count }, (_, index) => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: 0.5 + Math.random() * 1.45,
-        speed: 4 + Math.random() * 16,
-        alpha: 0.4 + Math.random() * 0.6,
+        radius: 0.55 + Math.random() * 1.75,
+        speed: 12 + Math.random() * 46,
+        alpha: 0.45 + Math.random() * 0.55,
         phase: Math.random() * Math.PI * 2,
         tint: tints[index % tints.length] ?? "255,255,255",
       }));
@@ -91,7 +91,7 @@ export default function DeepSpaceStarfield() {
           vy: 90 + Math.random() * 80,
           life: 1,
         };
-        nextMeteor = now + 8000 + Math.random() * 7000;
+        nextMeteor = now + 4000 + Math.random() * 5000;
       }
 
       if (meteor) {
@@ -123,17 +123,7 @@ export default function DeepSpaceStarfield() {
     observer.observe(canvas);
     window.addEventListener("resize", resize);
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      for (const star of stars) {
-        context.beginPath();
-        context.fillStyle = `rgba(${star.tint},${star.alpha})`;
-        context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
-        context.fill();
-      }
-    } else {
-      frame = requestAnimationFrame(draw);
-    }
+    frame = requestAnimationFrame(draw);
 
     return () => {
       cancelAnimationFrame(frame);
