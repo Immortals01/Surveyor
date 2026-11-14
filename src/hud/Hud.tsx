@@ -138,8 +138,21 @@ export default function Hud() {
     cancelSpeech();
     stopMachineNarration();
     useAppStore.getState().closeMachine();
+    setDeepSpaceOpen(false);
     setCelestialBody(targetBody);
     void cameraBus.goHome();
+  };
+
+  const handleOpenDeepSpace = () => {
+    audioEngine.unlock(muted);
+    audioEngine.playUiTick(900);
+    cancelSpeech();
+    stopMachineNarration();
+    const state = useAppStore.getState();
+    state.closeMachine();
+    state.selectSite(null);
+    state.enterExplore(false);
+    state.setDeepSpaceOpen(true);
   };
 
   const handleLoRoClick = () => {
@@ -243,13 +256,13 @@ export default function Hud() {
           {/* Celestial Body Switcher: Moon <-> Mars */}
           <div
             role="group"
-            aria-label="Select celestial body"
+            aria-label="Select destination"
             className="inline-flex items-center border border-white/15 bg-space-950/85 p-0.5 backdrop-blur-md"
           >
             <button
               type="button"
               onClick={() => handleSwitchBody("moon")}
-              aria-pressed={celestialBody === "moon"}
+              aria-pressed={!deepSpaceOpen && celestialBody === "moon"}
               className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
                 celestialBody === "moon"
                   ? "bg-sunlit text-space-950 shadow-sm"
@@ -263,7 +276,7 @@ export default function Hud() {
             <button
               type="button"
               onClick={() => handleSwitchBody("mars")}
-              aria-pressed={celestialBody === "mars"}
+              aria-pressed={!deepSpaceOpen && celestialBody === "mars"}
               className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
                 celestialBody === "mars"
                   ? "bg-orange-400 text-space-950 shadow-sm"
@@ -273,6 +286,21 @@ export default function Hud() {
             >
               <span className="h-2.5 w-2.5 rounded-full bg-orange-500" />
               <span>Mars</span>
+            </button>
+            <span className="h-4 w-px bg-white/15" />
+            <button
+              type="button"
+              onClick={handleOpenDeepSpace}
+              aria-pressed={deepSpaceOpen}
+              className={`inline-flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
+                deepSpaceOpen
+                  ? "bg-loro text-space-950 shadow-sm"
+                  : "text-regolith/75 hover:bg-white/10 hover:text-white"
+              }`}
+              title="Explore hardware beyond the Moon and Mars"
+            >
+              <Orbit className="h-3.5 w-3.5" />
+              <span>Deep Space</span>
             </button>
           </div>
 
@@ -353,21 +381,6 @@ export default function Hud() {
             >
               <ListFilter className="h-3.5 w-3.5 text-loro" />
               <span>Index ({siteCount})</span>
-            </button>
-          )}
-
-          {mode !== "intro" && (
-            <button
-              type="button"
-              onClick={() => {
-                audioEngine.playUiTick();
-                setDeepSpaceOpen(true);
-              }}
-              className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/85 px-3 py-2 font-mono text-[11px] tracking-wider text-regolith uppercase backdrop-blur-md transition hover:border-loro hover:text-loro focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
-              title="Hardware beyond the Moon and Mars"
-            >
-              <Orbit className="h-3.5 w-3.5 text-loro" />
-              <span className="hidden sm:inline">Deep Space</span>
             </button>
           )}
 
