@@ -31,13 +31,13 @@ export default function DeepSpaceStarfield() {
     const tints = ["255,255,255", "220,235,255", "255,240,215", "205,225,255"];
 
     const seed = () => {
-      const count = Math.max(160, Math.round((width * height) / 4800));
+      const count = Math.max(130, Math.round((width * height) / 6200));
       stars = Array.from({ length: count }, (_, index) => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        radius: 0.55 + Math.random() * 1.75,
-        speed: 12 + Math.random() * 46,
-        alpha: 0.45 + Math.random() * 0.55,
+        radius: 0.55 + Math.random() * 1.45,
+        speed: 4 + Math.random() * 14,
+        alpha: 0.4 + Math.random() * 0.55,
         phase: Math.random() * Math.PI * 2,
         tint: tints[index % tints.length] ?? "255,255,255",
       }));
@@ -47,7 +47,7 @@ export default function DeepSpaceStarfield() {
       const rect = canvas.getBoundingClientRect();
       width = Math.max(1, rect.width);
       height = Math.max(1, rect.height);
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.max(2, Math.min(window.devicePixelRatio || 1, 2));
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -65,13 +65,13 @@ export default function DeepSpaceStarfield() {
           star.x = width + 3;
           star.y = Math.random() * height;
         }
-        const twinkle = 0.78 + Math.sin(now / 1400 + star.phase) * 0.22;
+        const twinkle = 0.84 + Math.sin(now / 2800 + star.phase) * 0.16;
         context.beginPath();
         context.fillStyle = `rgba(${star.tint},${star.alpha * twinkle})`;
         context.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
         context.fill();
 
-        if (star.radius > 1.35) {
+        if (star.radius > 1.7) {
           context.strokeStyle = `rgba(${star.tint},${star.alpha * 0.35})`;
           context.lineWidth = 0.6;
           context.beginPath();
@@ -91,7 +91,7 @@ export default function DeepSpaceStarfield() {
           vy: 90 + Math.random() * 80,
           life: 1,
         };
-        nextMeteor = now + 4000 + Math.random() * 5000;
+        nextMeteor = now + 9000 + Math.random() * 7000;
       }
 
       if (meteor) {

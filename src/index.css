@@ -114,18 +114,18 @@
 
 @keyframes deep-space-backdrop-drift {
   0% {
-    transform: scale(1.03) translate3d(-0.9%, -0.5%, 0);
+    transform: translate3d(-1.4%, -0.7%, 0) scale(1.07);
   }
   50% {
-    transform: scale(1.09) translate3d(0.9%, 0.5%, 0);
+    transform: translate3d(1.4%, 0.7%, 0) scale(1.07);
   }
   100% {
-    transform: scale(1.03) translate3d(-0.9%, -0.5%, 0);
+    transform: translate3d(-1.4%, -0.7%, 0) scale(1.07);
   }
 }
 
 .deep-space-backdrop {
-  animation: deep-space-backdrop-drift 26s ease-in-out infinite;
+  animation: deep-space-backdrop-drift 48s ease-in-out infinite;
   will-change: transform;
 }
 
