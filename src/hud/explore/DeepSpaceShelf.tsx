@@ -159,7 +159,11 @@ export default function DeepSpaceShelf() {
       aria-label="Deep space and elsewhere hardware"
       onClick={() => setSelected(null)}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_28%_22%,rgba(35,58,96,0.32),transparent_58%),radial-gradient(ellipse_at_76%_70%,rgba(78,48,92,0.22),transparent_62%),linear-gradient(180deg,#05070d_0%,#070b16_55%,#04060b_100%)]" />
+      <div
+        className="deep-space-backdrop absolute -inset-[6%] bg-cover bg-center"
+        style={{ backgroundImage: "url('/images/deep-space/space-bg.webp')" }}
+      />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_32%,rgba(4,6,11,0.55)_78%,rgba(3,5,9,0.85)_100%)]" />
       <DeepSpaceStarfield />
 
       <div className="relative z-10 flex h-full flex-col px-4 pt-24 pb-4 sm:px-6 sm:pt-24">
