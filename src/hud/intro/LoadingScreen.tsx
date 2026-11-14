@@ -4,7 +4,7 @@ import { isHeightLoaded, loadLunarHeightGrid } from "@/scene/moon/heightSampler"
 import { marsTileManager, moonTileManager } from "@/scene/moon/tileManager";
 
 const MIN_BOOT_MS = 420;
-const MAX_BOOT_MS = 1200;
+const MAX_BOOT_MS = 2400;
 const FADE_OUT_MS = 320;
 const MARS_WARMUP_DELAY_MS = 1500;
 
