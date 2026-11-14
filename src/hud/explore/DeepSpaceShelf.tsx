@@ -12,6 +12,7 @@ import { audioEngine } from "@/audio/AudioEngine";
 import { DEEP_SPACE_ENTRIES, type DeepSpaceEntry } from "@/data/deepSpace";
 import { useAppStore } from "@/store/useAppStore";
 import DeepSpaceArt from "./DeepSpaceArt";
+import DeepSpaceStarfield from "./DeepSpaceStarfield";
 
 const POSITIONS: Record<string, { x: number; y: number }> = {
   dawn: { x: 22, y: 30 },
@@ -158,17 +159,8 @@ export default function DeepSpaceShelf() {
       aria-label="Deep space and elsewhere hardware"
       onClick={() => setSelected(null)}
     >
-      <div
-        className="deep-space-stars absolute -inset-[10%] bg-cover bg-center opacity-80"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(5,7,13,0.55) 0%, rgba(5,7,13,0.18) 45%, rgba(5,7,13,0.85) 100%), url('/textures/sky/stars_4k.webp')",
-        }}
-      />
-      <div
-        className="deep-space-stars-slow pointer-events-none absolute -inset-[16%] bg-cover bg-center opacity-25"
-        style={{ backgroundImage: "url('/textures/sky/milkyway_4k.webp')" }}
-      />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_28%_22%,rgba(35,58,96,0.32),transparent_58%),radial-gradient(ellipse_at_76%_70%,rgba(78,48,92,0.22),transparent_62%),linear-gradient(180deg,#05070d_0%,#070b16_55%,#04060b_100%)]" />
+      <DeepSpaceStarfield />
 
       <div className="relative z-10 flex h-full flex-col px-4 pt-24 pb-4 sm:px-6 sm:pt-24">
         <div className="flex items-start justify-between gap-4">

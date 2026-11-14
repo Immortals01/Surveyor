@@ -110,31 +110,3 @@
   }
 }
 
-@keyframes deep-space-drift {
-  0% {
-    transform: translate3d(-2.6%, -1.6%, 0) scale(1.1);
-  }
-  50% {
-    transform: translate3d(2.6%, 1.6%, 0) scale(1.16);
-  }
-  100% {
-    transform: translate3d(-2.6%, -1.6%, 0) scale(1.1);
-  }
-}
-
-.deep-space-stars {
-  animation: deep-space-drift 38s ease-in-out infinite;
-  will-change: transform;
-}
-
-.deep-space-stars-slow {
-  animation: deep-space-drift 72s ease-in-out infinite reverse;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .deep-space-stars,
-  .deep-space-stars-slow {
-    animation: none;
-  }
-}
