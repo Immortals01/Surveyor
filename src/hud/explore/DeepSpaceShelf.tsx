@@ -56,14 +56,14 @@ function ObjectNode({
         animationDelay: `${index * 0.9}s`,
         borderColor: active ? accent : undefined,
       }}
-      className="animate-deep-float group absolute flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center rounded-full border border-transparent text-center transition hover:border-white/25 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none sm:h-24 sm:w-24"
+      className="animate-deep-float group absolute flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center rounded-full border border-transparent text-center transition hover:border-white/25 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none sm:h-28 sm:w-28"
       aria-label={`Open details for ${entry.name}`}
     >
       <span
         className="absolute inset-2 -z-10 rounded-full blur-xl transition-opacity group-hover:opacity-100"
         style={{ backgroundColor: `${accent}20`, opacity: active ? 1 : 0.35 }}
       />
-      <span className="pointer-events-none h-16 w-16 sm:h-20 sm:w-20">
+      <span className="pointer-events-none h-20 w-20 sm:h-24 sm:w-24">
         <DeepSpaceArt id={entry.id} />
       </span>
       <span className="absolute top-full left-1/2 mt-0.5 w-32 -translate-x-1/2 border border-white/10 bg-space-950/70 px-1.5 py-0.5 backdrop-blur-sm">
