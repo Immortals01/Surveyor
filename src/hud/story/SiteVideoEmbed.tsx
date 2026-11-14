@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ExternalLink, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import type { SiteVideo } from "@/data/schema";
-import { useAppStore } from "@/store/useAppStore";
 
 interface SiteVideoEmbedProps {
   video: SiteVideo;
@@ -14,9 +13,6 @@ interface SiteVideoEmbedProps {
  */
 export default function SiteVideoEmbed({ video }: SiteVideoEmbedProps) {
   const [playing, setPlaying] = useState(false);
-  const openSources = useAppStore((s) => s.openSources);
-
-  const watchUrl = `https://www.youtube.com/watch?v=${video.youtubeId}`;
   const posterUrl = `https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg`;
 
   return (
@@ -67,30 +63,6 @@ export default function SiteVideoEmbed({ video }: SiteVideoEmbedProps) {
             {video.description}
           </p>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-          <span className="font-mono text-[9px] tracking-[0.14em] text-regolith/45 uppercase">
-            {video.credit}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => openSources(video.sourceId)}
-              className="inline-flex cursor-pointer items-center gap-1 border border-white/15 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] tracking-wider text-loro transition hover:border-loro hover:bg-loro/15 hover:text-white"
-              title={`Verify against NASA source ${video.sourceId}`}
-            >
-              {video.sourceId}
-            </button>
-            <a
-              href={watchUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 border border-white/15 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] tracking-wider text-regolith/70 transition hover:border-regolith-bright hover:text-white"
-            >
-              YOUTUBE
-              <ExternalLink className="h-2.5 w-2.5" />
-            </a>
-          </span>
-        </div>
       </figcaption>
     </figure>
   );
