@@ -1,23 +1,9 @@
 import { useState } from "react";
-import {
-  ArrowLeft,
-  ArrowUpRight,
-  Orbit,
-  Rocket,
-  Satellite,
-  Telescope,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Orbit, Satellite, X } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { DEEP_SPACE_ENTRIES, type DeepSpaceEntry } from "@/data/deepSpace";
 import { useAppStore } from "@/store/useAppStore";
-
-const ICONS = {
-  dawn: Orbit,
-  "near-shoemaker": Satellite,
-  pioneer: Rocket,
-  kepler: Telescope,
-} as const;
+import DeepSpaceScene, { DEEP_SPACE_POSITIONS } from "./DeepSpaceScene";
 
 const ACCENTS: Record<string, string> = {
   dawn: "#5ce1ff",
@@ -26,12 +12,6 @@ const ACCENTS: Record<string, string> = {
   kepler: "#c4b5fd",
 };
 
-const POSITIONS: Record<string, string> = {
-  dawn: "sm:left-[12%] sm:top-[20%]",
-  "near-shoemaker": "sm:left-[60%] sm:top-[16%]",
-  pioneer: "sm:left-[28%] sm:top-[58%]",
-  kepler: "sm:left-[70%] sm:top-[55%]",
-};
 
 function ObjectNode({
   entry,
@@ -44,36 +24,34 @@ function ObjectNode({
   onSelect: () => void;
   index: number;
 }) {
-  const Icon = ICONS[entry.id as keyof typeof ICONS] ?? Orbit;
   const accent = ACCENTS[entry.id] ?? "#5ce1ff";
+  const spot = DEEP_SPACE_POSITIONS[entry.id] ?? { x: 50, y: 50 };
 
   return (
     <button
       type="button"
       onClick={onSelect}
-      style={{ animationDelay: `${index * 0.9}s`, borderColor: active ? accent : undefined }}
-      className={`animate-deep-float group relative flex items-center gap-3 border border-white/15 bg-space-950/70 p-3 text-left backdrop-blur-md transition hover:border-white/40 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none sm:absolute sm:w-44 sm:flex-col sm:items-center sm:p-4 ${POSITIONS[entry.id] ?? ""}`}
+      style={{
+        left: `${spot.x}%`,
+        top: `${spot.y}%`,
+        animationDelay: `${index * 0.9}s`,
+        borderColor: active ? accent : undefined,
+      }}
+      className="animate-deep-float group absolute flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center rounded-full border border-transparent text-center transition hover:border-white/25 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none sm:h-36 sm:w-36"
+      aria-label={`Open details for ${entry.name}`}
     >
       <span
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border bg-space-900/80 shadow-[0_0_35px_rgba(92,225,255,0.18)] sm:h-20 sm:w-20"
-        style={{ borderColor: `${accent}66`, color: accent }}
-      >
-        <Icon className="h-7 w-7 sm:h-9 sm:w-9" />
-      </span>
-      <span className="min-w-0">
-        <span className="block font-display text-sm leading-tight font-bold text-regolith-bright sm:text-base">
+        className="absolute inset-3 -z-10 rounded-full blur-2xl transition-opacity group-hover:opacity-100"
+        style={{ backgroundColor: `${accent}20`, opacity: active ? 1 : 0.35 }}
+      />
+      <span className="absolute top-full left-1/2 mt-1 w-40 -translate-x-1/2 border border-white/10 bg-space-950/75 px-2 py-1 backdrop-blur-sm">
+        <span className="block font-display text-[12px] leading-tight font-bold text-regolith-bright">
           {entry.name}
         </span>
-        <span className="mt-0.5 block font-mono text-[8.5px] tracking-[0.12em] text-regolith/55 uppercase">
+        <span className="mt-0.5 block font-mono text-[7.5px] tracking-[0.1em] text-regolith/50 uppercase">
           {entry.location}
         </span>
       </span>
-      {active && (
-        <span
-          className="absolute inset-0 -z-10 blur-xl"
-          style={{ backgroundColor: `${accent}20` }}
-        />
-      )}
     </button>
   );
 }
@@ -108,7 +86,9 @@ export default function DeepSpaceShelf() {
         }}
       />
 
-      <div className="relative flex h-full flex-col px-4 pt-24 pb-4 sm:px-6 sm:pt-24">
+      <DeepSpaceScene />
+
+      <div className="relative z-10 flex h-full flex-col px-4 pt-24 pb-4 sm:px-6 sm:pt-24">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] text-loro uppercase">
@@ -136,7 +116,7 @@ export default function DeepSpaceShelf() {
         </div>
 
         <div className="relative mt-4 flex-1 sm:mt-2">
-          <div className="grid gap-3 sm:block sm:h-full">
+          <div className="absolute inset-0">
             {DEEP_SPACE_ENTRIES.map((entry, index) => (
               <ObjectNode
                 key={entry.id}
