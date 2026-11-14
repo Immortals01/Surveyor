@@ -2,15 +2,27 @@ import {
   ArrowLeft,
   ChevronLeft,
   ChevronRight,
+  ExternalLink,
   Orbit,
+  Pause,
+  Play,
+  RotateCcw,
   X,
 } from "lucide-react";
+import { useEffect } from "react";
 import { audioEngine } from "@/audio/AudioEngine";
+import {
+  stopDeepSpaceNarration,
+  useDeepSpaceNarration,
+} from "@/audio/deepSpaceNarration";
+import { deepSpaceParagraphDomId } from "@/audio/deepSpaceVoices";
 import {
   DEEP_SPACE_ACCENTS,
   DEEP_SPACE_ENTRIES,
   type DeepSpaceEntry,
 } from "@/data/deepSpace";
+import { SOURCES_BY_ID } from "@/data/sources";
+import { useAppStore } from "@/store/useAppStore";
 import DeepSpaceArt from "./DeepSpaceArt";
 import DeepSpaceStarfield from "./DeepSpaceStarfield";
 
@@ -27,6 +39,35 @@ export default function DeepSpaceStory({
 }: DeepSpaceStoryProps) {
   const accent = DEEP_SPACE_ACCENTS[entry.id] ?? "#5ce1ff";
   const index = DEEP_SPACE_ENTRIES.findIndex((item) => item.id === entry.id);
+  const openSources = useAppStore((s) => s.openSources);
+  const narration = useDeepSpaceNarration(entry);
+
+  // Keep the section being read in view while the voice moves through the log.
+  useEffect(() => {
+    if (narration.activeIndex < 0) return;
+    document
+      .getElementById(deepSpaceParagraphDomId(entry.id, narration.activeIndex))
+      ?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [narration.activeIndex, entry.id]);
+
+  const toggleNarration = () => {
+    audioEngine.unlock(useAppStore.getState().settings.muted);
+    if (narration.isPlaying) {
+      narration.pause();
+      return;
+    }
+    if (narration.isFinished) {
+      narration.replay();
+      return;
+    }
+    narration.play(narration.activeIndex >= 0 ? narration.activeIndex : 0);
+  };
+
+  const narrationLabel = narration.isPlaying
+    ? "Pause"
+    : narration.isFinished
+      ? "Replay log"
+      : "Listen to log";
 
   return (
     <section
@@ -49,6 +90,7 @@ export default function DeepSpaceStory({
             type="button"
             onClick={() => {
               audioEngine.playUiTick(760);
+              stopDeepSpaceNarration();
               onClose();
             }}
             className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-space-950/80 px-2.5 py-2 font-mono text-[9.5px] tracking-[0.14em] text-regolith uppercase backdrop-blur-md transition hover:border-white/40 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
@@ -68,6 +110,7 @@ export default function DeepSpaceStory({
             type="button"
             onClick={() => {
               audioEngine.playUiTick(660);
+              stopDeepSpaceNarration();
               onClose();
             }}
             className="cursor-pointer border border-white/15 bg-space-950/80 p-1.5 text-regolith backdrop-blur-md transition hover:border-white/40 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
@@ -141,27 +184,78 @@ export default function DeepSpaceStory({
               <p className="font-mono text-[9px] tracking-[0.18em] text-regolith/45 uppercase">
                 Memory log
               </p>
-              <span className="font-mono text-[8px] tracking-[0.12em] text-regolith/30 uppercase">
-                First person
-              </span>
+              <button
+                type="button"
+                onClick={toggleNarration}
+                aria-pressed={narration.isPlaying}
+                aria-label={`${narrationLabel} — read by the object itself`}
+                className="inline-flex cursor-pointer items-center gap-1.5 border border-white/15 bg-white/[0.04] px-2 py-1 font-mono text-[9px] tracking-[0.12em] text-regolith uppercase transition hover:border-loro hover:bg-loro/15 hover:text-white focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none"
+              >
+                {narration.isPlaying ? (
+                  <Pause className="h-3 w-3" />
+                ) : narration.isFinished ? (
+                  <RotateCcw className="h-3 w-3" />
+                ) : (
+                  <Play className="h-3 w-3" />
+                )}
+                <span>{narrationLabel}</span>
+              </button>
             </div>
-            <div className="mt-3 space-y-3">
-              {entry.story.map((paragraph, paragraphIndex) => (
-                <p
-                  key={paragraph.slice(0, 24)}
-                  className="text-[13px] leading-[1.72] text-regolith-bright/85"
-                >
-                  {paragraphIndex === 0 ? (
-                    <span
-                      className="float-left mt-1 mr-1.5 font-display text-[30px] leading-[0.8] font-bold"
-                      style={{ color: accent }}
-                    >
-                      {paragraph.charAt(0)}
-                    </span>
-                  ) : null}
-                  {paragraphIndex === 0 ? paragraph.slice(1) : paragraph}
-                </p>
-              ))}
+            <div className="mt-3 space-y-1">
+              {entry.story.map((paragraph, paragraphIndex) => {
+                const isActive = narration.activeIndex === paragraphIndex;
+                return (
+                  <button
+                    key={paragraph.slice(0, 24)}
+                    id={deepSpaceParagraphDomId(entry.id, paragraphIndex)}
+                    type="button"
+                    onClick={() => {
+                      audioEngine.unlock(useAppStore.getState().settings.muted);
+                      narration.play(paragraphIndex);
+                    }}
+                    aria-current={isActive ? "true" : undefined}
+                    className={`block w-full cursor-pointer rounded-sm border-l-2 py-1.5 pr-1.5 pl-2.5 text-left text-[13px] leading-[1.72] transition-colors focus-visible:ring-1 focus-visible:ring-loro focus-visible:outline-none ${
+                      isActive
+                        ? "bg-white/10 text-white"
+                        : "text-regolith-bright/85 hover:bg-white/[0.04]"
+                    }`}
+                    style={{ borderLeftColor: isActive ? accent : "transparent" }}
+                  >
+                    {paragraphIndex === 0 ? (
+                      <span
+                        className="float-left mt-1 mr-1.5 font-display text-[30px] leading-[0.8] font-bold"
+                        style={{ color: accent }}
+                      >
+                        {paragraph.charAt(0)}
+                      </span>
+                    ) : null}
+                    {paragraphIndex === 0 ? paragraph.slice(1) : paragraph}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2.5">
+              <span className="font-mono text-[9px] tracking-[0.14em] text-regolith/55 uppercase">
+                Sources
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {entry.sourceIds.map((sid) => (
+                  <button
+                    key={sid}
+                    type="button"
+                    onClick={() => {
+                      audioEngine.playUiTick(940);
+                      openSources(sid);
+                    }}
+                    title={SOURCES_BY_ID.get(sid)?.title ?? sid}
+                    className="inline-flex cursor-pointer items-center gap-1 border border-white/15 bg-white/[0.03] px-2 py-0.5 font-mono text-[9px] tracking-wider text-loro transition hover:border-loro hover:bg-loro/15 hover:text-white"
+                  >
+                    <span>{sid}</span>
+                    <ExternalLink className="h-2.5 w-2.5" />
+                  </button>
+                ))}
+              </div>
             </div>
           </article>
         </div>

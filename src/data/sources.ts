@@ -350,6 +350,33 @@ export const SOURCES: SourceEntry[] = [
     creditLine: "NASA Science — Dawn mission pages (NASA/JPL-Caltech/UCLA/MPS/DLR/IDA).",
   },
   {
+    id: "S-NASA-NEAR-SHOEMAKER",
+    title: "NASA Science — NEAR Shoemaker Mission",
+    agencyOrAuthor: "NASA Science Mission Directorate / Johns Hopkins APL",
+    dataset: "LITERATURE",
+    url: "https://science.nasa.gov/mission/near-shoemaker/",
+    creditLine:
+      "NASA Science — NEAR Shoemaker mission pages (NASA / JHU Applied Physics Laboratory).",
+  },
+  {
+    id: "S-NASA-PIONEER",
+    title: "NASA Science — Pioneer 10 & 11 Missions",
+    agencyOrAuthor: "NASA Science Mission Directorate / NASA Ames Research Center",
+    dataset: "LITERATURE",
+    url: "https://science.nasa.gov/mission/pioneer-10/",
+    creditLine:
+      "NASA Science — Pioneer 10 & 11 mission pages (NASA Ames Research Center).",
+  },
+  {
+    id: "S-NASA-KEPLER",
+    title: "NASA Science — Kepler Space Telescope Mission",
+    agencyOrAuthor: "NASA Science Mission Directorate / NASA Ames Research Center",
+    dataset: "LITERATURE",
+    url: "https://science.nasa.gov/mission/kepler/",
+    creditLine:
+      "NASA Science — Kepler mission pages (NASA Ames Research Center / Ball Aerospace).",
+  },
+  {
     id: "S-NSSDCA-DAWN",
     title: "Dawn Mission Record (2007-043A)",
     agencyOrAuthor: "NASA / JPL / NSSDCA",

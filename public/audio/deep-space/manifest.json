@@ -1,0 +1,114 @@
+[
+  {
+    "id": "dawn-p1",
+    "entryId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "text": "I was built to do something no spacecraft had ever done: orbit two different worlds. I left Earth in September 2007 with three ion engines that pushed me gently, day after day, on a pale blue beam.",
+    "audio": "/audio/deep-space/dawn-p1.mp3"
+  },
+  {
+    "id": "dawn-p2",
+    "entryId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "text": "In 2011 I settled into orbit around Vesta, a battered asteroid the size of Arizona. I mapped its craters and giant canyon, then climbed away and aimed for Ceres.",
+    "audio": "/audio/deep-space/dawn-p2.mp3"
+  },
+  {
+    "id": "dawn-p3",
+    "entryId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "text": "Ceres surprised me. Beneath its gray, cratered face I found bright salt deposits and a dark world that may once have held an ocean. For three years I circled it, taking pictures and measuring its gravity.",
+    "audio": "/audio/deep-space/dawn-p3.mp3"
+  },
+  {
+    "id": "dawn-p4",
+    "entryId": "dawn",
+    "voice": "en-IE-EmilyNeural",
+    "text": "My hydrazine finally ran out in October 2018. I cannot point my antenna or fire an engine anymore, but I am not falling. I remain in a quiet, stable orbit around Ceres, still circling the first dwarf planet humans ever visited.",
+    "audio": "/audio/deep-space/dawn-p4.mp3"
+  },
+  {
+    "id": "kepler-p1",
+    "entryId": "kepler",
+    "voice": "en-GB-SoniaNeural",
+    "text": "I was a telescope with one job: stare at the same patch of sky and wait for tiny dips in starlight. Each dip could mean a planet passing in front of its star.",
+    "audio": "/audio/deep-space/kepler-p1.mp3"
+  },
+  {
+    "id": "kepler-p2",
+    "entryId": "kepler",
+    "voice": "en-GB-SoniaNeural",
+    "text": "I launched in March 2009 and watched more than 150,000 stars. For four years I found planets by the thousands, including rocky worlds and strange giants orbiting closer than Mercury. I showed humans that planets are not rare. They are everywhere.",
+    "audio": "/audio/deep-space/kepler-p2.mp3"
+  },
+  {
+    "id": "kepler-p3",
+    "entryId": "kepler",
+    "voice": "en-GB-SoniaNeural",
+    "text": "In 2013 one of my reaction wheels failed, and I could no longer hold steady. My team found a clever second life for me, using sunlight to balance the spacecraft. That began the K2 mission, and I kept finding more worlds.",
+    "audio": "/audio/deep-space/kepler-p3.mp3"
+  },
+  {
+    "id": "kepler-p4",
+    "entryId": "kepler",
+    "voice": "en-GB-SoniaNeural",
+    "text": "By 2018 I had almost no fuel left. NASA retired me in October, and I went silent in an orbit that trails Earth around the Sun. I am not looking at the stars anymore, but the worlds I found are still waiting for someone to visit them.",
+    "audio": "/audio/deep-space/kepler-p4.mp3"
+  },
+  {
+    "id": "near-shoemaker-p1",
+    "entryId": "near-shoemaker",
+    "voice": "en-US-ChristopherNeural",
+    "text": "I was named for a scientist who spent his life chasing stones from space. In February 1996 I left Earth to catch one of those stones: a potato-shaped asteroid called Eros.",
+    "audio": "/audio/deep-space/near-shoemaker-p1.mp3"
+  },
+  {
+    "id": "near-shoemaker-p2",
+    "entryId": "near-shoemaker",
+    "voice": "en-US-ChristopherNeural",
+    "text": "I missed my first chance to orbit it, so my team sent me around the Sun for another try. On Valentine's Day 2000 I finally became the first spacecraft to orbit an asteroid. For a year I photographed Eros from above, measuring its craters, ridges and strange saddle-shaped valley.",
+    "audio": "/audio/deep-space/near-shoemaker-p2.mp3"
+  },
+  {
+    "id": "near-shoemaker-p3",
+    "entryId": "near-shoemaker",
+    "voice": "en-US-ChristopherNeural",
+    "text": "When my mission was nearly over, my team tried something no one had attempted. They guided me down. On 12 February 2001 I touched the surface at walking speed and came to rest on Eros. I was the first spacecraft to land on an asteroid.",
+    "audio": "/audio/deep-space/near-shoemaker-p3.mp3"
+  },
+  {
+    "id": "near-shoemaker-p4",
+    "entryId": "near-shoemaker",
+    "voice": "en-US-ChristopherNeural",
+    "text": "I kept working for a few more days, sending back close-up pictures and measuring the soil beneath me. Then my power faded. I am still there, a small metal visitor resting on a world only 34 kilometres long.",
+    "audio": "/audio/deep-space/near-shoemaker-p4.mp3"
+  },
+  {
+    "id": "pioneer-p1",
+    "entryId": "pioneer",
+    "voice": "en-US-GuyNeural",
+    "text": "We were twins, built to go where nothing had gone before. Pioneer 10 launched in 1972 and Pioneer 11 followed in 1973. Between us, we carried the first small plaque showing where humans live.",
+    "audio": "/audio/deep-space/pioneer-p1.mp3"
+  },
+  {
+    "id": "pioneer-p2",
+    "entryId": "pioneer",
+    "voice": "en-US-GuyNeural",
+    "text": "Pioneer 10 flew through the asteroid belt, a place many engineers feared, and came out the other side. In December 1973 it became the first spacecraft to fly past Jupiter, sending back close-up views of its storms and giant magnetic field.",
+    "audio": "/audio/deep-space/pioneer-p2.mp3"
+  },
+  {
+    "id": "pioneer-p3",
+    "entryId": "pioneer",
+    "voice": "en-US-GuyNeural",
+    "text": "Pioneer 11 took a bolder path. It used Jupiter's gravity to slingshot toward Saturn, and in September 1979 it became the first spacecraft to visit that ringed world.",
+    "audio": "/audio/deep-space/pioneer-p3.mp3"
+  },
+  {
+    "id": "pioneer-p4",
+    "entryId": "pioneer",
+    "voice": "en-US-GuyNeural",
+    "text": "After that we kept going. Pioneer 10 crossed the orbit of Neptune and headed out of the solar system. Pioneer 11 followed. One by one our power supplies faded and our radios went quiet. We are still drifting outward, carrying our golden plaques into the dark, silent but never forgotten.",
+    "audio": "/audio/deep-space/pioneer-p4.mp3"
+  }
+]

@@ -18,6 +18,7 @@ export interface DeepSpaceEntry {
   story: readonly string[];
   facts: readonly DeepSpaceFact[];
   images: readonly DeepSpaceImage[];
+  sourceIds: readonly string[];
 }
 
 export const DEEP_SPACE_ACCENTS: Record<string, string> = {
@@ -48,6 +49,7 @@ export const DEEP_SPACE_ENTRIES: readonly DeepSpaceEntry[] = [
       { label: "Propulsion", value: "Three ion engines" },
       { label: "Status", value: "Silent in a stable orbit" },
     ],
+    sourceIds: ["S-NASA-DAWN", "S-NSSDCA-DAWN"],
     images: [
       {
         src: "/images/deep-space/dawn-1.webp",
@@ -85,6 +87,7 @@ export const DEEP_SPACE_ENTRIES: readonly DeepSpaceEntry[] = [
       { label: "Landed", value: "12 February 2001" },
       { label: "Status", value: "Resting on Eros" },
     ],
+    sourceIds: ["S-NASA-NEAR-SHOEMAKER"],
     images: [
       {
         src: "/images/deep-space/near-1.webp",
@@ -122,6 +125,7 @@ export const DEEP_SPACE_ENTRIES: readonly DeepSpaceEntry[] = [
       { label: "Saturn", value: "Pioneer 11, 1979" },
       { label: "Status", value: "Silent, heading outward" },
     ],
+    sourceIds: ["S-NASA-PIONEER"],
     images: [
       {
         src: "/images/deep-space/pioneer-1.webp",
@@ -159,6 +163,7 @@ export const DEEP_SPACE_ENTRIES: readonly DeepSpaceEntry[] = [
       { label: "Worlds found", value: "More than 2,600" },
       { label: "Status", value: "Retired in 2018" },
     ],
+    sourceIds: ["S-NASA-KEPLER"],
     images: [
       {
         src: "/images/deep-space/kepler-1.webp",
