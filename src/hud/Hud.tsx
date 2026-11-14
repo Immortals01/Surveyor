@@ -249,11 +249,11 @@ export default function Hud() {
                 }`}
               />
               <div>
-                <p className="font-mono text-[9.5px] tracking-[0.16em] text-regolith/65 uppercase">
-                  {isMars
-                    ? "MRO / MOLA ARCHIVE"
-                    : "LRO ARCHIVE"}
-                </p>
+                {isMars && (
+                  <p className="font-mono text-[9.5px] tracking-[0.16em] text-regolith/65 uppercase">
+                    MRO / MOLA ARCHIVE
+                  </p>
+                )}
                 <p className="font-display text-xs font-bold tracking-tight text-regolith-bright">
                   Surveyor
                 </p>
