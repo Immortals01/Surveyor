@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ExternalLink, X } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { cancelSpeech } from "@/audio/speech";
@@ -6,13 +6,9 @@ import { getSiteBody, SITE_BY_ID } from "@/data";
 import { getMachineForSite } from "@/data/machines";
 import MachineDossier from "@/hud/machines/MachineDossier";
 import { cameraBus } from "@/engine/camera";
-import {
-  getSiteImageUrl,
-  isSiteImageDecoded,
-  markSiteImageDecoded,
-  preloadBodySiteImages,
-} from "@/lib/siteImagePreloader";
+import { preloadBodySiteImages } from "@/lib/siteImagePreloader";
 import { useAppStore } from "@/store/useAppStore";
+import SiteGallery from "./SiteGallery";
 import SiteVideoEmbed from "./SiteVideoEmbed";
 import StatsGrid from "./StatsGrid";
 
@@ -29,12 +25,8 @@ export default function SiteDrawer() {
   }, [celestialBody]);
 
   const site = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
-  const imgUrl = site ? getSiteImageUrl(site) : "";
-  const [loadedUrl, setLoadedUrl] = useState<string>(imgUrl);
 
   if (!site) return null;
-
-  const isImgReady = loadedUrl === imgUrl || isSiteImageDecoded(imgUrl);
 
   const siteBody = getSiteBody(site.id);
   const isMars = siteBody === "mars";
@@ -129,28 +121,7 @@ export default function SiteDrawer() {
 
         {site.tier === "hero" ? (
           <>
-            {/* Archival Photographic Plate */}
-            <figure className="border border-white/15 bg-space-950 p-1.5">
-              <div className="relative aspect-[16/10] w-full overflow-hidden border border-white/10 bg-space-900">
-                <img
-                  key={site.id}
-                  src={imgUrl}
-                  alt={site.archivePlate.caption}
-                  decoding="async"
-                  fetchPriority="high"
-                  onLoad={() => {
-                    markSiteImageDecoded(imgUrl);
-                    setLoadedUrl(imgUrl);
-                  }}
-                  className={`h-full w-full object-cover transition-opacity duration-150 ${
-                    isImgReady ? "opacity-100" : "opacity-0"
-                  }`}
-                />
-                <span className="pointer-events-none absolute top-2 left-2 border border-sunlit/50 bg-space-950/90 px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.14em] text-sunlit uppercase backdrop-blur-md">
-                  {site.archivePlate.year}
-                </span>
-              </div>
-            </figure>
+            <SiteGallery key={site.id} site={site} />
 
             {/* Narrative Summary */}
             <div className="space-y-1.5">
@@ -176,27 +147,7 @@ export default function SiteDrawer() {
         ) : (
           /* Secondary Site Concise Archival Dossier */
           <>
-            <figure className="border border-white/15 bg-space-950 p-1.5">
-              <div className="relative aspect-[16/10] w-full overflow-hidden border border-white/10 bg-space-900">
-                <img
-                  key={site.id}
-                  src={imgUrl}
-                  alt={site.name}
-                  decoding="async"
-                  fetchPriority="high"
-                  onLoad={() => {
-                    markSiteImageDecoded(imgUrl);
-                    setLoadedUrl(imgUrl);
-                  }}
-                  className={`h-full w-full object-cover transition-opacity duration-150 ${
-                    isImgReady ? "opacity-100" : "opacity-0"
-                  }`}
-                />
-                <span className="pointer-events-none absolute top-2 left-2 border border-sunlit/50 bg-space-950/90 px-2 py-0.5 font-mono text-[9.5px] font-bold tracking-[0.14em] text-sunlit uppercase backdrop-blur-md">
-                  {site.year}
-                </span>
-              </div>
-            </figure>
+            <SiteGallery key={site.id} site={site} />
 
             <div className="space-y-1.5">
               <div className="font-mono text-[10px] font-bold tracking-[0.16em] text-regolith/55 uppercase">

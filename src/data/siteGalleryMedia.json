@@ -1,0 +1,256 @@
+{
+  "surveyor-1": [
+    {
+      "src": "/images/sites/gallery/surveyor-1-1.webp",
+      "caption": "Surveyor 1 Shadow",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA02976"
+    },
+    {
+      "src": "/images/sites/gallery/surveyor-1-2.webp",
+      "caption": "Surveyor 1 -- America First Soft Lunar Landing",
+      "credit": "NASA/GSFC/Arizona State University",
+      "nasaId": "PIA12910"
+    }
+  ],
+  "surveyor-3": [
+    {
+      "src": "/images/sites/gallery/surveyor-3-1.webp",
+      "caption": "View of two U.S. spacecraft on the surface of the moon",
+      "credit": "NASA/JSC",
+      "nasaId": "AS12-48-7133"
+    },
+    {
+      "src": "/images/sites/gallery/surveyor-3-2.webp",
+      "caption": "View of Surveyor III in its crater",
+      "credit": "NASA/JSC",
+      "nasaId": "as12-48-7121"
+    }
+  ],
+  "surveyor-5": [
+    {
+      "src": "/images/sites/gallery/surveyor-5-1.webp",
+      "caption": "Surveyor 5 Footpad Resting on the Lunar Soil",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA02978"
+    },
+    {
+      "src": "/images/sites/gallery/surveyor-5-2.webp",
+      "caption": "Surveyor 5: A Hole-in-One",
+      "credit": "NASA/GSFC/Arizona State University",
+      "nasaId": "PIA12977"
+    }
+  ],
+  "surveyor-6": [
+    {
+      "src": "/images/sites/gallery/surveyor-6-1.webp",
+      "caption": "Surveyor 6 on the Plains of Sinus Medii",
+      "credit": "NASA/GSFC/Arizona State University",
+      "nasaId": "PIA12978"
+    }
+  ],
+  "surveyor-7": [
+    {
+      "src": "/images/sites/gallery/surveyor-7-1.webp",
+      "caption": "Photomosaic of Tycho Crater - Surveyor 7",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA02977"
+    }
+  ],
+  "apollo-11": [
+    {
+      "src": "/images/sites/gallery/apollo-11-1.webp",
+      "caption": "View of footpad of Apollo 11 Lunar Module as it rested on lunar surface",
+      "credit": "NASA/JSC",
+      "nasaId": "as11-40-5917"
+    },
+    {
+      "src": "/images/sites/gallery/apollo-11-2.webp",
+      "caption": "Astronaut Edwin Aldrin prepares to deploy EASEP on surface of moon",
+      "credit": "NASA/JSC",
+      "nasaId": "as11-40-5931"
+    }
+  ],
+  "apollo-12": [
+    {
+      "src": "/images/sites/gallery/apollo-12-1.webp",
+      "caption": "Apollo 12 Mission image - Astronaut Alan L. Bean,lunar module pilot,and two U.S. spacecraft ",
+      "credit": "NASA/JSC",
+      "nasaId": "AS12-48-7134"
+    },
+    {
+      "src": "/images/sites/gallery/apollo-12-2.webp",
+      "caption": "Astronaut Alan Bean deploys ALSEP during first Apollo 12 EVA on moon",
+      "credit": "NASA/JSC",
+      "nasaId": "as12-47-6919"
+    }
+  ],
+  "apollo-14": [
+    {
+      "src": "/images/sites/gallery/apollo-14-1.webp",
+      "caption": "Astronaut Alan Shepard stands beside large boulder found by Apollo 14 crew",
+      "credit": "NASA/JSC",
+      "nasaId": "as14-68-9414"
+    },
+    {
+      "src": "/images/sites/gallery/apollo-14-2.webp",
+      "caption": "Apollo 14 Mission image - View of the ALSEP Station",
+      "credit": "NASA/JSC",
+      "nasaId": "as14-67-09361"
+    }
+  ],
+  "apollo-15": [
+    {
+      "src": "/images/sites/gallery/apollo-15-1.webp",
+      "caption": "Astronaut David Scott on slope of Hadley Delta during Apollo 15 EVA",
+      "credit": "NASA/JSC",
+      "nasaId": "as15-85-11437"
+    },
+    {
+      "src": "/images/sites/gallery/apollo-15-2.webp",
+      "caption": "View of Commemorative plaque left on moon at Hadley-Apennine landing site",
+      "credit": "NASA/JSC",
+      "nasaId": "as15-88-11894"
+    }
+  ],
+  "apollo-16": [
+    {
+      "src": "/images/sites/gallery/apollo-16-1.webp",
+      "caption": "Astronaut John Young at LRV prior to deployment of ALSEP during first EVA",
+      "credit": "NASA/JSC",
+      "nasaId": "as16-116-18578"
+    },
+    {
+      "src": "/images/sites/gallery/apollo-16-2.webp",
+      "caption": "Apollo 16 lunar module \"Orion\" photographed from distance during EVA",
+      "credit": "NASA/JSC",
+      "nasaId": "as16-115-18549"
+    }
+  ],
+  "apollo-17": [
+    {
+      "src": "/images/sites/gallery/apollo-17-1.webp",
+      "caption": "Apollo 17,Sta 5,Panoramic",
+      "credit": "NASA/JSC",
+      "nasaId": "as17-145-22162"
+    },
+    {
+      "src": "/images/sites/gallery/apollo-17-2.webp",
+      "caption": "Exploring the Apollo 17 Site",
+      "credit": "NASA/GSFC/Arizona State University",
+      "nasaId": "PIA12920"
+    }
+  ],
+  "viking-1": [
+    {
+      "src": "/images/sites/gallery/viking-1-1.webp",
+      "caption": "Mars Surface near Viking Lander 1 Footpad",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA10738"
+    },
+    {
+      "src": "/images/sites/gallery/viking-1-2.webp",
+      "caption": "First Color Image From Viking Lander 1",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA00563"
+    }
+  ],
+  "viking-2": [
+    {
+      "src": "/images/sites/gallery/viking-2-1.webp",
+      "caption": "Viking Lander 2 First Picture On The Surface Of Mars",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA00396"
+    },
+    {
+      "src": "/images/sites/gallery/viking-2-2.webp",
+      "caption": "Viking Lander 2 Anniversary",
+      "credit": "NASA/JPL/Arizona State University",
+      "nasaId": "PIA04023"
+    }
+  ],
+  "pathfinder": [
+    {
+      "src": "/images/sites/gallery/pathfinder-1.webp",
+      "caption": "Chimp as Viewed by Rover",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA01412"
+    },
+    {
+      "src": "/images/sites/gallery/pathfinder-2.webp",
+      "caption": "Airbag Retraction",
+      "credit": "NASA/JPL",
+      "nasaId": "PIA00618"
+    }
+  ],
+  "spirit": [
+    {
+      "src": "/images/sites/gallery/spirit-1.webp",
+      "caption": "On Its Own",
+      "credit": "NASA/JPL-Solar System Visualization Team",
+      "nasaId": "PIA05137"
+    },
+    {
+      "src": "/images/sites/gallery/spirit-2.webp",
+      "caption": "Spirit Stretches Out",
+      "credit": "NASA/JPL-Caltech",
+      "nasaId": "PIA05040"
+    }
+  ],
+  "opportunity": [
+    {
+      "src": "/images/sites/gallery/opportunity-1.webp",
+      "caption": "Mars Rover Opportunity at Rock Abrasion Target Potts",
+      "credit": "NASA/JPL-Caltech",
+      "nasaId": "PIA20285"
+    },
+    {
+      "src": "/images/sites/gallery/opportunity-2.webp",
+      "caption": "Opportunity's Surroundings on Sol 3105, Stereo View",
+      "credit": "NASA/JPL-Caltech",
+      "nasaId": "PIA16559"
+    }
+  ],
+  "phoenix": [
+    {
+      "src": "/images/sites/gallery/phoenix-1.webp",
+      "caption": "Phoenix Mars Lander Spacecraft Processing",
+      "credit": "NASA/KSC",
+      "nasaId": "KSC-07PD-1085"
+    },
+    {
+      "src": "/images/sites/gallery/phoenix-2.webp",
+      "caption": "Ice Around Phoenix Lander Continues to Lessen in Spring",
+      "credit": "NASA/JPL-Caltech/University of Arizona",
+      "nasaId": "PIA12853"
+    }
+  ],
+  "insight": [
+    {
+      "src": "/images/sites/gallery/insight-1.webp",
+      "caption": "Artist Concept of InSight Lander on Mars",
+      "credit": "NASA/JPL-Caltech",
+      "nasaId": "PIA19811"
+    },
+    {
+      "src": "/images/sites/gallery/insight-2.webp",
+      "caption": "SEIS Deployed on Mars",
+      "credit": "NASA/JPL-Caltech",
+      "nasaId": "PIA22956"
+    }
+  ],
+  "ingenuity": [
+    {
+      "src": "/images/sites/gallery/ingenuity-1.webp",
+      "caption": "Ingenuity Helicopter on Mars (Illustration)",
+      "credit": "NASA/JPL-Caltech",
+      "nasaId": "PIA24466"
+    },
+    {
+      "src": "/images/sites/gallery/ingenuity-2.webp",
+      "caption": "Perseverance's Selfie with Ingenuity",
+      "credit": "NASA/JPL-Caltech/MSSS",
+      "nasaId": "PIA24542"
+    }
+  ]
+}
