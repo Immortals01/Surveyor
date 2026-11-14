@@ -3,7 +3,14 @@ import { ArrowLeft, ArrowUpRight, Orbit, Satellite, X } from "lucide-react";
 import { audioEngine } from "@/audio/AudioEngine";
 import { DEEP_SPACE_ENTRIES, type DeepSpaceEntry } from "@/data/deepSpace";
 import { useAppStore } from "@/store/useAppStore";
-import DeepSpaceScene, { DEEP_SPACE_POSITIONS } from "./DeepSpaceScene";
+import DeepSpaceArt from "./DeepSpaceArt";
+
+const POSITIONS: Record<string, { x: number; y: number }> = {
+  dawn: { x: 22, y: 30 },
+  "near-shoemaker": { x: 64, y: 26 },
+  pioneer: { x: 34, y: 64 },
+  kepler: { x: 73, y: 61 },
+};
 
 const ACCENTS: Record<string, string> = {
   dawn: "#5ce1ff",
@@ -25,7 +32,7 @@ function ObjectNode({
   index: number;
 }) {
   const accent = ACCENTS[entry.id] ?? "#5ce1ff";
-  const spot = DEEP_SPACE_POSITIONS[entry.id] ?? { x: 50, y: 50 };
+  const spot = POSITIONS[entry.id] ?? { x: 50, y: 50 };
 
   return (
     <button
@@ -41,9 +48,12 @@ function ObjectNode({
       aria-label={`Open details for ${entry.name}`}
     >
       <span
-        className="absolute inset-1 -z-10 rounded-full blur-xl transition-opacity group-hover:opacity-100"
+        className="absolute inset-2 -z-10 rounded-full blur-xl transition-opacity group-hover:opacity-100"
         style={{ backgroundColor: `${accent}20`, opacity: active ? 1 : 0.35 }}
       />
+      <span className="pointer-events-none h-16 w-16 sm:h-20 sm:w-20">
+        <DeepSpaceArt id={entry.id} />
+      </span>
       <span className="absolute top-full left-1/2 mt-0.5 w-32 -translate-x-1/2 border border-white/10 bg-space-950/70 px-1.5 py-0.5 backdrop-blur-sm">
         <span className="block font-display text-[11px] leading-tight font-bold text-regolith-bright">
           {entry.name}
@@ -85,8 +95,6 @@ export default function DeepSpaceShelf() {
             "linear-gradient(180deg, rgba(5,7,13,0.55) 0%, rgba(5,7,13,0.18) 45%, rgba(5,7,13,0.85) 100%), url('/textures/sky/stars_4k.webp')",
         }}
       />
-
-      <DeepSpaceScene />
 
       <div className="relative z-10 flex h-full flex-col px-4 pt-24 pb-4 sm:px-6 sm:pt-24">
         <div className="flex items-start justify-between gap-4">
