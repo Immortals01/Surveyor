@@ -1,6 +1,9 @@
 import type { DialogueLine } from "@/data/schema";
 import { useAppStore } from "@/store/useAppStore";
-import { NARRATION_ASSET_VERSION } from "@/lib/constants";
+import {
+  NARRATION_ASSET_VERSION,
+  NARRATION_LEGACY_VERSIONS,
+} from "@/lib/constants";
 import { audioEngine } from "./AudioEngine";
 
 let activeCancel: (() => void) | null = null;
@@ -80,10 +83,19 @@ export async function speakLine(
     // Try the pre-generated clip first even when the cached manifest is stale
     // (for example after a deploy adds new host lines). A 404 falls through to
     // Web Speech, so this is safe for lines that have no recording yet.
-    const res = await playMp3(
-      `/audio/narration/${line.id}-${NARRATION_ASSET_VERSION}.mp3`,
-      signal,
-    );
+    // Re-recorded clips live under the newest asset version; everything else is
+    // still served from an older revision so a version bump never silences it.
+    let res: "played" | "cancelled" | "error" = "error";
+    for (const version of [
+      NARRATION_ASSET_VERSION,
+      ...NARRATION_LEGACY_VERSIONS,
+    ]) {
+      res = await playMp3(
+        `/audio/narration/${line.id}-${version}.mp3`,
+        signal,
+      );
+      if (res !== "error") break;
+    }
     if (res === "cancelled" || signal?.aborted) {
       cancelled = true;
       return false;

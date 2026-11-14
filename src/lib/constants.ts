@@ -86,4 +86,11 @@ export function getCategoryMeta(body: "moon" | "mars") {
 }
 
 /** Bump when regenerating narration MP3s so immutable CDN copies are bypassed. */
-export const NARRATION_ASSET_VERSION = "v7";
+export const NARRATION_ASSET_VERSION = "v8";
+
+/**
+ * Older narration revisions still worth requesting when a clip was not
+ * re-recorded in the latest bump. `speakLine` walks these in order and falls
+ * through to Web Speech only when every revision 404s.
+ */
+export const NARRATION_LEGACY_VERSIONS = ["v7"] as const;

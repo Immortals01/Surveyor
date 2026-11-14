@@ -36,8 +36,10 @@ const HIT_SPHERE_MAT = new MeshBasicMaterial({
   colorWrite: false,
   depthWrite: false,
 });
-const HERO_CORE_GEO = new CircleGeometry(0.42, 24);
-const SECONDARY_CORE_GEO = new CircleGeometry(0.42, 6);
+// Marker glyphs: diamond-shaped cores instead of soft dots so the beacons read
+// as instrument marks on the regolith rather than blobs of light.
+const HERO_CORE_GEO = new CircleGeometry(0.5, 4);
+const SECONDARY_CORE_GEO = new CircleGeometry(0.42, 4);
 const STEM_GEO = new CylinderGeometry(0.04, 0.04, 0.7, 8);
 const PULSE_RING_GEO = new RingGeometry(0.52, 0.66, 32);
 const RETICLE_GEO = new RingGeometry(0.82, 0.96, 24);
@@ -206,10 +208,10 @@ export default function Marker({ site, heightReady }: MarkerProps) {
         onClick={handleClick}
       />
 
-      {/* Surface disc core */}
+      {/* Surface diamond core */}
       <mesh
         geometry={isHero ? HERO_CORE_GEO : SECONDARY_CORE_GEO}
-        rotation={[-Math.PI / 2, 0, 0]}
+        rotation={[-Math.PI / 2, 0, Math.PI / 4]}
         raycast={NOOP_RAYCAST}
       >
         <meshBasicMaterial
