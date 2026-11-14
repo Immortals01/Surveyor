@@ -54,6 +54,7 @@ export default function Hud() {
   const setDeepSpaceOpen = useAppStore((s) => s.setDeepSpaceOpen);
   const deepSpaceOpen = useAppStore((s) => s.deepSpaceOpen);
   const openSources = useAppStore((s) => s.openSources);
+  const [tourScopeHovered, setTourScopeHovered] = useState(false);
 
   const isMars = celestialBody === "mars";
   const sites = getSitesForBody(celestialBody);
@@ -310,7 +311,13 @@ export default function Hud() {
 
           {mode === "explore" && (
             <>
-              <span className="group relative inline-flex">
+              <span
+                className={`relative inline-flex ${
+                  deepSpaceOpen ? "cursor-not-allowed" : ""
+                }`}
+                onMouseEnter={() => setTourScopeHovered(true)}
+                onMouseLeave={() => setTourScopeHovered(false)}
+              >
                 <button
                   type="button"
                   onClick={() => {
@@ -326,7 +333,7 @@ export default function Hud() {
                   }
                   className={`inline-flex items-center gap-1.5 border px-3.5 py-2 font-mono text-[11px] font-bold tracking-wider uppercase transition focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none ${
                     deepSpaceOpen
-                      ? "cursor-not-allowed border-white/10 bg-white/[0.04] text-regolith/40"
+                      ? "pointer-events-none border-white/10 bg-white/[0.04] text-regolith/40"
                       : "cursor-pointer border-regolith-bright bg-regolith-bright text-space-950 hover:bg-white"
                   }`}
                 >
@@ -337,7 +344,9 @@ export default function Hud() {
                   <span
                     id="guided-tour-scope"
                     role="tooltip"
-                    className="pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 border border-loro/40 bg-space-950/97 px-2.5 py-1.5 font-mono text-[9px] tracking-[0.12em] whitespace-nowrap text-regolith-bright uppercase opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md transition-opacity duration-150 group-hover:opacity-100 group-focus-within:opacity-100"
+                    className={`pointer-events-none absolute top-full left-1/2 z-50 mt-2 -translate-x-1/2 border border-loro/40 bg-space-950/97 px-2.5 py-1.5 font-mono text-[9px] tracking-[0.12em] whitespace-nowrap text-regolith-bright uppercase shadow-[0_10px_30px_rgba(0,0,0,0.8)] backdrop-blur-md transition-opacity duration-150 ${
+                      tourScopeHovered ? "opacity-100" : "opacity-0"
+                    }`}
                   >
                     Moon &amp; Mars only
                   </span>
