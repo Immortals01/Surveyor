@@ -37,18 +37,18 @@ function ObjectNode({
         animationDelay: `${index * 0.9}s`,
         borderColor: active ? accent : undefined,
       }}
-      className="animate-deep-float group absolute flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center rounded-full border border-transparent text-center transition hover:border-white/25 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none sm:h-36 sm:w-36"
+      className="animate-deep-float group absolute flex h-20 w-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center justify-center rounded-full border border-transparent text-center transition hover:border-white/25 focus-visible:ring-2 focus-visible:ring-loro focus-visible:outline-none sm:h-24 sm:w-24"
       aria-label={`Open details for ${entry.name}`}
     >
       <span
-        className="absolute inset-3 -z-10 rounded-full blur-2xl transition-opacity group-hover:opacity-100"
+        className="absolute inset-1 -z-10 rounded-full blur-xl transition-opacity group-hover:opacity-100"
         style={{ backgroundColor: `${accent}20`, opacity: active ? 1 : 0.35 }}
       />
-      <span className="absolute top-full left-1/2 mt-1 w-40 -translate-x-1/2 border border-white/10 bg-space-950/75 px-2 py-1 backdrop-blur-sm">
-        <span className="block font-display text-[12px] leading-tight font-bold text-regolith-bright">
+      <span className="absolute top-full left-1/2 mt-0.5 w-32 -translate-x-1/2 border border-white/10 bg-space-950/70 px-1.5 py-0.5 backdrop-blur-sm">
+        <span className="block font-display text-[11px] leading-tight font-bold text-regolith-bright">
           {entry.name}
         </span>
-        <span className="mt-0.5 block font-mono text-[7.5px] tracking-[0.1em] text-regolith/50 uppercase">
+        <span className="mt-0.5 block font-mono text-[7px] tracking-[0.08em] text-regolith/50 uppercase">
           {entry.location}
         </span>
       </span>

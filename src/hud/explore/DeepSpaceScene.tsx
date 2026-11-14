@@ -149,7 +149,7 @@ function Scene() {
       <directionalLight position={[3, 4, 5]} intensity={1.8} color="#fff5df" />
       <directionalLight position={[-4, -2, 2]} intensity={0.8} color="#6f9dff" />
       {Object.entries(DEEP_SPACE_POSITIONS).map(([id]) => (
-        <Anchored key={id} id={id} scale={id === "dawn" ? 54 : 58}>
+        <Anchored key={id} id={id} scale={id === "dawn" ? 27 : 29}>
           <Float speed={1.25} rotationIntensity={0.22} floatIntensity={0.35}>
             {id === "dawn" && (
               <Suspense fallback={null}>
