@@ -94,6 +94,10 @@ export default function LoadingScreen() {
       aria-label="Loading the lunar globe"
     >
       <div className="w-full max-w-md">
+        <div className="mb-2 flex items-baseline justify-between font-mono text-[10.5px] tracking-[0.16em] uppercase">
+          <span className="text-regolith/70">Loading the lunar archive</span>
+          <span className="font-bold text-regolith-bright">{pct}%</span>
+        </div>
         <div className="h-1 w-full overflow-hidden bg-white/10">
           <div
             className="h-full bg-sunlit transition-[width] duration-75 ease-linear"
