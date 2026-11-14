@@ -6,7 +6,7 @@ import { getSiteBody, SITE_BY_ID } from "@/data";
 import { getMachineForSite } from "@/data/machines";
 import MachineDossier from "@/hud/machines/MachineDossier";
 import { cameraBus } from "@/engine/camera";
-import { preloadBodySiteImages } from "@/lib/siteImagePreloader";
+import { preloadBodySiteImages, preloadSiteGallery } from "@/lib/siteImagePreloader";
 import { useAppStore } from "@/store/useAppStore";
 import SiteGallery from "./SiteGallery";
 import SiteVideoEmbed from "./SiteVideoEmbed";
@@ -25,6 +25,10 @@ export default function SiteDrawer() {
   }, [celestialBody]);
 
   const site = selectedSiteId ? SITE_BY_ID.get(selectedSiteId) : undefined;
+
+  useEffect(() => {
+    if (site) preloadSiteGallery(site);
+  }, [site]);
 
   if (!site) return null;
 
