@@ -37,7 +37,10 @@ function ObjectNode({
   return (
     <button
       type="button"
-      onClick={onSelect}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect();
+      }}
       style={{
         left: `${spot.x}%`,
         top: `${spot.y}%`,
@@ -89,11 +92,15 @@ export default function DeepSpaceShelf() {
       onClick={() => setSelected(null)}
     >
       <div
-        className="absolute inset-0 bg-cover bg-center opacity-80"
+        className="deep-space-stars absolute -inset-[10%] bg-cover bg-center opacity-80"
         style={{
           backgroundImage:
             "linear-gradient(180deg, rgba(5,7,13,0.55) 0%, rgba(5,7,13,0.18) 45%, rgba(5,7,13,0.85) 100%), url('/textures/sky/stars_4k.webp')",
         }}
+      />
+      <div
+        className="deep-space-stars-slow pointer-events-none absolute -inset-[16%] bg-cover bg-center opacity-25"
+        style={{ backgroundImage: "url('/textures/sky/milkyway_4k.webp')" }}
       />
 
       <div className="relative z-10 flex h-full flex-col px-4 pt-24 pb-4 sm:px-6 sm:pt-24">

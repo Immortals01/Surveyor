@@ -109,3 +109,32 @@
     animation: none;
   }
 }
+
+@keyframes deep-space-drift {
+  0% {
+    transform: translate3d(-1.8%, -1.2%, 0) scale(1.08);
+  }
+  50% {
+    transform: translate3d(1.8%, 1.2%, 0) scale(1.13);
+  }
+  100% {
+    transform: translate3d(-1.8%, -1.2%, 0) scale(1.08);
+  }
+}
+
+.deep-space-stars {
+  animation: deep-space-drift 140s ease-in-out infinite;
+  will-change: transform;
+}
+
+.deep-space-stars-slow {
+  animation: deep-space-drift 220s ease-in-out infinite reverse;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .deep-space-stars,
+  .deep-space-stars-slow {
+    animation: none;
+  }
+}
