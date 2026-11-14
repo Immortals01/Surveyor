@@ -36,7 +36,7 @@ export default function DeepSpaceStarfield() {
         x: Math.random() * width,
         y: Math.random() * height,
         radius: 0.55 + Math.random() * 1.45,
-        speed: 4 + Math.random() * 14,
+        speed: 6 + Math.random() * 18,
         alpha: 0.4 + Math.random() * 0.55,
         phase: Math.random() * Math.PI * 2,
         tint: tints[index % tints.length] ?? "255,255,255",
@@ -91,7 +91,7 @@ export default function DeepSpaceStarfield() {
           vy: 90 + Math.random() * 80,
           life: 1,
         };
-        nextMeteor = now + 9000 + Math.random() * 7000;
+        nextMeteor = now + 12000 + Math.random() * 9000;
       }
 
       if (meteor) {
